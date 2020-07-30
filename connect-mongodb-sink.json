@@ -1,0 +1,13 @@
+{
+    "name": "mongodb-sink",
+    "config": {
+        "connector.class":"com.mongodb.kafka.connect.MongoSinkConnector",
+        "tasks.max":"1",
+        "topics":"connect-topic",
+        "connection.uri":"mongodb://mongo:27017",
+        "database":"mongoDB",
+        "collection":"MyCollection",
+        "value.converter":"org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable":false
+    }
+}

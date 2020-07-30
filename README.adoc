@@ -1,0 +1,64 @@
+Showcase Emob
+-------------
+
+Requirements
+~~~~~~~~~~~~
+
+The following Kafka connectors are required:
+
+- MQTT connector: https://www.confluent.io/hub/confluentinc/kafka-connect-mqtt 
+- MongoDB connector: https://www.confluent.io/hub/mongodb/kafka-connect-mongodb
+
+Create the following subfolder _/connectors/jars_ and extract the downloaded connectors to it.
+
+
+Quickstart
+~~~~~~~~~~
+.Start the showcase
+----
+docker-compose up
+----
+
+.Configure the MQTT and MongoDB connectors
+
+----
+./connectors-config.sh
+----
+
+.Test the end-to-end connection of two connectors
+----
+./test-connect.sh
+----
+
+ * The end-to-end test publishes some sample messages to topic _test_ on HiveMQ broker. 
+ * These messages are imported to Kafka topic _connect-topic_ with _mqtt-source_ connector. This topic can be inspected from control center.
+ * The records in _connect-topic_ are exported to MongoDB with _mongodb-sink_ connector. The MongoDB can be inspected with MongoDB client on _localhost:3000_. On MongoDB client, connect to MongoDB using the _Default (preconfigured)_ connection.
+
+.Stop the showcase 
+----
+docker-compose down
+----
+
+
+
+Network and Credentials
+~~~~~~~~~~~~~~~~~~~~~~~
+
+[options="header"]
+.Credentials
+|===
+| Service | Username | Password
+| hivemq  | admin    | hivemq
+|===
+
+
+[cols="h,1"]
+.Access to services from host
+|===
+| Kafka Bootstrap Server|  localhost:9092
+| Schema Registry Url | localhost:8081
+| Confluent Control Center | localhost:9021 
+| Kafka Connect | localhost:8083
+| HiveMQ Broker | localhost:8080
+| MongoDB client| localhost:3000
+|===
