@@ -11,6 +11,18 @@ The following Kafka connectors are required:
 
 Create the following subfolder _/connectors/jars_ and extract the downloaded connectors to it.
 
+clone the git-repository
+----
+cd ./showcase
+rm docker-compose.yml
+git clone https://github.com/NovatecConsulting/technologyconsulting-showcase-emob.git
+----
+
+Create the showcase network
+----
+docker network create showcase_emob
+----
+
 
 Quickstart
 ~~~~~~~~~~
