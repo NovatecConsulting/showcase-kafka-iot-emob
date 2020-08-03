@@ -14,6 +14,7 @@ Create the following subfolder _/connectors/jars_ and extract the downloaded con
 clone the git-repository
 ----
 cd ./showcase
+docker-compose down
 rm docker-compose.yml
 git clone https://github.com/NovatecConsulting/technologyconsulting-showcase-emob.git
 ----
