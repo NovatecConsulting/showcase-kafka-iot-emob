@@ -14,19 +14,22 @@ Create the following subfolder _/connectors/jars_ and extract the downloaded con
 
 Quickstart
 ~~~~~~~~~~
-.Start the showcase
+.Change in the showcase directory and start the showcase
 ----
+cd ./showcase/technologyconsulting-showcase-emob
 docker-compose up
 ----
 
-.Configure the MQTT and MongoDB connectors
+.Configure the MQTT and MongoDB connectors. Verify that the following shell-scripts are executable by chmod 777
 
 ----
+chmod 777 connectors-config.sh
 ./connectors-config.sh
 ----
 
-.Test the end-to-end connection of two connectors
+.Test the end-to-end connection of two connectors (chmod 777 if necessary)
 ----
+chmod 777 test-connect.sh
 ./test-connect.sh
 ----
 
