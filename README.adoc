@@ -9,8 +9,6 @@ The following Kafka connectors are required:
 - MQTT connector: https://www.confluent.io/hub/confluentinc/kafka-connect-mqtt 
 - MongoDB connector: https://www.confluent.io/hub/mongodb/kafka-connect-mongodb
 
-Create the following subfolder _/connectors/jars_ and extract the downloaded connectors to it.
-
 clone the git-repository
 ----
 cd ./showcase
@@ -28,13 +26,17 @@ docker network create showcase_emob
 
 Quickstart
 ~~~~~~~~~~
-.Change in the showcase directory and start the showcase
+.Change in the showcase directory, create the following subfolder _/connectors/jars_ and extract the downloaded connectors to it.
 ----
 cd ./technologyconsulting-showcase-emob
+----
+
+.Start the showcase from the base directory of the showcase (technologyconsulting-showcase-emob)
+----
 docker-compose up
 ----
 
-. Wait until all components and modules (especially) _connect_ are up. Verify with 
+.Wait until all components and modules (especially) _connect_ are up. Verify with 
 ----
 docker-compose ps
 ----
