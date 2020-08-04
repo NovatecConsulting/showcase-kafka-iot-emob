@@ -1,0 +1,6 @@
+@startuml
+node a
+node b
+node c
+node d
+@enduml
