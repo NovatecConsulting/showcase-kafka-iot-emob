@@ -6,7 +6,7 @@
         "mqtt.server.uri": "tcp://hivemq:1883",
         "mqtt.topics": "test",
         "kafka.topic": "connect-topic",
-        "confluent.topic.bootstrap.servers": "broker:29092",
+        "confluent.topic.bootstrap.servers": "kafka:9092",
         "confluent.topic.replication.factor": 1,
         "value.converter": "org.apache.kafka.connect.converters.ByteArrayConverter"
     }
