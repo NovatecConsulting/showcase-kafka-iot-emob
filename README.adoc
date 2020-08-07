@@ -33,7 +33,9 @@ cd ./technologyconsulting-showcase-emob
 
 .Start the showcase from the base directory of the showcase (technologyconsulting-showcase-emob)
 ----
-docker-compose up
+docker-compose up -d
+or if you want to see the output on the console
+docker-compose up 
 ----
 
 .Wait until all components and modules (especially) _connect_ are up. Verify with 
@@ -55,7 +57,7 @@ chmod 777 test-connect.sh
 ----
 
  * The end-to-end test publishes some sample messages to topic _test_ on HiveMQ broker. 
- * These messages are imported to Kafka topic _connect-topic_ with _mqtt-source_ connector. This topic can be inspected from control center.
+ * These messages are imported to Kafka topic _connect-topic_ with _mqtt-source_ connector. This topic can be inspected from control center http://localhost:9021/.
  * The records in _connect-topic_ are exported to MongoDB with _mongodb-sink_ connector. The MongoDB can be inspected with MongoDB client on _localhost:3000_. On MongoDB client, connect to MongoDB using the _Default (preconfigured)_ connection.
 
 .Stop the showcase 
