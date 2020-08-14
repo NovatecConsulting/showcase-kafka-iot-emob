@@ -65,7 +65,12 @@ chmod 777 test-connect.sh
 docker-compose down
 ----
 
+Overview of Components
+~~~~~~~~~~~~~~~~~~~~~~
 
+The showcase is using the following Kafka components as described in the picture below:
+
+image::Kafka_cluster_diagram_v3.svg[]
 
 Network and Credentials
 ~~~~~~~~~~~~~~~~~~~~~~~
