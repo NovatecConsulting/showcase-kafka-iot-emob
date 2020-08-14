@@ -3,11 +3,11 @@
     "config": {
         "connector.class":"com.mongodb.kafka.connect.MongoSinkConnector",
         "tasks.max":"1",
-        "topics":"connect-topic",
+        "topics":"CIQ000000017_out_charge",
         "connection.uri":"mongodb://mongo:27017",
         "database":"mongoDB",
-        "collection":"MyCollection",
-        "value.converter":"org.apache.kafka.connect.json.JsonConverter",
-        "value.converter.schemas.enable":false
+        "collection":"ChargingStations",
+        "value.converter": "io.confluent.connect.avro.AvroConverter",
+        "value.converter.schema.registry.url": "http://schema-registry:8081"
     }
 }

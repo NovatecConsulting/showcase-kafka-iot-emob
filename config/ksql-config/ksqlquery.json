@@ -1,0 +1,7 @@
+{
+    "ksql": "CREATE STREAM \"CIQ000000017_out_charge_raw_stream\" (charge VARCHAR) WITH (KAFKA_TOPIC='CIQ000000017_out_charge_raw', VALUE_FORMAT='DELIMITED');CREATE STREAM \"CIQ000000017_out_charge\" WITH (VALUE_FORMAT='AVRO') AS SELECT CHARGE AS CHARGE, SUBSTRING(ROWKEY,1,LEN(ROWKEY)-11) AS CLIENT_ID, ROWTIME AS TIMESTAMP FROM \"CIQ000000017_out_charge_raw_stream\";",
+    "streamsProperties": {
+          "ksql.streams.auto.offset.reset": "earliest"
+    }
+}
+  

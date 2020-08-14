@@ -43,22 +43,22 @@ docker-compose up
 docker-compose ps
 ----
 
-.Configure the MQTT and MongoDB connectors. Verify that the following shell-scripts are executable by chmod 777
+.Configure the MQTT and MongoDB connectors and KSQL query. Verify that the following shell-scripts: setup.sh, setup-connectors.sh, setup-ksqlquery.sh are executable by chmod 777
+----
+chmod 777 setup.sh
+./setup.sh
+----
 
-----
-chmod 777 connectors-config.sh
-./connectors-config.sh
-----
-./connec  
 .Test the end-to-end connection of two connectors (chmod 777 if necessary)
 ----
 chmod 777 test-connect.sh
 ./test-connect.sh
 ----
 
- * The end-to-end test publishes some sample messages to topic _test_ on HiveMQ broker. 
- * These messages are imported to Kafka topic _connect-topic_ with _mqtt-source_ connector. This topic can be inspected from control center http://localhost:9021/.
- * The records in _connect-topic_ are exported to MongoDB with _mongodb-sink_ connector. The MongoDB can be inspected with MongoDB client on _localhost:3000_. On MongoDB client, connect to MongoDB using the _Default (preconfigured)_ connection.
+* The end-to-end test publishes some a sample message to topic _CIQ000000017/out/charge_ on HiveMQ broker. 
+ * These messages are imported to Kafka topic _CIQ000000017_out_charge_raw_ with _mqtt-source_ connector. This topic can be inspected from control center http://localhost:9021/.
+ * The stream processor defined by the KSQL query reads imported record in _CIQ000000017_out_charge_raw_, applies avro schema to it and rewrites this new record to topic _CIQ000000017_out_charge_. 
+ * The records in _CIQ000000017_out_charge_ are exported to MongoDB with _mongodb-sink_ connector. The MongoDB can be inspected with MongoDB client on _localhost:3000_. On MongoDB client, connect to MongoDB using the _Default (preconfigured)_ connection. The exported record is in collection _ChargingStations_.
 
 .Stop the showcase 
 ----
@@ -90,6 +90,7 @@ Network and Credentials
 | Schema Registry Url | localhost:8081
 | Confluent Control Center | localhost:9021 
 | Kafka Connect | localhost:8083
+| KSQL server   | localhost:8088
 | HiveMQ Broker | localhost:8080
 | MongoDB client| localhost:3000
 |===
