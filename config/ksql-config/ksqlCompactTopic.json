@@ -1,0 +1,6 @@
+{
+    "ksql": "CREATE TABLE \"CIQ000000017_out_charge_compacted_table\" (charge VARCHAR) WITH (KAFKA_TOPIC='CIQ000000017_out_charge', VALUE_FORMAT='AVRO');CREATE TABLE \"CIQ000000017_out_charge_compacted\" WITH (VALUE_FORMAT='AVRO') AS SELECT CHARGE AS CHARGE FROM \"CIQ000000017_out_charge_compacted_table\";",
+    "tablesProperties": {
+        "ksql.tables.auto.offset.reset": "earliest"
+  }
+}
