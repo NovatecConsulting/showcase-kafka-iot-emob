@@ -1,6 +1,7 @@
 {
-    "ksql": "CREATE TABLE \"CIQ000000017_out_charge_compacted_table\" (charge VARCHAR) WITH (KAFKA_TOPIC='CIQ000000017_out_charge', VALUE_FORMAT='AVRO');CREATE TABLE \"CIQ000000017_out_charge_compacted\" WITH (VALUE_FORMAT='AVRO') AS SELECT CHARGE AS CHARGE FROM \"CIQ000000017_out_charge_compacted_table\";",
-    "tablesProperties": {
-        "ksql.tables.auto.offset.reset": "earliest"
-  }
+    "ksql": "CREATE TABLE \"CIQ000000017_out_charge_compacted\" AS SELECT CLIENT_ID, LATEST_BY_OFFSET(CHARGE) AS CHARGE FROM \"CIQ000000017_out_charge\" GROUP BY CLIENT_ID EMIT CHANGES;",
+    "streamsProperties": {
+          "ksql.streams.auto.offset.reset": "earliest"
+    }
 }
+  
