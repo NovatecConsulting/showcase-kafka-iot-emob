@@ -226,7 +226,7 @@ services:
       PORT: 9021
 
   ksqldb-server:
-    image: confluentinc/cp-ksqldb-server:${VERSION_CONFLUENT}
+    image: confluentinc/ksqldb-server:0.11.0
     hostname: ksqldb-server
     container_name: ksqldb-server
     restart: unless-stopped
@@ -244,12 +244,12 @@ services:
       KSQL_LISTENERS: "http://0.0.0.0:8088"
       KSQL_CACHE_MAX_BYTES_BUFFERING: 0
       KSQL_KSQL_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
-      KSQL_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
-      KSQL_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
+      #KSQL_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
+      #KSQL_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
       KSQL_KSQL_CONNECT_URL: "http://connect:8083"
 
   ksqldb-cli:
-    image: confluentinc/cp-ksqldb-cli:${VERSION_CONFLUENT}
+    image: confluentinc/ksqldb-cli:0.11.0
     container_name: ksqldb-cli
     depends_on:
       - kafka1
