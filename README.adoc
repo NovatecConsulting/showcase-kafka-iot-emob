@@ -69,6 +69,11 @@ chmod +x test-connect.sh
 docker-compose down
 ----
 
+.To start and setup the environment in one step run:
+----
+./startup-and-setup.sh
+----
+.Note that it could take a while until the connect service is healthy (~about 5-10 minutes)
 
 
 Overview of Components
