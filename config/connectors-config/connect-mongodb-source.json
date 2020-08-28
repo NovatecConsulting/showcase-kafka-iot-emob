@@ -1,0 +1,23 @@
+{
+    "name": "mongodb-source",
+    "config": {
+        "connector.class":"io.debezium.connector.mongodb.MongoDbConnector",
+        "tasks.max":"1",
+        "mongodb.hosts":"rs0/mongo:27017",
+        "mongodb.name": "wallbox_location",
+        "collection.whitelist":"mongoDB.StationLocations",
+        "value.converter": "io.confluent.connect.avro.AvroConverter",
+        "value.converter.schema.registry.url": "http://schema-registry:8081",
+        "transforms": "extractMongoDocument,CopyClientIDToKey,dropKeyStruct,dropDuplicatedClientID, targetKafkaTopic",
+        "transforms.extractMongoDocument.type": "io.debezium.connector.mongodb.transforms.ExtractNewDocumentState",
+        "transforms.CopyClientIDToKey.type":"org.apache.kafka.connect.transforms.ValueToKey",
+        "transforms.CopyClientIDToKey.fields":"CLIENT_ID",
+        "transforms.dropKeyStruct.type":"org.apache.kafka.connect.transforms.ExtractField$Key",
+        "transforms.dropKeyStruct.field":"CLIENT_ID",
+        "transforms.dropDuplicatedClientID.type": "org.apache.kafka.connect.transforms.ReplaceField$Value",
+        "transforms.dropDuplicatedClientID.blacklist": "CLIENT_ID",
+        "transforms.targetKafkaTopic.type":"org.apache.kafka.connect.transforms.RegexRouter",
+        "transforms.targetKafkaTopic.regex":"(.*)",
+        "transforms.targetKafkaTopic.replacement":"wallbox_location"
+    }
+}

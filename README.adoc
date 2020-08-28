@@ -8,6 +8,7 @@ The following Kafka connectors are required:
 
 - MQTT connector: https://www.confluent.io/hub/confluentinc/kafka-connect-mqtt 
 - MongoDB connector: https://www.confluent.io/hub/mongodb/kafka-connect-mongodb
+- Debezium MongoDB CDC Connector: https://www.confluent.io/hub/debezium/debezium-connector-mongodb
 
 clone the git-repository
 ----
@@ -43,22 +44,25 @@ docker-compose up
 docker-compose ps
 ----
 
-.Configure the MQTT and MongoDB connectors and KSQL query. Verify that the following shell-scripts: setup.sh, setup-connectors.sh, setup-ksqlquery.sh are executable by chmod +x
+.Configure the MQTT and MongoDB connectors and KSQL query. Verify that the following shell-scripts: setup.sh, setup-createtopics.sh, setup-connectors.sh, setup-ksqlquery.sh are executable by chmod +x
 ----
 chmod +x setup.sh
 ./setup.sh
 ----
 
-.Test the end-to-end connection of two connectors (chmod +x if necessary)
+.Publish test data to HiveMQ (chmod +x if necessary)
 ----
 chmod +x test-connect.sh
 ./test-connect.sh
 ----
 
-* The end-to-end test publishes some a sample message to topic _CIQ000000017/out/charge_ on HiveMQ broker. 
- * These messages are imported to Kafka topic _wallbox_source_ with _mqtt-source_ connector. This topic can be inspected from control center http://localhost:9021/.
- * The stream processor defined by the KSQL query reads imported record in _wallbox_source_, applies avro schema to it and rewrites this new record to topic _wallbox_charge_. 
- * The records in _wallbox_charge_ are exported to MongoDB with _mongodb-sink_ connector. The MongoDB can be inspected with MongoDB client on _localhost:3000_. On MongoDB client, connect to MongoDB using the _Default (preconfigured)_ connection. The exported record is in collection _ChargingStations_.
+* The test publishes some sample messages to topic _CIQ000000017/out/charge_ on HiveMQ broker. 
+* These messages are imported to Kafka topic _wallbox_source_ with _mqtt-source_ connector. This topic can be inspected from control center http://localhost:9021/.
+* The stream processor defined by the KSQL query reads imported record in _wallbox_source_, applies avro schema to it and rewrites this new record to topic _wallbox_charge_. 
+* The records in _wallbox_charge_ are exported to MongoDB with _mongodb-sink_ connector. The MongoDB can be inspected with MongoDB client on _localhost:3000_. On MongoDB client, connect to MongoDB using the _Default (preconfigured)_ connection. The exported record is in collection _ChargingStations_.
+* Records in _wallbox_charge_ are copied to the compacted topic _wallbox_chargestatus_ to retain only the latest status for each station. 
+* Locations of stations in mongoDB (which are inserted to mongoDB when starting up the showcase) are imported into Kafka topic _wallbox_location_ with _mongodb-source_ connector. 
+* _wallbox_location_ and _wallbox_chargestatus_ are joined with KSQL to create enriched records of _wallbox_location_chargestatus_.
 
 .Stop the showcase 
 ----

@@ -5,6 +5,7 @@ services:
     image: confluentinc/cp-zookeeper:${VERSION_CONFLUENT}
     hostname: zookeeper1
     container_name: zookeeper1
+    restart: unless-stopped
     ports:
       - "12181:2181"
     networks:
@@ -22,6 +23,7 @@ services:
     image: confluentinc/cp-zookeeper:${VERSION_CONFLUENT}
     hostname: zookeeper2
     container_name: zookeeper2
+    restart: unless-stopped
     ports:
       - "22181:2181"
     networks:
@@ -39,6 +41,7 @@ services:
     image: confluentinc/cp-zookeeper:${VERSION_CONFLUENT}
     hostname: zookeeper3
     container_name: zookeeper3
+    restart: unless-stopped
     ports:
       - "32181:2181"
     networks:
@@ -57,6 +60,7 @@ services:
     image: confluentinc/cp-server:${VERSION_CONFLUENT}
     hostname: kafka1
     container_name: kafka1
+    restart: unless-stopped
     depends_on:
       - zookeeper1
       - zookeeper2
@@ -86,6 +90,7 @@ services:
     image: confluentinc/cp-server:${VERSION_CONFLUENT}
     hostname: kafka2
     container_name: kafka2
+    restart: unless-stopped
     depends_on:
       - zookeeper1
       - zookeeper2
@@ -115,6 +120,7 @@ services:
     image: confluentinc/cp-server:${VERSION_CONFLUENT}
     hostname: kafka3
     container_name: kafka3
+    restart: unless-stopped
     depends_on:
       - zookeeper1
       - zookeeper2
@@ -293,14 +299,27 @@ services:
     image: mongo:4.0.5
     hostname: mongo
     container_name: mongo
-    command: --bind_ip_all --smallfiles
+    command: --bind_ip_all --smallfiles --replSet rs0
+  
+  mongosetup:
+    image: mongo:4.0.5
+    hostname: mongosetup
+    container_name: mongosetup
+    depends_on:
+      - mongo
+    volumes:
+      - ./config/mongodb-config:/scripts
+    entrypoint: ["bash","/scripts/mongo_setup.sh"]
+
 
   mongoclient:
     image: mongoclient/mongoclient:latest
     container_name: mongoclient
     hostname: mongoclient
+    restart: unless-stopped
     depends_on:
       - mongo
+      - mongosetup
     ports:
       - "3000:3000"
     environment:

@@ -1,0 +1,7 @@
+{
+    "ksql": "CREATE TABLE \"wallbox_location\" (CLIENT_ID VARCHAR PRIMARY KEY) WITH (KAFKA_TOPIC='wallbox_location',VALUE_FORMAT='AVRO'); CREATE TABLE \"wallbox_location_chargestatus\" AS SELECT status.CLIENT_ID as CLIENT_ID, status.CHARGE as CHARGE_STATUS, location.x as LATITUDE, location.y as LONGITUDE FROM \"wallbox_chargestatus\" status INNER JOIN \"wallbox_location\" location ON status.CLIENT_ID = location.CLIENT_ID;",
+    "streamsProperties": {
+          "ksql.streams.auto.offset.reset": "earliest"
+    }
+}
+  
