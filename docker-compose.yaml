@@ -1,6 +1,24 @@
 ---
 version: '2'
 services:
+  postgres:
+    image: postgres:latest
+    hostname: postgres_db
+    container_name: postgres_db
+    ports:
+      - "5432:5432"
+    environment: 
+      POSTGRES_PASSWORD: test  
+  
+  grafana:
+    image: grafana/grafana
+    hostname: grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_INSTALL_PLUGINS: grafana-worldmap-panel
+         
   zookeeper1:
     image: confluentinc/cp-zookeeper:${VERSION_CONFLUENT}
     hostname: zookeeper1
@@ -321,10 +339,11 @@ services:
       - mongo
       - mongosetup
     ports:
-      - "3000:3000"
+      - "3456:3456"
     environment:
       MONGO_URL: "mongodb://mongo:27017/mongoDB"
       MONGOCLIENT_DEFAULT_CONNECTION_URL: "mongodb://mongo:27017/mongoDB"
+     
 networks:
   default:
     external:
