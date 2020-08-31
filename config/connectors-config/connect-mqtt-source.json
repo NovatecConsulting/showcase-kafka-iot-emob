@@ -4,7 +4,7 @@
         "connector.class": "io.confluent.connect.mqtt.MqttSourceConnector",
         "tasks.max": 1,
         "mqtt.server.uri": "tcp://hivemq:1883",
-        "mqtt.topics": "CIQ000000017/out/charge",
+        "mqtt.topics": "#",
         "kafka.topic": "wallbox_source",
         "confluent.topic.bootstrap.servers": "kafka:9092",
         "confluent.topic.replication.factor": 1,
