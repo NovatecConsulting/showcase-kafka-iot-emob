@@ -23,6 +23,7 @@ services:
       - "3000:3000"
     volumes:
       - "./provisioning/datasources:/etc/grafana/provisioning/datasources"
+      #- "./provisioning/dashboards:/etc/grafana/provisioning/dashboards" uncomment this line when the dashboard is configured in dashboards.json
     environment:
       GF_INSTALL_PLUGINS: grafana-worldmap-panel
          

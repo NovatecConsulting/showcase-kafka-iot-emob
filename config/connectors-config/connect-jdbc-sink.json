@@ -10,7 +10,9 @@
       "auto.create": "true",
       "value.converter": "io.confluent.connect.avro.AvroConverter",
       "value.converter.schema.registry.url": "http://schema-registry:8081",
-
+      "pk.mode": "record_value",
+      "pk.fields": "CLIENT_ID",
+      "insert.mode": "upsert"
   }
 }
 
