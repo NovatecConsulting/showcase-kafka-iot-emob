@@ -28,7 +28,7 @@ mongo --host mongodb://mongo:27017/?replicaSet=rs0 <<EOF
   db.createCollection("StationLocations");
   db.StationLocations.insertMany([
     {CLIENT_ID:"CIQ000000017",x:25.1,y:25.2},
-    {CLIENT_ID:"CIQ000000018",x:35.1,y:35.2},
-    {CLIENT_ID:"CIQ000000019",x:45.1,y:45.2}
+    {CLIENT_ID:"CIQ000000001",x:35.1,y:35.2},
+    {CLIENT_ID:"CIQ000000012",x:45.1,y:45.2}
   ])
 EOF
