@@ -1,21 +1,28 @@
 ---
 version: '2'
 services:
-  postgres:
+  postgres_db:
     image: postgres:latest
     hostname: postgres_db
     container_name: postgres_db
     ports:
       - "5432:5432"
-    environment: 
-      POSTGRES_PASSWORD: test  
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: chargeiq
   
   grafana:
     image: grafana/grafana
     hostname: grafana
+    build: .
     container_name: grafana
+    depends_on:
+      - postgres_db
     ports:
       - "3000:3000"
+    volumes:
+      - "./provisioning/datasources:/etc/grafana/provisioning/datasources"
     environment:
       GF_INSTALL_PLUGINS: grafana-worldmap-panel
          

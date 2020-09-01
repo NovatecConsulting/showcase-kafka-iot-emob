@@ -20,3 +20,4 @@ docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-c
 docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000001/out/blink" -m "blue"
 docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000001/in/charge" -m "action: status"
 docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000001/in/charge" -m "action: charge; params: [20000]"
+
