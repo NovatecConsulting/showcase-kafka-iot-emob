@@ -1,7 +1,0 @@
-{
-    "ksql": "CREATE STREAM \"wallbox_source_stream\" (MQTT_TOPIC VARCHAR KEY, charge VARCHAR) WITH (KAFKA_TOPIC='wallbox_source', VALUE_FORMAT='DELIMITED'); CREATE STREAM \"wallbox_charge\" WITH (VALUE_FORMAT='AVRO') AS SELECT CHARGE AS CHARGE, REGEXP_EXTRACT('(.*)/(.*)/(.*)', MQTT_TOPIC, 1) AS CLIENT_ID_KEY, AS_VALUE(REGEXP_EXTRACT('(.*)/(.*)/(.*)', MQTT_TOPIC, 1)) AS CLIENT_ID, ROWTIME AS TIMESTAMP FROM \"wallbox_source_stream\" PARTITION BY REGEXP_EXTRACT('(.*)/(.*)/(.*)', MQTT_TOPIC, 1);",
-    "streamsProperties": {
-          "ksql.streams.auto.offset.reset": "earliest"
-    }
-}
-  

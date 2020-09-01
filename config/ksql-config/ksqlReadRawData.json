@@ -1,0 +1,7 @@
+{
+    "ksql": "CREATE STREAM \"wallbox_source_stream\" (MQTT_TOPIC VARCHAR KEY, PAYLOAD VARCHAR) WITH (KAFKA_TOPIC='wallbox_source', VALUE_FORMAT='DELIMITED');",
+    "streamsProperties": {
+          "ksql.streams.auto.offset.reset": "earliest"
+    }
+}
+  

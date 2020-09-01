@@ -13,6 +13,7 @@ create_compacted_topic(){
 #Create necessary topics
 create_topic "wallbox_source"
 create_topic "wallbox_charge"
+create_topic "wallbox_blink"
 create_compacted_topic "wallbox_chargestatus"
 create_compacted_topic "wallbox_location"
 create_compacted_topic "wallbox_location_chargestatus"

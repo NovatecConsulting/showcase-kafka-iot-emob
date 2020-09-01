@@ -1,0 +1,7 @@
+{
+    "ksql": "CREATE STREAM \"wallbox_blink\" WITH (VALUE_FORMAT='AVRO') AS SELECT PAYLOAD AS BLINK, REGEXP_EXTRACT('(.*)/(.*)/(.*)', MQTT_TOPIC, 1) AS CLIENT_ID_KEY, AS_VALUE(REGEXP_EXTRACT('(.*)/(.*)/(.*)', MQTT_TOPIC, 1)) AS CLIENT_ID, ROWTIME AS TIMESTAMP FROM \"wallbox_source_stream\" WHERE REGEXP_EXTRACT('(.*)/(.*)/(.*)', MQTT_TOPIC, 3)='blink' AND REGEXP_EXTRACT('(.*)/(.*)/(.*)', MQTT_TOPIC, 2)='out' PARTITION BY REGEXP_EXTRACT('(.*)/(.*)/(.*)', MQTT_TOPIC, 1);",
+    "streamsProperties": {
+          "ksql.streams.auto.offset.reset": "earliest"
+    }
+}
+  
