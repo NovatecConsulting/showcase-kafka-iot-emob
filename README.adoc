@@ -32,7 +32,13 @@ Quickstart
 cd ./technologyconsulting-showcase-emob
 ----
 
-.Start the showcase from the base directory of the showcase (technologyconsulting-showcase-emob)
+.To start and setup the environment in one step run:
+----
+./startup-and-setup.sh
+----
+.Note that it could take a while until the connect service is healthy (~about 5-10 minutes)
+
+.To start the showcase from the base directory of the showcase (technologyconsulting-showcase-emob) and do the configuration in separate single tasks perform the following
 ----
 docker-compose up -d
 or if you want to see the output on the console
@@ -56,25 +62,32 @@ chmod +x test-connect.sh
 ./test-connect.sh
 ----
 
-* The test publishes some sample messages to topic _CIQ000000017/out/charge_ on HiveMQ broker. 
+* The test publishes some sample messages to different topics e.g. _CIQ000000017/out/charge_ _CIQ000000012/out/blink_ on HiveMQ broker. 
 * These messages are imported to Kafka topic _wallbox_source_ with _mqtt-source_ connector. This topic can be inspected from control center http://localhost:9021/.
-* The stream processor defined by the KSQL query reads imported record in _wallbox_source_, applies avro schema to it and rewrites this new record to topic _wallbox_charge_. 
+* The stream processor defined by the KSQL query reads imported record in _wallbox_source_, applies avro schema to it and rewrites this new record from _+/out/charge_ to topic _wallbox_charge_. 
 * The records in _wallbox_charge_ are exported to MongoDB with _mongodb-sink_ connector. The MongoDB can be inspected with MongoDB client on _localhost:3000_. On MongoDB client, connect to MongoDB using the _Default (preconfigured)_ connection. The exported record is in collection _ChargingStations_.
 * Records in _wallbox_charge_ are copied to the compacted topic _wallbox_chargestatus_ to retain only the latest status for each station. 
 * Locations of stations in mongoDB (which are inserted to mongoDB when starting up the showcase) are imported into Kafka topic _wallbox_location_ with _mongodb-source_ connector. 
 * _wallbox_location_ and _wallbox_chargestatus_ are joined with KSQL to create enriched records of _wallbox_location_chargestatus_.
 
+.To test the setup-procedure you can invoke a kafka-console-consumer
+----
+kafka-console-consumer --bootstrap-server localhost:19092 --topic wallbox_source --from-beginning
+----
+
+.To test the avro schema topics you can use the kafka-avro-console-consumer
+------
+kafka-avro-console-consumer --bootstrap-server localhost:19092 \
+    --property schema.registry.url=http://schema-registry:8081 \
+    --topic wallbox_location_chargestatus --property print.key=true \
+    --key-deserializer=org.apache.kafka.common.serialization.StringDeserializer \
+    --from-beginning
+----  
+
 .Stop the showcase 
 ----
 docker-compose down
 ----
-
-.To start and setup the environment in one step run:
-----
-./startup-and-setup.sh
-----
-.Note that it could take a while until the connect service is healthy (~about 5-10 minutes)
-
 
 Overview of Components
 ~~~~~~~~~~~~~~~~~~~~~~
