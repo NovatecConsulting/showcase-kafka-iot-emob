@@ -1,5 +1,5 @@
 {
-    "ksql": "CREATE TABLE \"wallbox_chargestatus\" AS SELECT CLIENT_ID_KEY, LATEST_BY_OFFSET(CLIENT_ID) AS CLIENT_ID, LATEST_BY_OFFSET(CHARGE) AS CHARGE FROM \"wallbox_charge\" GROUP BY CLIENT_ID_KEY EMIT CHANGES;",
+    "ksql": "CREATE TABLE \"wallbox_chargestatus\" AS SELECT CLIENT_ID_KEY, LATEST_BY_OFFSET(CLIENT_ID) AS CLIENT_ID, LATEST_BY_OFFSET(CHARGE) AS CHARGE, SIGN(INSTR(LATEST_BY_OFFSET(CHARGE),'charging')) AS STATUS FROM \"wallbox_charge\" GROUP BY CLIENT_ID_KEY EMIT CHANGES;",
     "streamsProperties": {
           "ksql.streams.auto.offset.reset": "earliest"
     }
