@@ -325,6 +325,22 @@ services:
     environment:
       MONGO_URL: "mongodb://mongo:27017/mongoDB"
       MONGOCLIENT_DEFAULT_CONNECTION_URL: "mongodb://mongo:27017/mongoDB"
+
+  mynodered:
+    image: nodered/node-red:latest
+    container_name: mynodered
+    hostname: mynodered
+    environment:
+      - TZ=Europe/Amsterdam
+    ports:
+      - "1880:1880"
+    networks:
+      default:
+        aliases:
+          - mynodered
+    volumes:
+      - ./connectIQ_MQTT_sim.json
+    
 networks:
   default:
     external:

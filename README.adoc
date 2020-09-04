@@ -103,7 +103,12 @@ Data Flow between Topics and Ksql Streams/Tables
 
 image::DataFlow_v2.svg[]
 
+Using Node-RED for Simulation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+You can Use the Flow-Simulation in Node-RED to simulate charging Events of electric vehicles (ev)
+By importing the _connectIQ_MQTT_sim.json_ into the browser  http://localhost:1880/  based view and deploying the flow.
+You can send (and receive) MQTT messages to the MQTT-Broker (HiveMQ). Node-RED simulates the Edge-Environment.
 
 Network and Credentials
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -126,6 +131,7 @@ Network and Credentials
 | KSQL server   | localhost:8088
 | HiveMQ Broker | localhost:8080
 | MongoDB client| localhost:3000
+| Node-RED      | localhost:1880
 |===
 
 
