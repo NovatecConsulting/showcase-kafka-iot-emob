@@ -29,5 +29,22 @@ services:
     volumes:
     - .:/workspace
     working_dir: /workspace
-    entrypoint: /bin/bash
+    tty: true
+
+  workspace:  
+    image: novatec/emob-workspace:${VERSION_CONFLUENT}
+    build:
+      context: .
+      dockerfile: Dockerfile.workspace
+      args:
+        VERSION_CONFLUENT: ${VERSION_CONFLUENT}
+    container_name: workspace
+    environment: 
+      KAFKA_BOOTSTRAP_SERVER: kafka:9092
+      SCHEMAREGISTRY_URL: http://schema-registry:8081
+      KSQLDB_URL: http://ksqldb-server:8088
+      ZOOKEEPER: zookeeper:2181
+    volumes:
+    - .:/workspace
+    working_dir: /workspace
     tty: true

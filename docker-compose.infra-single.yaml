@@ -360,8 +360,6 @@ services:
     - 1880:1880
     environment:
       TZ: Europe/Amsterdam
-    volumes:
-    - ./connectIQ_MQTT_sim.json
     healthcheck:
       test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:1880/flows) -eq 200 || exit 1
       start_period: 5s

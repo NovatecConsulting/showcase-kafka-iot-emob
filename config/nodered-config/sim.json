@@ -1,0 +1,1055 @@
+[
+  {
+      "id": "23c9ef4c.21b8f",
+      "type": "tab",
+      "label": "sim",
+      "disabled": false,
+      "info": ""
+  },
+  {
+      "id": "71e015db.58383c",
+      "type": "inject",
+      "z": "23c9ef4c.21b8f",
+      "name": "Payment [kWh]",
+      "props": [
+          {
+              "p": "payload.kWh",
+              "v": "0.04",
+              "vt": "num"
+          }
+      ],
+      "repeat": "",
+      "crontab": "",
+      "once": false,
+      "onceDelay": 0.1,
+      "topic": "",
+      "x": 120,
+      "y": 180,
+      "wires": [
+          [
+              "eb5964d6.d56ea8"
+          ]
+      ]
+  },
+  {
+      "id": "6cafb4c4.decb1c",
+      "type": "mqtt out",
+      "z": "23c9ef4c.21b8f",
+      "name": "pub /charge",
+      "topic": "",
+      "qos": "1",
+      "retain": "true",
+      "broker": "89dc2d9e.9c39c8",
+      "x": 1170,
+      "y": 920,
+      "wires": []
+  },
+  {
+      "id": "eb5964d6.d56ea8",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "Payment Object",
+      "func": "var kWh = msg.payload.kWh * 1000;\nvar client_id = flow.get(\"client_id\");\n        \nmsg.payload =  {\n  \"_id\": \"06ddf12dc180a2a6261335752810edd9\",\n  \"_rev\": \"1-f2bef3b8390fb966857ee0af7c8f52ce\",\n  \"docType\": \"session\",\n  \"chargingPoint\": \"DE*CIQ*E0019\",\n  \"payee\": \"hello@chargeiq.de\",\n  \"type\": \"standard\",\n  \"kWh\": kWh,\n  \"client_id\": `${client_id}`,\n  \"stakeOwn\": 0.65,\n  \"stakePartner\": 0,\n  \"stakeE4charge\": 0.2,\n  \"price\": 1.2,\n  \"transactionRef\": \"35V68905V6499470X\",\n  \"payer\": \"ADLZQGF2463BA\",\n  \"paymentType\": \"paypal\",\n  \"agbAccepted\": true,\n  \"timestamp\": Math.round(new Date().getTime()/1000)\n}\nreturn msg;\n\n",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 360,
+      "y": 180,
+      "wires": [
+          [
+              "e910e849.f6c728"
+          ]
+      ]
+  },
+  {
+      "id": "e910e849.f6c728",
+      "type": "http request",
+      "z": "23c9ef4c.21b8f",
+      "name": "",
+      "method": "POST",
+      "ret": "obj",
+      "paytoqs": "body",
+      "url": "127.0.0.1:1880/sim",
+      "tls": "",
+      "persist": false,
+      "proxy": "",
+      "authType": "",
+      "x": 710,
+      "y": 180,
+      "wires": [
+          []
+      ]
+  },
+  {
+      "id": "714343ed.2c4d9c",
+      "type": "http in",
+      "z": "23c9ef4c.21b8f",
+      "name": "http in",
+      "url": "/sim",
+      "method": "post",
+      "upload": true,
+      "swaggerDoc": "",
+      "x": 330,
+      "y": 280,
+      "wires": [
+          [
+              "1c558e6e.1c0ffa",
+              "b6792a67.343cb8"
+          ]
+      ]
+  },
+  {
+      "id": "1c558e6e.1c0ffa",
+      "type": "http response",
+      "z": "23c9ef4c.21b8f",
+      "name": "",
+      "statusCode": "200",
+      "headers": {},
+      "x": 680,
+      "y": 240,
+      "wires": []
+  },
+  {
+      "id": "b6792a67.343cb8",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "MQTT message/topic",
+      "func": "var kWh = msg.payload.kWh;\nvar client_id = flow.get(\"client_id\");\n// set mqtt topic \nmsg.topic = `ciq/sim/${client_id}/charge/cmd`;\n// set mqtt message\nmsg.payload = {\"action\":\"charge\",\"params\":[kWh]};\n\nreturn msg;\n\n\n",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 720,
+      "y": 280,
+      "wires": [
+          [
+              "869de3cd.d05b88"
+          ]
+      ]
+  },
+  {
+      "id": "f50dd085.0fd788",
+      "type": "inject",
+      "z": "23c9ef4c.21b8f",
+      "name": "Statusabfrage",
+      "props": [],
+      "repeat": "",
+      "crontab": "",
+      "once": false,
+      "onceDelay": 0.1,
+      "topic": "",
+      "x": 130,
+      "y": 400,
+      "wires": [
+          [
+              "28321a33.9e9886"
+          ]
+      ]
+  },
+  {
+      "id": "5f2d6bc1.669b5c",
+      "type": "mqtt out",
+      "z": "23c9ef4c.21b8f",
+      "name": "pub /charge/cmd",
+      "topic": "",
+      "qos": "1",
+      "retain": "true",
+      "broker": "89dc2d9e.9c39c8",
+      "x": 990,
+      "y": 440,
+      "wires": []
+  },
+  {
+      "id": "a5050cd0.5e28f",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "",
+      "func": "var client_id = flow.get(\"client_id\");\nmsg.payload = flow.get(`amount${client_id}`);\n//msg.payload = flow.get(\"client_id\");\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 320,
+      "y": 1260,
+      "wires": [
+          [
+              "661ab0e5.30e7b"
+          ]
+      ]
+  },
+  {
+      "id": "661ab0e5.30e7b",
+      "type": "debug",
+      "z": "23c9ef4c.21b8f",
+      "name": "",
+      "active": true,
+      "tosidebar": true,
+      "console": false,
+      "tostatus": false,
+      "complete": "false",
+      "statusVal": "",
+      "statusType": "auto",
+      "x": 470,
+      "y": 1260,
+      "wires": []
+  },
+  {
+      "id": "28321a33.9e9886",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "MQTT message/topic",
+      "func": "var client_id = flow.get(\"client_id\");\n// set mqtt topic \nmsg.topic = `ciq/sim/${client_id}/charge/cmd`;\n\n// set mqtt message\nmsg.payload = {\"action\":\"status\",\"params\":[]};\n\nreturn msg;\n\n\n",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 720,
+      "y": 400,
+      "wires": [
+          [
+              "5f2d6bc1.669b5c"
+          ]
+      ]
+  },
+  {
+      "id": "3dacace1.85b994",
+      "type": "inject",
+      "z": "23c9ef4c.21b8f",
+      "name": "get counter",
+      "props": [],
+      "repeat": "",
+      "crontab": "",
+      "once": false,
+      "onceDelay": 0.1,
+      "topic": "",
+      "x": 140,
+      "y": 1260,
+      "wires": [
+          [
+              "a5050cd0.5e28f"
+          ]
+      ]
+  },
+  {
+      "id": "6feaec99.e15344",
+      "type": "inject",
+      "z": "23c9ef4c.21b8f",
+      "name": "amount-abfrage",
+      "props": [],
+      "repeat": "",
+      "crontab": "",
+      "once": false,
+      "onceDelay": 0.1,
+      "topic": "",
+      "x": 120,
+      "y": 440,
+      "wires": [
+          [
+              "a344ad03.f67b58"
+          ]
+      ]
+  },
+  {
+      "id": "a344ad03.f67b58",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "MQTT message/topic",
+      "func": "var client_id = flow.get(\"client_id\");\n// set mqtt topic \nmsg.topic = `ciq/sim/${client_id}/charge/cmd`;\n// set mqtt message\nmsg.payload = {\"action\":\"amount\",\"params\":[]};\n\nreturn msg;\n\n\n",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 720,
+      "y": 440,
+      "wires": [
+          [
+              "5f2d6bc1.669b5c"
+          ]
+      ]
+  },
+  {
+      "id": "209f5466.30aaec",
+      "type": "inject",
+      "z": "23c9ef4c.21b8f",
+      "name": "reset counter",
+      "props": [],
+      "repeat": "",
+      "crontab": "",
+      "once": false,
+      "onceDelay": 0.1,
+      "topic": "",
+      "x": 150,
+      "y": 1220,
+      "wires": [
+          [
+              "f8c49bc8.5baf48"
+          ]
+      ]
+  },
+  {
+      "id": "f8c49bc8.5baf48",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "",
+      "func": "var client_id = flow.get(\"client_id\");\n\nflow.set(`amount${client_id}`,null);\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 320,
+      "y": 1220,
+      "wires": [
+          []
+      ]
+  },
+  {
+      "id": "a519e8dd.6ad72",
+      "type": "inject",
+      "z": "23c9ef4c.21b8f",
+      "name": "connect EV",
+      "props": [],
+      "repeat": "",
+      "crontab": "",
+      "once": false,
+      "onceDelay": 0.1,
+      "topic": "",
+      "payloadType": "str",
+      "x": 130,
+      "y": 620,
+      "wires": [
+          [
+              "d1086b42.540aa"
+          ]
+      ]
+  },
+  {
+      "id": "d1086b42.540aa",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "EV",
+      "func": "var client_id = flow.get(\"client_id\");\nvar ev = flow.get(`EV_${client_id}`);\nflow.set(`EV_${client_id}`,true);\nvar arr = [];\nmsg.topic = `ciq/sim/${client_id}/charge`;\n\nif (ev === false) {\n    msg.payload = {\"event\":\"EV\"};\n    arr = [msg];\n} else {\n    arr = [null];\n}\n\nreturn arr;",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 850,
+      "y": 640,
+      "wires": [
+          [
+              "77b3ce9e.ebe74",
+              "6cafb4c4.decb1c"
+          ]
+      ]
+  },
+  {
+      "id": "9c3eb684.169a68",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "EV_lost",
+      "func": "var client_id = flow.get(\"client_id\");\nvar ev = flow.get(`EV_${client_id}`);\nflow.set(`EV_${client_id}`,false);\nvar arr = [];\nmsg.topic = `ciq/sim/${client_id}/charge`;\n\nif (ev === true) {\n    msg.payload = {\"event\":\"EV_lost\"};\n    arr = [msg];\n} else {\n    arr = [null];\n}\n\nreturn arr;",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 840,
+      "y": 680,
+      "wires": [
+          [
+              "77b3ce9e.ebe74",
+              "6cafb4c4.decb1c"
+          ]
+      ]
+  },
+  {
+      "id": "f1c36ca3.16db3",
+      "type": "inject",
+      "z": "23c9ef4c.21b8f",
+      "name": "disconnect EV",
+      "props": [],
+      "repeat": "",
+      "crontab": "",
+      "once": false,
+      "onceDelay": 0.1,
+      "topic": "",
+      "x": 130,
+      "y": 660,
+      "wires": [
+          [
+              "9c3eb684.169a68"
+          ]
+      ]
+  },
+  {
+      "id": "f0ff052f.a598c",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "increment",
+      "func": "var topic = msg.topic.split(\"/\");\nvar client_id = topic[2];\nvar amount = flow.get(`amount${client_id}`);\n\namount = amount + 1;\n\nflow.set(`amount${client_id}`, amount);\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 440,
+      "y": 820,
+      "wires": [
+          [
+              "b96090a6.1172f"
+          ]
+      ]
+  },
+  {
+      "id": "a99c9041.02991",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "flow.set",
+      "func": "var topic = msg.topic.split(\"/\");\nvar client_id = topic[2];\nflow.set(`amount${client_id}`, Number(0));\nflow.set(`max${client_id}`, Number(msg.payload.params[0]));\nflow.set(`amps${client_id}`, Number(16));\nflow.set(`config${client_id}`, Number(16));\n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 400,
+      "y": 760,
+      "wires": [
+          [
+              "83201b81.da2868"
+          ]
+      ]
+  },
+  {
+      "id": "d17fd93b.b5271",
+      "type": "mqtt in",
+      "z": "23c9ef4c.21b8f",
+      "name": "sub /charge/cmd",
+      "topic": "ciq/sim/+/charge/cmd",
+      "qos": "1",
+      "datatype": "json",
+      "broker": "89dc2d9e.9c39c8",
+      "x": 120,
+      "y": 820,
+      "wires": [
+          [
+              "fd5db831.c20068"
+          ]
+      ]
+  },
+  {
+      "id": "876ed66d.fa1008",
+      "type": "switch",
+      "z": "23c9ef4c.21b8f",
+      "name": "not charging",
+      "property": "payload.action",
+      "propertyType": "msg",
+      "rules": [
+          {
+              "t": "eq",
+              "v": "charge",
+              "vt": "str"
+          },
+          {
+              "t": "eq",
+              "v": "set",
+              "vt": "str"
+          },
+          {
+              "t": "eq",
+              "v": "amount",
+              "vt": "str"
+          },
+          {
+              "t": "eq",
+              "v": "status",
+              "vt": "str"
+          }
+      ],
+      "checkall": "true",
+      "repair": false,
+      "outputs": 4,
+      "x": 270,
+      "y": 900,
+      "wires": [
+          [
+              "a99c9041.02991",
+              "217ac543.d179ea"
+          ],
+          [
+              "1420d077.028488"
+          ],
+          [
+              "2eb8da2d.b4d0d6"
+          ],
+          [
+              "ad4539ce.357c18"
+          ]
+      ]
+  },
+  {
+      "id": "13d07e94.5b26f9",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "stop",
+      "func": "var topic = msg.topic.split(\"/\");\nvar client_id = topic[2];\nvar amount = flow.get(`amount${client_id}`);\nvar max = flow.get(`max${client_id}`);\nvar ev = flow.get(`EV_${client_id}`);\n\nflow.set(`amount${client_id}`,null);\nflow.set(`amps${client_id}`,Number(0));\nflow.set(`config${client_id}`,Number(0));\n\nfunction Sleep(ms) {\n    return new Promise(resolve => setTimeout(resolve, ms));\n}\n\nif (ev === true) {\n    msg.payload = {\"amount\":amount,\"event\":\"stop\",\"max\":max,\"reason\":\"normal\"};\n} else {\n    await Sleep(1000);\n    msg.payload = {\"amount\":amount,\"event\":\"stop\",\"max\":max,\"reason\":\"no_ev\"};\n}\nmsg.topic = `ciq/sim/${client_id}/charge`;\n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 850,
+      "y": 780,
+      "wires": [
+          [
+              "77b3ce9e.ebe74",
+              "6cafb4c4.decb1c"
+          ]
+      ]
+  },
+  {
+      "id": "4470027a.f0aa1c",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "start",
+      "func": "var topic = msg.topic.split(\"/\");\nvar client_id = topic[2];\nvar amount = flow.get(`amount${client_id}`);\nvar max = flow.get(`max${client_id}`);\n\nfunction Sleep(ms) {\n    return new Promise(resolve => setTimeout(resolve, ms));\n}\nawait Sleep(500);\n\nmsg.payload = {\"event\":\"start\",\"max\":max};\nmsg.topic = `ciq/sim/${client_id}/charge`;\n        \nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 850,
+      "y": 740,
+      "wires": [
+          [
+              "77b3ce9e.ebe74",
+              "6cafb4c4.decb1c"
+          ]
+      ]
+  },
+  {
+      "id": "77b3ce9e.ebe74",
+      "type": "debug",
+      "z": "23c9ef4c.21b8f",
+      "name": "",
+      "active": true,
+      "tosidebar": true,
+      "console": false,
+      "tostatus": false,
+      "complete": "payload",
+      "targetType": "msg",
+      "statusVal": "",
+      "statusType": "auto",
+      "x": 1170,
+      "y": 880,
+      "wires": []
+  },
+  {
+      "id": "e68a0050.fe4a",
+      "type": "switch",
+      "z": "23c9ef4c.21b8f",
+      "name": "charging",
+      "property": "payload.action",
+      "propertyType": "msg",
+      "rules": [
+          {
+              "t": "eq",
+              "v": "charge",
+              "vt": "str"
+          },
+          {
+              "t": "eq",
+              "v": "set",
+              "vt": "str"
+          },
+          {
+              "t": "eq",
+              "v": "amount",
+              "vt": "str"
+          },
+          {
+              "t": "eq",
+              "v": "status",
+              "vt": "str"
+          }
+      ],
+      "checkall": "true",
+      "repair": false,
+      "outputs": 4,
+      "x": 280,
+      "y": 980,
+      "wires": [
+          [
+              "3e4193be.eaaefc"
+          ],
+          [
+              "aee4911b.509f1"
+          ],
+          [
+              "2d00cf74.dbb56"
+          ],
+          [
+              "8e179b3a.73f018"
+          ]
+      ]
+  },
+  {
+      "id": "3e4193be.eaaefc",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "charge",
+      "func": "var topic = msg.topic.split(\"/\");\nvar client_id = topic[2];\nvar amount = flow.get(`amount${client_id}`);\nvar max = flow.get(`max${client_id}`);\n\nmsg.payload = {\"action\":\"charge\",\"error\":\"already_started\",\"params\":[max]};\nmsg.topic = `ciq/sim/${client_id}/charge`;    \n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 850,
+      "y": 1020,
+      "wires": [
+          [
+              "77b3ce9e.ebe74",
+              "6cafb4c4.decb1c"
+          ]
+      ]
+  },
+  {
+      "id": "2d00cf74.dbb56",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "amount",
+      "func": "var topic = msg.topic.split(\"/\");\nvar client_id = topic[2];\nvar amount = flow.get(`amount${client_id}`);\nvar max = flow.get(`max${client_id}`);\n\nmsg.payload = {\"action\":\"amount\",\"params\":[],\"response\":{\"amount\":amount,\"max\":max}};\nmsg.topic = `ciq/sim/${client_id}/charge`;\n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 840,
+      "y": 1100,
+      "wires": [
+          [
+              "77b3ce9e.ebe74",
+              "6cafb4c4.decb1c"
+          ]
+      ]
+  },
+  {
+      "id": "8e179b3a.73f018",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "status",
+      "func": "var topic = msg.topic.split(\"/\");\nvar client_id = topic[2];\nvar amount = flow.get(`amount${client_id}`);\nvar max = flow.get(`max${client_id}`);\nvar amps = flow.get(`amps${client_id}`);\nvar config = flow.get(`config${client_id}`);\n\n//if (config === undefined || config === null) {\n//    config = Number(0);\n//}\n\nmsg.payload = {\"action\":\"status\",\"params\":[],\"response\":{\"amps\":amps,\"config\":config,\"pp\":32,\"status\":\"charging\"}};\nmsg.topic = `ciq/sim/${client_id}/charge`;\n    \nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 850,
+      "y": 1140,
+      "wires": [
+          [
+              "77b3ce9e.ebe74",
+              "6cafb4c4.decb1c"
+          ]
+      ]
+  },
+  {
+      "id": "217ac543.d179ea",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "charge",
+      "func": "var topic = msg.topic.split(\"/\");\nvar client_id = topic[2];\nvar amount = flow.get(`amount${client_id}`);\nvar max = flow.get(`max${client_id}`);\n\nmsg.payload = {\"action\":\"charge\",\"params\":[max],\"response\":\"OK\"};\nmsg.topic = `ciq/sim/${client_id}/charge`;\n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 850,
+      "y": 840,
+      "wires": [
+          [
+              "77b3ce9e.ebe74",
+              "6cafb4c4.decb1c"
+          ]
+      ]
+  },
+  {
+      "id": "2eb8da2d.b4d0d6",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "amount",
+      "func": "var topic = msg.topic.split(\"/\");\nvar client_id = topic[2];\nvar amount = flow.get(`amount${client_id}`);\nvar max = flow.get(`max${client_id}`);\n\nmsg.payload = {\"action\":\"amount\",\"error\":\"No charging process\",\"params\":[]};\nmsg.topic = `ciq/sim/${client_id}/charge`;\n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 840,
+      "y": 920,
+      "wires": [
+          [
+              "77b3ce9e.ebe74",
+              "6cafb4c4.decb1c"
+          ]
+      ]
+  },
+  {
+      "id": "ad4539ce.357c18",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "status",
+      "func": "var topic = msg.topic.split(\"/\");\nvar client_id = topic[2];\nvar amount = flow.get(`amount${client_id}`);\nvar max = flow.get(`max${client_id}`);\nvar amps = flow.get(`amps${client_id}`);\nvar config = flow.get(`config${client_id}`);\nvar ev = flow.get(`EV_${client_id}`);\n\n//if (config === undefined || config === null) {\n//    config = Number(0);\n//}\n\nif (ev === true) {\n    msg.payload = {\"action\":\"status\",\"params\":[],\"response\":{\"amps\":amps,\"config\":config,\"pp\":32,\"status\":\"ev\"}};\n} else {\n    msg.payload = {\"action\":\"status\",\"params\":[],\"response\":{\"amps\":0,\"config\":0,\"pp\":32,\"status\":\"ready\"}};\n}\nmsg.topic = `ciq/sim/${client_id}/charge`;\n    \nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 850,
+      "y": 960,
+      "wires": [
+          [
+              "77b3ce9e.ebe74",
+              "6cafb4c4.decb1c"
+          ]
+      ]
+  },
+  {
+      "id": "83201b81.da2868",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "switch",
+      "func": "var topic = msg.topic.split(\"/\");\nvar client_id = topic[2];\nvar amount = flow.get(`amount${client_id}`);\nvar max = flow.get(`max${client_id}`);\nvar ev = flow.get(`EV_${client_id}`);\n\nvar arr = [];\n\nif (ev === true) {\n    if (amount >= max) {\n        arr =  [null, msg, null];\n    } if (amount < max) {\n        if (amount === 0) {\n            arr =  [msg, null, msg];\n        } else {\n            arr =  [null, null, msg];\n        }\n    }\n} else {\n    if (amount === 0) {\n        arr =  [msg, msg, null];\n    } else {\n        arr =  [null, msg, null];\n    }\n}\n\nreturn arr;",
+      "outputs": 3,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 570,
+      "y": 760,
+      "wires": [
+          [
+              "4470027a.f0aa1c"
+          ],
+          [
+              "13d07e94.5b26f9"
+          ],
+          [
+              "f0ff052f.a598c"
+          ]
+      ]
+  },
+  {
+      "id": "fd5db831.c20068",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "switch",
+      "func": "var topic = msg.topic.split(\"/\");\nvar client_id = topic[2];\nvar amount = flow.get(`amount${client_id}`);\nvar max = flow.get(`max${client_id}`);\nvar arr = [];\n\nif (amount === null || amount === undefined) {\n    arr = [msg, null];\n} if (amount > 0) {\n    arr = [null, msg];\n}\n\nreturn arr;",
+      "outputs": 2,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 110,
+      "y": 940,
+      "wires": [
+          [
+              "876ed66d.fa1008"
+          ],
+          [
+              "e68a0050.fe4a"
+          ]
+      ]
+  },
+  {
+      "id": "b96090a6.1172f",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "Ladekurve",
+      "func": "var topic = msg.topic.split(\"/\");\nvar client_id = topic[2];\nvar amount = flow.get(`amount${client_id}`);\nvar max = flow.get(`max${client_id}`);\n\nvar P = 11000; // Leistung der Wallbox\nvar whs = P/3600; // Wh/s\nvar d = whs/max;\n\nvar t = (1/d) * (Math.log((max)/((max)-(amount))));\nvar sleep = (1 / ((max) * d * Math.exp(-d * t)));\n\nfunction Sleep(ms) {\n    return new Promise(resolve => setTimeout(resolve, ms));\n}\n\nawait Sleep(sleep * 1000);\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 590,
+      "y": 820,
+      "wires": [
+          [
+              "83201b81.da2868"
+          ]
+      ]
+  },
+  {
+      "id": "1420d077.028488",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "set",
+      "func": "var topic = msg.topic.split(\"/\");\nvar client_id = topic[2];\nvar amount = flow.get(`amount${client_id}`);\nvar max = flow.get(`max${client_id}`);\n\nvar config = msg.payload.params[0];\n//flow.set(`config${client_id}`);\n\nmsg.payload = {\"action\":\"set\",\"params\":[config],\"response\":\"OK\"};\nmsg.topic = `ciq/sim/${client_id}/charge`;\n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 850,
+      "y": 880,
+      "wires": [
+          [
+              "77b3ce9e.ebe74",
+              "6cafb4c4.decb1c"
+          ]
+      ]
+  },
+  {
+      "id": "aee4911b.509f1",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "set",
+      "func": "var topic = msg.topic.split(\"/\");\nvar client_id = topic[2];\nvar amount = flow.get(`amount${client_id}`);\nvar max = flow.get(`max${client_id}`);\n\nvar config = msg.payload.params[0];\nflow.set(`config${client_id}`,config);\nflow.set(`amps${client_id}`,config);\n\nmsg.payload = {\"action\":\"set\",\"params\":[config],\"response\":\"OK\"};\nmsg.topic = `ciq/sim/${client_id}/charge`;\n\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 850,
+      "y": 1060,
+      "wires": [
+          [
+              "77b3ce9e.ebe74",
+              "6cafb4c4.decb1c"
+          ]
+      ]
+  },
+  {
+      "id": "d3e70530.bfcf78",
+      "type": "inject",
+      "z": "23c9ef4c.21b8f",
+      "name": "set amps",
+      "props": [
+          {
+              "p": "payload.config",
+              "v": "10",
+              "vt": "str"
+          }
+      ],
+      "repeat": "",
+      "crontab": "",
+      "once": false,
+      "onceDelay": 0.1,
+      "topic": "",
+      "x": 140,
+      "y": 480,
+      "wires": [
+          [
+              "a3c09124.81a8b8"
+          ]
+      ]
+  },
+  {
+      "id": "a3c09124.81a8b8",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "MQTT message/topic",
+      "func": "var client_id = flow.get(\"client_id\");\n// set mqtt topic \nmsg.topic = `ciq/sim/${client_id}/charge/cmd`;\n// set mqtt message\nmsg.payload = {\"action\":\"set\",\"params\":[10]};\n\nreturn msg;\n\n\n",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 720,
+      "y": 480,
+      "wires": [
+          [
+              "5f2d6bc1.669b5c"
+          ]
+      ]
+  },
+  {
+      "id": "3a6d3143.ff1ea6",
+      "type": "inject",
+      "z": "23c9ef4c.21b8f",
+      "name": "set client_id",
+      "props": [
+          {
+              "p": "payload.client_id",
+              "v": "SIM000000001",
+              "vt": "str"
+          }
+      ],
+      "repeat": "",
+      "crontab": "",
+      "once": false,
+      "onceDelay": 0.1,
+      "topic": "",
+      "x": 130,
+      "y": 80,
+      "wires": [
+          [
+              "110b8e83.9a12f1"
+          ]
+      ]
+  },
+  {
+      "id": "110b8e83.9a12f1",
+      "type": "function",
+      "z": "23c9ef4c.21b8f",
+      "name": "flow.set",
+      "func": "var client_id = msg.payload.client_id;\nflow.set(\"client_id\",client_id);\nreturn msg;",
+      "outputs": 1,
+      "noerr": 0,
+      "initialize": "",
+      "finalize": "",
+      "x": 340,
+      "y": 80,
+      "wires": [
+          []
+      ]
+  },
+  {
+      "id": "f2b49f46.235fe8",
+      "type": "comment",
+      "z": "23c9ef4c.21b8f",
+      "name": "debug",
+      "info": "",
+      "x": 110,
+      "y": 1180,
+      "wires": []
+  },
+  {
+      "id": "96cec65a.741b48",
+      "type": "comment",
+      "z": "23c9ef4c.21b8f",
+      "name": "connectIQ IN",
+      "info": "",
+      "x": 110,
+      "y": 780,
+      "wires": []
+  },
+  {
+      "id": "4e4ea788.332df",
+      "type": "comment",
+      "z": "23c9ef4c.21b8f",
+      "name": "connectIQ OUT",
+      "info": "",
+      "x": 1180,
+      "y": 840,
+      "wires": []
+  },
+  {
+      "id": "ebe2ec80.456db",
+      "type": "comment",
+      "z": "23c9ef4c.21b8f",
+      "name": "HTTP-Request (Payment Object)",
+      "info": "",
+      "x": 750,
+      "y": 140,
+      "wires": []
+  },
+  {
+      "id": "821580a1.b60ce8",
+      "type": "comment",
+      "z": "23c9ef4c.21b8f",
+      "name": "HTTP Post-Call (Payment Object)",
+      "info": "",
+      "x": 410,
+      "y": 240,
+      "wires": []
+  },
+  {
+      "id": "567f2abb.91197c",
+      "type": "comment",
+      "z": "23c9ef4c.21b8f",
+      "name": "generate Payment Object",
+      "info": "",
+      "x": 390,
+      "y": 140,
+      "wires": []
+  },
+  {
+      "id": "869de3cd.d05b88",
+      "type": "mqtt out",
+      "z": "23c9ef4c.21b8f",
+      "name": "pub /charge/cmd",
+      "topic": "",
+      "qos": "1",
+      "retain": "true",
+      "broker": "89dc2d9e.9c39c8",
+      "x": 990,
+      "y": 280,
+      "wires": []
+  },
+  {
+      "id": "8b89b112.5ccf5",
+      "type": "comment",
+      "z": "23c9ef4c.21b8f",
+      "name": "Backend OUT",
+      "info": "",
+      "x": 970,
+      "y": 240,
+      "wires": []
+  },
+  {
+      "id": "d8f61c38.43439",
+      "type": "comment",
+      "z": "23c9ef4c.21b8f",
+      "name": "3.) some MQTT examples",
+      "info": "",
+      "x": 170,
+      "y": 360,
+      "wires": []
+  },
+  {
+      "id": "c7f180b4.7aac78",
+      "type": "comment",
+      "z": "23c9ef4c.21b8f",
+      "name": "connect/disconnect a car",
+      "info": "",
+      "x": 170,
+      "y": 580,
+      "wires": []
+  },
+  {
+      "id": "bfeec15e.650838",
+      "type": "comment",
+      "z": "23c9ef4c.21b8f",
+      "name": "1.) Set the client_id for ALL Injectors",
+      "info": "",
+      "x": 200,
+      "y": 40,
+      "wires": []
+  },
+  {
+      "id": "1cd67b5e.b1c72d",
+      "type": "comment",
+      "z": "23c9ef4c.21b8f",
+      "name": "2.) Buy some kWh",
+      "info": "",
+      "x": 130,
+      "y": 140,
+      "wires": []
+  },
+  {
+      "id": "322c7eca.7c0f02",
+      "type": "comment",
+      "z": "23c9ef4c.21b8f",
+      "name": "responses",
+      "info": "",
+      "x": 840,
+      "y": 600,
+      "wires": []
+  },
+  {
+      "id": "beb503b4.171f",
+      "type": "comment",
+      "z": "23c9ef4c.21b8f",
+      "name": "loop",
+      "info": "",
+      "x": 490,
+      "y": 720,
+      "wires": []
+  },
+  {
+      "id": "89dc2d9e.9c39c8",
+      "type": "mqtt-broker",
+      "z": "",
+      "name": "hivemq",
+      "broker": "hivemq",
+      "port": "1883",
+      "clientid": "",
+      "usetls": false,
+      "compatmode": false,
+      "keepalive": "60",
+      "cleansession": true,
+      "birthTopic": "",
+      "birthQos": "0",
+      "birthRetain": "true",
+      "birthPayload": "",
+      "closeTopic": "",
+      "closeQos": "0",
+      "closePayload": "",
+      "willTopic": "",
+      "willQos": "0",
+      "willPayload": ""
+  }
+]

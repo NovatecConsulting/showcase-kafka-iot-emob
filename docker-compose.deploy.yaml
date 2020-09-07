@@ -53,3 +53,19 @@ services:
     - ./config/ksql-config:/ksql-config
     command: 
     - /ksql-config/ksqlstatements-deploy.sh
+
+  nodered-deploy:
+    image: novatec/cp-deploy-emob:${VERSION_CONFLUENT}
+    build:
+      context: .
+      dockerfile: Dockerfile.deploy
+      args:
+        VERSION_CONFLUENT: ${VERSION_CONFLUENT}
+    container_name: noderedflows-deploy    
+    restart: on-failure
+    environment: 
+      NODERED_REST_API_URL: http://mynodered:1880
+    volumes:
+    - ./config/nodered-config:/nodered-config
+    command: 
+    - /nodered-config/flows-deploy.sh

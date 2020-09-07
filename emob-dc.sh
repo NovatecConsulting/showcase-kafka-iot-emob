@@ -114,6 +114,7 @@ function start_deploy_attached () {
     run_job topics-deploy
     run_job connectors-deploy
     run_job ksqlstatements-deploy
+    run_job nodered-deploy
     log "INFO" "Completed deployment of Emob."
 }
 
@@ -174,6 +175,10 @@ function set_infra_mode () {
     log "INFO" "Switched to ${mode} mode."
 }
 
+function forward_kafka_cli () {
+    dc_in_env run --rm workspace /workspace/emob-kafka.sh "$@"
+}
+
 ## CLI Commands
 _CMD=(
     'cmd=("mode" "Switch between single instance and ha mode. Requires that environment is down." "usage _CMD_MODE" "exec_cmd _CMD_MODE")'
@@ -184,6 +189,7 @@ _CMD=(
     'cmd=("ps" "Show running services." "dc_in_env ps" "dc_in_env ps")'
     'cmd=("cli" "Open a Emob Cli." "show_services cli" "start_and_exec_container")'
     'cmd=("dc" "Run any docker-compose command in environment" "dc_in_env" "dc_in_env")'
+    'cmd=("kafka" "Emob Kafka cli in docker" "forward_kafka_cli" "forward_kafka_cli")'
 )
 
 _CMD_MODE=(

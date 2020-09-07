@@ -1,0 +1,38 @@
+FROM ubuntu:groovy
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update \
+    && apt-get -y install wget curl netcat \
+        openssl libssl1.1 libsasl2-2 ca-certificates \
+        jq vim \
+        mosquitto-clients \
+        software-properties-common apt-utils gnupg2 \
+    && apt-get clean
+
+ARG VERSION_CONFLUENT
+RUN wget -qO - https://packages.confluent.io/deb/$(echo ${VERSION_CONFLUENT} | sed -r 's/(^[0-9]+\.[0-9]+)\..*/\1/')/archive.key | apt-key add - \
+    && add-apt-repository "deb [arch=amd64] https://packages.confluent.io/deb/$(echo ${VERSION_CONFLUENT} | sed -r 's/(^[0-9]+\.[0-9]+)\..*/\1/') stable main"
+RUN wget -qO - https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key add - \
+    && add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/
+
+RUN apt-get update \
+    && apt-get -y install adoptopenjdk-11-openj9 confluent-server confluent-schema-registry confluent-ksqldb \
+    && apt-get clean
+ENV DEBIAN_FRONTEND=dialog
+
+ENV KAFKA_BOOTSTRAP_SERVER=kafka:9092 \
+    SCHEMAREGISTRY_URL=http://schema-registry:8081 \
+    KSQLDB=http://ksqldb-server:8088 \
+    ZOOKEEPER=zookeeper:2181
+
+RUN echo -n "\
+alias kcat='kafkacat -b ${KAFKA_BOOTSTRAP_SERVER}'\n\
+alias kt='kafka-topics --bootstrap-server ${KAFKA_BOOTSTRAP_SERVER}'\n\
+alias kc='kafka-configs --bootstrap-server ${KAFKA_BOOTSTRAP_SERVER}'\n\
+alias kcg='kafka-consumer-groups --bootstrap-server ${KAFKA_BOOTSTRAP_SERVER}'\n\
+alias kcc='kafka-console-consumer --bootstrap-server ${KAFKA_BOOTSTRAP_SERVER}'\n\
+alias kcp='kafka-console-producer --bootstrap-server ${KAFKA_BOOTSTRAP_SERVER}'\n\
+alias kcp='kafka-avro-console-consumer --bootstrap-server ${KAFKA_BOOTSTRAP_SERVER} --property schema.registry.url=${SCHEMAREGISTRY_URL}'\n\
+alias kcp='kafka-avro-console-producer --bootstrap-server ${KAFKA_BOOTSTRAP_SERVER} --property schema.registry.url=${SCHEMAREGISTRY_URL}'\n\
+alias ksql='ksql ${KSQLDB_URL}'\n\
+alias zkcli='zookeeper-shell ${ZOOKEEPER}'" >> ~/.bash_aliases
