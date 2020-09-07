@@ -2,3 +2,5 @@ connectors/
 *.log
 
 .emob-dc-infra
+*.override.yaml
+*.override.yml

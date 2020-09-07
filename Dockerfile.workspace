@@ -22,7 +22,7 @@ ENV DEBIAN_FRONTEND=dialog
 
 ENV KAFKA_BOOTSTRAP_SERVER=kafka:9092 \
     SCHEMAREGISTRY_URL=http://schema-registry:8081 \
-    KSQLDB=http://ksqldb-server:8088 \
+    KSQLDB_URL=http://ksqldb-server:8088 \
     ZOOKEEPER=zookeeper:2181
 
 RUN echo -n "\

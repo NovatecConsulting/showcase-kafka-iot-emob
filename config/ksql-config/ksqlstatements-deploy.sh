@@ -18,16 +18,34 @@ function wait_until_available () {
     while [ $(curl -s -L -o /dev/null -w %{http_code} --max-time 60 ${KSQL_REST_API_URL}/info) -ne 200 ]; do echo -n "."; sleep 2; done
 }
 
+function wrap_ksql_in_json () {
+    local ksql="${1:?Requires ksql statement as first parameter!}"
+    echo "{}" | jq \
+        --arg ksql "$(echo "${ksql}" | tr -s '\n' ' ')" \
+        --arg autoOffsetReset "earliest" \
+        '.ksql=$ksql | .streamsProperties."ksql.streams.auto.offset.reset"=$autoOffsetReset'
+}
+
+function to_json_with_seq () {
+    local file="${1:?Requires filename as first parameter!}"
+    local json
+    if [ "${file##*.}" == "json" ]; then
+        json="$(cat "${file}"))"
+    else
+        json="$(wrap_ksql_in_json "$(cat "${file}")")"
+    fi
+    echo "${json}" | jq --argjson commandSequenceNumber ${_commandSequenceNumber:-null} '. + {commandSequenceNumber: $commandSequenceNumber}'
+}
+
 function deploy_ksqstatement () {
-    local file=${1:?Requires filename as first parameter!}
-    local ksqlJson="$(jq --argjson commandSequenceNumber ${_commandSequenceNumber:-null} '. + {commandSequenceNumber: $commandSequenceNumber}' "${file}")"
-    curl -s -w "\n%{http_code}" --max-time 60 -X POST -H "Content-Type: application/vnd.ksql.v1+json; charset=utf-8" -d"${ksqlJson}" ${KSQL_REST_API_URL}/ksql
+    local json="${1:?Requires json as first parameter!}"
+    curl -s -w "\n%{http_code}" --max-time 60 -X POST -H "Content-Type: application/vnd.ksql.v1+json; charset=utf-8" -d"${json}" ${KSQL_REST_API_URL}/ksql
 }
 
 function deploy_ksqstatement_in_file () {
     local file="${1:?Requires filename as first parameter!}"
     local filebasename="$(basename "${file}")"
-    local response="$(deploy_ksqstatement "${file}")"
+    local response="$(deploy_ksqstatement "$(to_json_with_seq "${file}")")"
     local body=$(echo "${response}" | cut -d$'\n' -f1)
     local http_code=$(echo "${response}" | cut -d$'\n' -f2)
     if [[ "${http_code}" =~ ^2.* ]]; then
@@ -48,8 +66,9 @@ function deploy_ksqstatement_in_file () {
 }
 
 function deploy_ksqlstatements_in_dir () {
-    local configdir=${1:?Requires dir as first parameter!}
-    for file in $(find "${configdir}" -name "*.json" | sort); do
+    local configdir="${1:?Requires dir as first parameter!}"
+    local filepattern="${2:?Requires file pattern as first parameter!}"
+    for file in $(find "${configdir}" -name "${filepattern}" | sort); do
         deploy_ksqstatement_in_file "${file}"
         if [ $? -ne 0 ]; then
             log "ERROR" "Abort processing of further requests!"
@@ -61,9 +80,10 @@ function deploy_ksqlstatements_in_dir () {
 function main () {
     log "INFO" "Start Ksql statement deployment to ${KSQL_REST_API_URL}."
     wait_until_available
-    local target="${1:-${SCRIPT_DIR}}"
+    local target="${1:-"${SCRIPT_DIR}"}"
+    local filepattern="${2:-"*.ksql"}"
     if [ -d "${target}" ]; then
-        deploy_ksqlstatements_in_dir "${target}"
+        deploy_ksqlstatements_in_dir "${target}" "${filepattern}"
     else
         deploy_ksqstatement_in_file "${target}"
     fi

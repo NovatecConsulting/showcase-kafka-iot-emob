@@ -38,21 +38,32 @@ function log () {
     echo -e "$(date --iso-8601=seconds)|${level}|${msg}"
 }
 
+function with_dc_override_file () {
+    local filename="${1:?Requires filename as first parameter!}"
+    local name="${filename%.*}"
+    local extension="${filename##*.}"
+    if [ -e "${name}.override.${extension}" ]; then
+        echo "${filename}" "${name}.override.${extension}"
+    else
+        echo "${filename}"
+    fi
+}
+
 function determine_dc_infra_file () {
     cat "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}" 2>/dev/null || echo ${DC_INFRA_DEFAULT}
 }
 
 function determine_dc_files () {
     if [ "${_context}" == "infra" ]; then
-        determine_dc_infra_file
+        with_dc_override_file "$(determine_dc_infra_file)"
     elif [ "${_context}" == "deploy" ]; then
-        echo ${DC_DEPLOY}
+        with_dc_override_file "${DC_DEPLOY}"
     elif [ "${_context}" == "testdata" ]; then
-        echo ${DC_TESTDATA}
+        with_dc_override_file "${DC_TESTDATA}"
     elif [ "${_context}" == "cli" ]; then
-        echo ${DC_CLI}
+        with_dc_override_file "${DC_CLI}"
     else
-        echo "$(determine_dc_infra_file) ${DC_DEPLOY} ${DC_TESTDATA} ${DC_CLI}"
+        echo "$(with_dc_override_file "$(determine_dc_infra_file)") $(with_dc_override_file "${DC_DEPLOY}") $(with_dc_override_file "${DC_TESTDATA}") $(with_dc_override_file "${DC_CLI}")"
     fi
 }
 
