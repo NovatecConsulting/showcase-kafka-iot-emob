@@ -15,7 +15,6 @@ services:
   grafana:
     image: grafana/grafana
     hostname: grafana
-    build: .
     container_name: grafana
     depends_on:
       - postgres_db
@@ -26,6 +25,9 @@ services:
       #- "./provisioning/dashboards:/etc/grafana/provisioning/dashboards" uncomment this line when the dashboard is configured in dashboards.json
     environment:
       GF_INSTALL_PLUGINS: grafana-worldmap-panel
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
          
   zookeeper1:
     image: confluentinc/cp-zookeeper:${VERSION_CONFLUENT}
@@ -347,7 +349,7 @@ services:
       - mongo
       - mongosetup
     ports:
-      - "3456:3456"
+      - "3456:3000"
     environment:
       MONGO_URL: "mongodb://mongo:27017/mongoDB"
       MONGOCLIENT_DEFAULT_CONNECTION_URL: "mongodb://mongo:27017/mongoDB"
