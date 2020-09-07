@@ -1,22 +1,12 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000017/out/charge" -m "ev"
-docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000017/out/charge" -m "ready"
-docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000017/out/charge" -m "charging"
-docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000017/out/charge" -m "charged; amount 20 of 20"
-docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000017/out/charge" -m "ev"
-docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000012/out/charge" -m "ev"
-docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000012/out/charge" -m "ready"
-docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000012/out/charge" -m "charging"
-docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000012/out/charge" -m "charged; amount 20 of 20"
-docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000012/out/charge" -m "ev"
-docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000001/out/charge" -m "ev"
-docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000001/out/charge" -m "ready"
-docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000001/out/charge" -m "charging"
-docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000001/out/charge" -m "charged; amount 20 of 20"
-docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000001/out/charge" -m "ev"
-docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000017/out/blink" -m "red"
-docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000012/out/blink" -m "green"
-docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000001/out/blink" -m "blue"
-docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000001/in/charge" -m "action: status"
-docker run -it --rm --name mqtt-publisher --network showcase_emob efrecon/mqtt-client pub -h hivemq -t "CIQ000000001/in/charge" -m "action: charge; params: [20000]"
+# Test data is managed in ./testdata directory.
+# Mqtt messages can be defined in *.csv files in directory ./testdata/mqtt.
+# Messages which were defined in this script have been migrated to ./testdata/mqtt/mqttmessages.csv.
+# The script /testdata/mqtt/mqttmessages-send.sh automatically sends 
+# all messages defined in *.csv files in alphabeticall order to the Mqtt broker.
+# This script, or in more detail, the ./emob-dc.sh script executes 
+# the send script in a Docker container and handles retries.
+
+echo "Deprecated: Use ./emob-dc.sh start testdata"
+exec $(dirname $0)/emob-dc.sh start testdata

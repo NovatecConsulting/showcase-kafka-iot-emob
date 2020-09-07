@@ -1,0 +1,17 @@
+#############################################################
+# Test driver for Emob                                      #
+#############################################################
+---
+version: '2.4'
+services:
+
+  mqttmessages-send:
+    image: efrecon/mqtt-client
+    container_name: mqttmessages-send
+    restart: on-failure
+    environment: 
+      MQTT_BROKER_HOST: hivemq
+    volumes:
+    - ./testdata/mqtt:/mqtt-testdata
+    command: 
+    - /mqtt-testdata/mqttmessages-send.sh

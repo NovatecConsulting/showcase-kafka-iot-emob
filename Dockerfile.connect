@@ -1,0 +1,5 @@
+ARG VERSION_CONFLUENT
+FROM confluentinc/cp-server-connect-base:${VERSION_CONFLUENT}
+
+ARG CONNECTORS=""
+RUN for c in ${CONNECTORS}; do confluent-hub install --no-prompt $c; done;

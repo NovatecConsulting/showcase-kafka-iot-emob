@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-sleep 10
-
 echo SETUP.sh time now: `date +"%T" `
 echo "Configure mongoDB in replica set mode"
 mongo --host mongo:27017 <<EOF

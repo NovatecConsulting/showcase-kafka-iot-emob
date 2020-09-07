@@ -1,8 +1,10 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-curl -d @"./config/ksql-config/ksqlReadRawData.json" -H "Content-Type: application/vnd.ksql.v1+json; charset=utf-8" -X POST "http://localhost:8088/ksql"  
-curl -d @"./config/ksql-config/ksqlConvertRawChargeData.json" -H "Content-Type: application/vnd.ksql.v1+json; charset=utf-8" -X POST "http://localhost:8088/ksql"  
-curl -d @"./config/ksql-config/ksqlConvertRawBlinkData.json" -H "Content-Type: application/vnd.ksql.v1+json; charset=utf-8" -X POST "http://localhost:8088/ksql"  
-curl -d @"./config/ksql-config/ksqlChargeCompactTopic.json" -H "Content-Type: application/vnd.ksql.v1+json; charset=utf-8" -X POST "http://localhost:8088/ksql"  
-curl -d @"./config/ksql-config/ksqlChargeStatusLocation.json" -H "Content-Type: application/vnd.ksql.v1+json; charset=utf-8" -X POST "http://localhost:8088/ksql"  
+# Ksql statements are managed in ./config/ksql-config directory.
+# The script ./config/ksql-config/ksqlstatements-deploy.sh automatically 
+# deploys all ksql statements defined in *.json files in alphabeticall order to ksqlDB.
+# This script, or in more detail, the ./emob-dc.sh script executes 
+# the deploy script in a Docker container and handles retries.
 
+echo "Deprecated: Use ./emob-dc.sh start job ksqlstatements-deploy"
+exec $(dirname $0)/emob-dc.sh start job ksqlstatements-deploy

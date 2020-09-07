@@ -6,8 +6,8 @@
         "mqtt.server.uri": "tcp://hivemq:1883",
         "mqtt.topics": "#",
         "kafka.topic": "wallbox_source",
+        "value.converter": "org.apache.kafka.connect.converters.ByteArrayConverter", 
         "confluent.topic.bootstrap.servers": "kafka:9092",
-        "confluent.topic.replication.factor": 1,
-        "value.converter": "org.apache.kafka.connect.converters.ByteArrayConverter"  
+        "confluent.topic.replication.factor": 3
     }
 }

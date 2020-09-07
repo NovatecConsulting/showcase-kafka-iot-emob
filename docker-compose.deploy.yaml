@@ -1,0 +1,55 @@
+#############################################################
+# Deployment of Emob app (Topics, Connectors and Ksql)      #
+#############################################################
+---
+version: '2.4'
+services:
+
+  topics-deploy:
+    image: novatec/cp-deploy-emob:${VERSION_CONFLUENT}
+    build:
+      context: .
+      dockerfile: Dockerfile.deploy
+      args:
+        VERSION_CONFLUENT: ${VERSION_CONFLUENT}
+    container_name: topics-deploy    
+    restart: on-failure
+    environment: 
+      KAFKA_BOOTSTRAP_SERVER: kafka:9092
+    volumes:
+    - ./config/topics-config:/topics-config
+    command: 
+    - /topics-config/topics-deploy.sh
+
+  connectors-deploy:
+    image: novatec/cp-deploy-emob:${VERSION_CONFLUENT}
+    build:
+      context: .
+      dockerfile: Dockerfile.deploy
+      args:
+        VERSION_CONFLUENT: ${VERSION_CONFLUENT}
+    container_name: connectors-deploy
+    restart: on-failure
+    environment: 
+      CONNECT_REST_API_URL: http://connect:8083
+      KAFKA_BOOTSTRAP_SERVER: kafka:9092
+    volumes:
+    - ./config/connectors-config:/connectors-config
+    command: 
+    - /connectors-config/connectors-deploy.sh
+
+  ksqlstatements-deploy:
+    image: novatec/cp-deploy-emob:${VERSION_CONFLUENT}
+    build:
+      context: .
+      dockerfile: Dockerfile.deploy
+      args:
+        VERSION_CONFLUENT: ${VERSION_CONFLUENT}
+    container_name: ksqlstatements-deploy
+    restart: on-failure
+    environment: 
+      KSQL_REST_API_URL: http://ksqldb-server:8088
+    volumes:
+    - ./config/ksql-config:/ksql-config
+    command: 
+    - /ksql-config/ksqlstatements-deploy.sh

@@ -1,0 +1,825 @@
+#############################################################
+# Emob Infrastructure Services for Showcase Emob (HA)       #
+#############################################################
+#https://docs.confluent.io/current/installation/docker/image-reference.html
+---
+version: '2.4'
+services:
+
+  #############################################################
+  # Apache Zookeeper                                          #
+  #############################################################
+  zookeeper1:
+    image: confluentinc/cp-zookeeper:${VERSION_CONFLUENT}
+    hostname: zookeeper1
+    container_name: zookeeper1
+    restart: always
+    ports:
+    - 12181:2181
+    networks:
+      default:
+        aliases:
+        - zookeeper
+    # https://docs.confluent.io/current/zookeeper/deployment.html
+    # https://docs.confluent.io/current/installation/docker/config-reference.html#zk-configuration
+    environment:
+      ZOOKEEPER_SERVER_ID: 1 # (required in cluster mode) Sets the server ID in the myid file, which consists of a single line that contains only the text of that machine’s ID.
+      ZOOKEEPER_CLIENT_PORT: 2181 # (required) This is the port where ZooKeeper clients will listen on. This is where the Brokers will connect to ZooKeeper.
+      ZOOKEEPER_SERVERS: zookeeper1:2888:3888;zookeeper2:2888:3888;zookeeper3:2888:3888
+      ZOOKEEPER_TICK_TIME: 2000 # (default: 3000) The unit of time for ZooKeeper translated to milliseconds. This governs all ZooKeeper time dependent operations. It is used for heartbeats and timeouts especially.
+      # The initLimit and syncLimit are used to govern how long following ZooKeeper servers can take to initialize with the current leader and how long they can be out of sync with the leader.
+      ZOOKEEPER_INIT_LIMIT: 5 # (default: 10)
+      ZOOKEEPER_SYNC_LIMIT: 2 # (default: 5)
+    healthcheck:
+      test: zookeeper-shell localhost:2181 ls / >/dev/null 2>&1 || exit 1
+      start_period: 15s
+      interval: 10s
+      timeout: 10s
+      retries: 10
+  zookeeper2:
+    image: confluentinc/cp-zookeeper:${VERSION_CONFLUENT}
+    hostname: zookeeper2
+    container_name: zookeeper2
+    restart: always
+    ports:
+    - 22181:2181
+    networks:
+      default:
+        aliases:
+        - zookeeper
+    # https://docs.confluent.io/current/zookeeper/deployment.html
+    # https://docs.confluent.io/current/installation/docker/config-reference.html#zk-configuration
+    environment:
+      ZOOKEEPER_SERVER_ID: 2 # (required in cluster mode) Sets the server ID in the myid file, which consists of a single line that contains only the text of that machine’s ID.
+      ZOOKEEPER_CLIENT_PORT: 2181 # (required) This is the port where ZooKeeper clients will listen on. This is where the Brokers will connect to ZooKeeper.
+      ZOOKEEPER_SERVERS: zookeeper1:2888:3888;zookeeper2:2888:3888;zookeeper3:2888:3888
+      ZOOKEEPER_TICK_TIME: 2000 # (default: 3000) The unit of time for ZooKeeper translated to milliseconds. This governs all ZooKeeper time dependent operations. It is used for heartbeats and timeouts especially.
+      # The initLimit and syncLimit are used to govern how long following ZooKeeper servers can take to initialize with the current leader and how long they can be out of sync with the leader.
+      ZOOKEEPER_INIT_LIMIT: 5 # (default: 10)
+      ZOOKEEPER_SYNC_LIMIT: 2 # (default: 5)
+    healthcheck:
+      test: zookeeper-shell localhost:2181 ls / >/dev/null 2>&1 || exit 1
+      start_period: 15s
+      interval: 10s
+      timeout: 10s
+      retries: 10
+  zookeeper3:
+    image: confluentinc/cp-zookeeper:${VERSION_CONFLUENT}
+    hostname: zookeeper3
+    container_name: zookeeper3
+    restart: always
+    ports:
+    - 32181:2181
+    networks:
+      default:
+        aliases:
+        - zookeeper
+    # https://docs.confluent.io/current/zookeeper/deployment.html
+    # https://docs.confluent.io/current/installation/docker/config-reference.html#zk-configuration
+    environment:
+      ZOOKEEPER_SERVER_ID: 3 # (required in cluster mode) Sets the server ID in the myid file, which consists of a single line that contains only the text of that machine’s ID.
+      ZOOKEEPER_CLIENT_PORT: 2181 # (required) This is the port where ZooKeeper clients will listen on. This is where the Brokers will connect to ZooKeeper.
+      ZOOKEEPER_SERVERS: zookeeper1:2888:3888;zookeeper2:2888:3888;zookeeper3:2888:3888
+      ZOOKEEPER_TICK_TIME: 2000 # (default: 3000) The unit of time for ZooKeeper translated to milliseconds. This governs all ZooKeeper time dependent operations. It is used for heartbeats and timeouts especially.
+      # The initLimit and syncLimit are used to govern how long following ZooKeeper servers can take to initialize with the current leader and how long they can be out of sync with the leader.
+      ZOOKEEPER_INIT_LIMIT: 5 # (default: 10)
+      ZOOKEEPER_SYNC_LIMIT: 2 # (default: 5)
+    healthcheck:
+      test: zookeeper-shell localhost:2181 ls / >/dev/null 2>&1 || exit 1
+      start_period: 15s
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  #############################################################
+  # Confluent Server (Kafka Broker)                           #
+  #############################################################
+  kafka1:
+    image: confluentinc/cp-server:${VERSION_CONFLUENT}
+    hostname: kafka1
+    container_name: kafka1
+    restart: always
+    depends_on:
+      zookeeper1:
+        condition: service_healthy
+      zookeeper2:
+        condition: service_healthy
+      zookeeper3:
+        condition: service_healthy
+    ports:
+    - 19092:19092
+    networks:
+      default:
+        aliases:
+        - kafka
+    # https://docs.confluent.io/current/installation/configuration/broker-configs.html
+    # https://docs.confluent.io/current/installation/docker/config-reference.html#confluent-kafka-configuration
+    environment:
+      KAFKA_BROKER_ID: 1 # (default: -1) The broker id for this server. If unset, a unique broker id will be generated.
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181 # (required) Instructs Kafka how to get in touch with ZooKeeper.
+      KAFKA_CUB_ZK_TIMEOUT: 60 # (default: 40) Docker image setting, which specified the amount of time to wait for Zookeeper. Could be used, to get rid of Docker healthchecks. 
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: HOST:PLAINTEXT,DOCKER:PLAINTEXT,CONTROLLER:PLAINTEXT,REPLICATION:PLAINTEXT # (default: PLAINTEXT:PLAINTEXT,...) Map between listener names and security protocols. In this scenario this setting is used to define listeners with names.
+      KAFKA_LISTENERS: HOST://:19092,DOCKER://:9092,CONTROLLER://:9093,REPLICATION://:9094 # (required) List of URIs we will listen on and the listener names. In this case, Kafka listens in both ports on all interfaces.
+      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:19092,DOCKER://kafka1:9092,CONTROLLER://kafka1:9093,REPLICATION://kafka1:9094 # (required) Describes how the host name that is advertised and can be reached by clients. HOST://localhost:19092 enables access from Docker host.
+      KAFKA_CONTROL_PLAIN_LISTENER_NAME: CONTROLLER # (default: unset) Name of listener used for communication between controller and brokers. By default, no dedicated listener is used.
+      KAFKA_INTER_BROKER_LISTENER_NAME: REPLICATION # (default: unset) Name of listener used for communication between brokers.  By default, no dedicated listener is used.
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0 # (default: 3000) The amount of time the group coordinator will wait for more consumers to join a new group before performing the first rebalance. Set to 0 to ensure, that consumers start faster in dev environments.
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false" # (default: true) We disabled auto creation of topics, to ensure that topics are created with the correct configuration. However, if defaults are fine, this could be enabled.
+      KAFKA_NUM_PARTITIONS: 6 # (default: 1) The default number of partitions per topic.
+      KAFKA_MIN_INSYNC_REPLICAS: 2 # (default: 1) When a producer sets acks to "all" (or "-1"), min.insync.replicas specifies the minimum number of replicas that must acknowledge a write for the write to be considered successful. If this minimum cannot be met, then the producer will raise an exception. 2 is a good setting for HA cluster with high durability requirements.
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3 # (default: 1) Default replication factors for automatically created topics. 3 is a good setting for HA cluster with high durability requirements.
+      KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081 # (default: unset) Allows activation of Schema Validation on the brokers for specific topics (see https://docs.confluent.io/current/schema-registry/schema-validation.html)
+      # https://docs.confluent.io/current/kafka/metrics-reporter.html
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter # (default: "") A list of classes to use as metrics custom reporters. The definied reporter writes metrics to _confluent-metrics topic, which is required by Control Center.
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka:9092 # (required) Point to Kafka brokers in the metrics cluster. In this scenario, metrics are not stored in a separate cluster.
+      CONFLUENT_METRICS_REPORTER_PUBLISHMS: 5000 # (default: 15000) The Confluent Metrics Reporter will publish new metrics to the metrics topic in intervals defined by this setting. Reduced for development, to reduce the health data lag.
+    healthcheck:
+      test: "(kafka-topics --bootstrap-server localhost:9092 --describe --topic _confluent-license | grep '_confluent-license.*Isr: [0-9]\\+,[0-9]\\+,[0-9]\\+' >/dev/null 2>&1) || exit 1"
+      start_period: 20s
+      interval: 10s
+      timeout: 10s
+      retries: 10
+  kafka2:
+    image: confluentinc/cp-server:${VERSION_CONFLUENT}
+    hostname: kafka2
+    container_name: kafka2
+    restart: always
+    depends_on:
+      zookeeper1:
+        condition: service_healthy
+      zookeeper2:
+        condition: service_healthy
+      zookeeper3:
+        condition: service_healthy
+    ports:
+    - 29092:29092
+    networks:
+      default:
+        aliases:
+        - kafka
+    # https://docs.confluent.io/current/installation/configuration/broker-configs.html
+    # https://docs.confluent.io/current/installation/docker/config-reference.html#confluent-kafka-configuration
+    environment:
+      KAFKA_BROKER_ID: 2 # (default: -1) The broker id for this server. If unset, a unique broker id will be generated.
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181 # (required) Instructs Kafka how to get in touch with ZooKeeper.
+      KAFKA_CUB_ZK_TIMEOUT: 60 # (default: 40) Docker image setting, which specified the amount of time to wait for Zookeeper. Could be used, to get rid of Docker healthchecks. 
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: HOST:PLAINTEXT,DOCKER:PLAINTEXT,CONTROLLER:PLAINTEXT,REPLICATION:PLAINTEXT # (default: PLAINTEXT:PLAINTEXT,...) Map between listener names and security protocols. In this scenario this setting is used to define listeners with names.
+      KAFKA_LISTENERS: HOST://:29092,DOCKER://:9092,CONTROLLER://:9093,REPLICATION://:9094 # (required) List of URIs we will listen on and the listener names. In this case, Kafka listens in both ports on all interfaces.
+      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:29092,DOCKER://kafka2:9092,CONTROLLER://kafka2:9093,REPLICATION://kafka2:9094 # (required) Describes how the host name that is advertised and can be reached by clients. HOST://localhost:19092 enables access from Docker host.
+      KAFKA_CONTROL_PLAIN_LISTENER_NAME: CONTROLLER # (default: unset) Name of listener used for communication between controller and brokers. By default, no dedicated listener is used.
+      KAFKA_INTER_BROKER_LISTENER_NAME: REPLICATION # (default: unset) Name of listener used for communication between brokers.  By default, no dedicated listener is used.
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0 # (default: 3000) The amount of time the group coordinator will wait for more consumers to join a new group before performing the first rebalance. Set to 0 to ensure, that consumers start faster in dev environments.
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false" # (default: true) We disabled auto creation of topics, to ensure that topics are created with the correct configuration. However, if defaults are fine, this could be enabled.
+      KAFKA_NUM_PARTITIONS: 6 # (default: 1) The default number of partitions per topic.
+      KAFKA_MIN_INSYNC_REPLICAS: 2 # (default: 1) When a producer sets acks to "all" (or "-1"), min.insync.replicas specifies the minimum number of replicas that must acknowledge a write for the write to be considered successful. If this minimum cannot be met, then the producer will raise an exception. 2 is a good setting for HA cluster with high durability requirements.
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3 # (default: 1) Default replication factors for automatically created topics. 3 is a good setting for HA cluster with high durability requirements.
+      KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081 # (default: unset) Allows activation of Schema Validation on the brokers for specific topics (see https://docs.confluent.io/current/schema-registry/schema-validation.html)
+      # https://docs.confluent.io/current/kafka/metrics-reporter.html
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter # (default: "") A list of classes to use as metrics custom reporters. The definied reporter writes metrics to _confluent-metrics topic, which is required by Control Center.
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka:9092 # (required) Point to Kafka brokers in the metrics cluster. In this scenario, metrics are not stored in a separate cluster.
+      CONFLUENT_METRICS_REPORTER_PUBLISHMS: 5000 # (default: 15000) The Confluent Metrics Reporter will publish new metrics to the metrics topic in intervals defined by this setting. Reduced for development, to reduce the health data lag.
+    healthcheck:
+      test: "(kafka-topics --bootstrap-server localhost:9092 --describe --topic _confluent-license | grep '_confluent-license.*Isr: [0-9]\\+,[0-9]\\+,[0-9]\\+' >/dev/null 2>&1) || exit 1"
+      start_period: 20s
+      interval: 10s
+      timeout: 10s
+      retries: 10
+  kafka3:
+    image: confluentinc/cp-server:${VERSION_CONFLUENT}
+    hostname: kafka3
+    container_name: kafka3
+    restart: always
+    depends_on:
+      zookeeper1:
+        condition: service_healthy
+      zookeeper2:
+        condition: service_healthy
+      zookeeper3:
+        condition: service_healthy
+    ports:
+    - 39092:39092
+    networks:
+      default:
+        aliases:
+        - kafka
+    # https://docs.confluent.io/current/installation/configuration/broker-configs.html
+    # https://docs.confluent.io/current/installation/docker/config-reference.html#confluent-kafka-configuration
+    environment:
+      KAFKA_BROKER_ID: 3 # (default: -1) The broker id for this server. If unset, a unique broker id will be generated.
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181 # (required) Instructs Kafka how to get in touch with ZooKeeper.
+      KAFKA_CUB_ZK_TIMEOUT: 60 # (default: 40) Docker image setting, which specified the amount of time to wait for Zookeeper. Could be used, to get rid of Docker healthchecks. 
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: HOST:PLAINTEXT,DOCKER:PLAINTEXT,CONTROLLER:PLAINTEXT,REPLICATION:PLAINTEXT # (default: PLAINTEXT:PLAINTEXT,...) Map between listener names and security protocols. In this scenario this setting is used to define listeners with names.
+      KAFKA_LISTENERS: HOST://:39092,DOCKER://:9092,CONTROLLER://:9093,REPLICATION://:9094 # (required) List of URIs we will listen on and the listener names. In this case, Kafka listens in both ports on all interfaces.
+      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:39092,DOCKER://kafka3:9092,CONTROLLER://kafka3:9093,REPLICATION://kafka3:9094 # (required) Describes how the host name that is advertised and can be reached by clients. HOST://localhost:19092 enables access from Docker host.
+      KAFKA_CONTROL_PLAIN_LISTENER_NAME: CONTROLLER # (default: unset) Name of listener used for communication between controller and brokers. By default, no dedicated listener is used.
+      KAFKA_INTER_BROKER_LISTENER_NAME: REPLICATION # (default: unset) Name of listener used for communication between brokers.  By default, no dedicated listener is used.
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0 # (default: 3000) The amount of time the group coordinator will wait for more consumers to join a new group before performing the first rebalance. Set to 0 to ensure, that consumers start faster in dev environments.
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false" # (default: true) We disabled auto creation of topics, to ensure that topics are created with the correct configuration. However, if defaults are fine, this could be enabled.
+      KAFKA_NUM_PARTITIONS: 6 # (default: 1) The default number of partitions per topic.
+      KAFKA_MIN_INSYNC_REPLICAS: 2 # (default: 1) When a producer sets acks to "all" (or "-1"), min.insync.replicas specifies the minimum number of replicas that must acknowledge a write for the write to be considered successful. If this minimum cannot be met, then the producer will raise an exception. 2 is a good setting for HA cluster with high durability requirements.
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3 # (default: 1) Default replication factors for automatically created topics. 3 is a good setting for HA cluster with high durability requirements.
+      KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081 # (default: unset) Allows activation of Schema Validation on the brokers for specific topics (see https://docs.confluent.io/current/schema-registry/schema-validation.html)
+      # https://docs.confluent.io/current/kafka/metrics-reporter.html
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter # (default: "") A list of classes to use as metrics custom reporters. The definied reporter writes metrics to _confluent-metrics topic, which is required by Control Center.
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka:9092 # (required) Point to Kafka brokers in the metrics cluster. In this scenario, metrics are not stored in a separate cluster.
+      CONFLUENT_METRICS_REPORTER_PUBLISHMS: 5000 # (default: 15000) The Confluent Metrics Reporter will publish new metrics to the metrics topic in intervals defined by this setting. Reduced for development, to reduce the health data lag.
+    healthcheck:
+      test: "(kafka-topics --bootstrap-server localhost:9092 --describe --topic _confluent-license | grep '_confluent-license.*Isr: [0-9]\\+,[0-9]\\+,[0-9]\\+' >/dev/null 2>&1) || exit 1"
+      start_period: 20s
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  #############################################################
+  # Confluent Schema Registry                                 #
+  #############################################################
+  schema-registry1:
+    image: confluentinc/cp-schema-registry:${VERSION_CONFLUENT}
+    hostname: schema-registry1
+    container_name: schema-registry1
+    restart: always
+    depends_on:
+      kafka1:
+          condition: service_healthy
+      kafka2:
+        condition: service_healthy
+      kafka3:
+        condition: service_healthy
+    ports:
+    - 8081:8081  
+    - 18081:8081
+    networks:
+      default:
+        aliases:
+        - schema-registry
+    # https://docs.confluent.io/current/schema-registry/installation/config.html
+    # https://docs.confluent.io/current/installation/docker/config-reference.html#schema-registry-configuration   
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry1 # (required) The advertised host name. Used for inter schema-registry communication.
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081 # (default: http://0.0.0.0:8081) Comma-separated list of listeners that listen for API requests
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092 # (required) A list of Kafka brokers to connect. If kafkastore.connection.url is not specified, the Kafka cluster containing these bootstrap servers is used both to coordinate Schema Registry instances (primary election) and to store schema data.
+      SCHEMA_REGISTRY_CUB_KAFKA_MIN_BROKERS: 3 # (default: 1) Docker image setting, which specifies the minimum numbers of expected brokers to be available. Ensures, that _schemas topic is created with the specified replicas count. Could be used, to get rid of Docker healthchecks. 
+      SCHEMA_REGISTRY_CUB_KAFKA_TIMEOUT: 60 # (default: 40) Docker image setting, which specifies the amount of time to wait for Kafka. Could be used, to get rid of Docker healthchecks. 
+      SCHEMA_REGISTRY_AVRO_COMPATIBILITY_LEVEL: backward # (default: backward) The Avro compatibility type.
+      SCHEMA_REGISTRY_MASTER_ELIGIBILITY: "true" # (default: true) If true, this node can participate in primary election.
+      # The following settings are important, if multiple schema registry clusters are operated in a single Kafka cluster.
+      # Identifies schema registry cluster, in which each cluster can haf it's own master.
+      # Different clustery must have a distinct kafkastore.topic if master.eligibility is set to true.
+      #SCHEMA_REGISTRY_SCHEMA_REGISTRY_GROUP_ID: ""  
+      #SCHEMA_REGISTRY_KAFKASTORE_TOPIC: _schemas
+      # The group id of the KafkaStore consumer. Important when security is enabled. 
+      #SCHEMA_REGISTRY_KAFKASTORE_GROUP_ID: ""
+    healthcheck:
+      test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:8081/subjects) -eq 200 || exit 1
+      start_period: 20s
+      interval: 10s
+      timeout: 10s
+      retries: 10
+  schema-registry2:
+    image: confluentinc/cp-schema-registry:${VERSION_CONFLUENT}
+    hostname: schema-registry2
+    container_name: schema-registry2
+    restart: always
+    depends_on:
+      # Could lead to exception, when both schema registries are started at the same time. Second registry recognizes that _schemas topic is already created and immediately tries to access it.
+      # However, this is not possible, because topic is still initializing. This causes a restart of the schema registry. In real world, this is not a problem.
+      # In this docker-compose setup, however, a restart causes the start up to fail, and therefore, we try to start schema registry in sequence...
+      schema-registry1:
+        condition: service_healthy
+      kafka1:
+        condition: service_healthy
+      kafka2:
+        condition: service_healthy
+      kafka3:
+        condition: service_healthy
+    ports:
+    - 28081:8081
+    networks:
+      default:
+        aliases:
+        - schema-registry
+    # https://docs.confluent.io/current/schema-registry/installation/config.html
+    # https://docs.confluent.io/current/installation/docker/config-reference.html#schema-registry-configuration   
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry2 # (required) The advertised host name. Used for inter schema-registry communication.
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081 # (default: http://0.0.0.0:8081) Comma-separated list of listeners that listen for API requests
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092 # (required) A list of Kafka brokers to connect. If kafkastore.connection.url is not specified, the Kafka cluster containing these bootstrap servers is used both to coordinate Schema Registry instances (primary election) and to store schema data.
+      SCHEMA_REGISTRY_CUB_KAFKA_MIN_BROKERS: 3 # (default: 1) Docker image setting, which specifies the minimum numbers of expected brokers to be available. Ensures, that _schemas topic is created with the specified replicas count. Could be used, to get rid of Docker healthchecks. 
+      SCHEMA_REGISTRY_CUB_KAFKA_TIMEOUT: 60 # (default: 40) Docker image setting, which specifies the amount of time to wait for Kafka. Could be used, to get rid of Docker healthchecks. 
+      SCHEMA_REGISTRY_AVRO_COMPATIBILITY_LEVEL: backward # (default: backward) The Avro compatibility type.
+      SCHEMA_REGISTRY_MASTER_ELIGIBILITY: "true" # (default: true) If true, this node can participate in primary election.
+    healthcheck:
+      test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:8081/subjects) -eq 200 || exit 1
+      start_period: 20s
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  #############################################################
+  # Kafka Connect (CP)                                        #
+  #############################################################
+  connect1:
+    image: novatec/cp-server-connect-emob:${VERSION_CONFLUENT}
+    build:
+      context: .
+      dockerfile: Dockerfile.connect
+      args:
+        VERSION_CONFLUENT: ${VERSION_CONFLUENT}
+        CONNECTORS: |-
+          confluentinc/kafka-connect-mqtt:1.3.0
+          confluentinc/kafka-connect-jdbc:5.5.1
+          mongodb/kafka-connect-mongodb:1.2.0
+          debezium/debezium-connector-mongodb:1.2.2
+    hostname: connect1
+    container_name: connect1
+    restart: always
+    depends_on:
+      kafka1:
+        condition: service_healthy
+      kafka2:
+        condition: service_healthy
+      kafka3:
+        condition: service_healthy
+      schema-registry1:
+        condition: service_healthy
+      schema-registry2:
+        condition: service_healthy
+    ports:
+    - 8083:8083  
+    - 18083:8083
+    networks:
+      default:
+        aliases:
+        - connect
+    # https://docs.confluent.io/current/installation/configuration/connect/index.html
+    # https://docs.confluent.io/current/installation/docker/config-reference.html#kafka-connect-configuration
+    # https://docs.confluent.io/current/installation/configuration/connect/source-connect-configs.html
+    # https://docs.confluent.io/current/installation/configuration/connect/sink-connect-configs.html
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: kafka:9092 # (required) A host:port pair for establishing the initial connection to the Kafka cluster.
+      CONNECT_CUB_KAFKA_MIN_BROKERS: 3 # (default: 1) Docker image setting, which specifies the minimum numbers of expected brokers to be available. Could be used, to get rid of Docker healthchecks. 
+      CONNECT_CUB_KAFKA_TIMEOUT: 60 # (default: 40) Docker image setting, which specifies the amount of time to wait for Kafka. Could be used, to get rid of Docker healthchecks. 
+      CONNECT_REST_ADVERTISED_HOST_NAME: connect1 # (required) The hostname that is given out to other workers to connect to. Must be resolvable by all containers.
+      CONNECT_REST_PORT: 8083 # (default: 8083) Port for the REST API to listen on.
+      CONNECT_GROUP_ID: emob_connect # (required) A unique string that identifies the Connect cluster group this worker belongs to.
+      CONNECT_CONFIG_STORAGE_TOPIC: emob_connect-configs # (required) The name of the topic in which to store connector and task configuration data. This must be the same for all workers with the same group.id
+      CONNECT_OFFSET_FLUSH_INTERVAL_MS: 10000 # (default: 60000) Interval at which to try committing offsets for tasks. Explicitly reduced for dev environment.
+      CONNECT_OFFSET_STORAGE_TOPIC: emob_connect-offsets # (required) The name of the topic in which to store offset data for connectors. This must be the same for all workers with the same group.id
+      CONNECT_STATUS_STORAGE_TOPIC: emob_connect-status # (required) The name of the topic in which to store state for connectors. This must be the same for all workers with the same group.id
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter # (required) Converter class for keys. This controls the format of the data that will be written to Kafka for source connectors or read from Kafka for sink connectors.
+      CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter # (required) Converter class for values. This controls the format of the data that will be written to Kafka for source connectors or read from Kafka for sink connectors.
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081 # (required) Schema Registry Url which is used by AvroConvertor.
+      CONNECT_INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter # (required) Converter class for internal keys.
+      CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter # (required) Converter class for internal values.
+      CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components,/etc/kafka-connect/jars # (default: /usr/share/java,/usr/share/confluent-hub-components) The plugin.path value that indicates the location from which to load Connect plugins in classloading isolation.
+      CONNECT_PRODUCER_ACKS: all # (default: 1)  When a producer sets acks to "all" (or "-1"), min.insync.replicas specifies the minimum number of replicas that must acknowledge a write for the write to be considered successful. If this minimum cannot be met, then the producer will raise an exception.
+      CLASSPATH: /usr/share/java/kafka/*:/usr/share/java/monitoring-interceptors/* # CLASSPATH required due to CC-2422
+      # https://docs.confluent.io/current/control-center/installation/clients.html#confluent-monitoring-interceptors
+      CONNECT_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+      CONNECT_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+      # CONNECT_CONFLUENT_MONITORING_INTERCEPTOR_TOPIC: _confluent-monitoring # (default: _confluent-monitoring) Topic on which monitoring data will be written. The topic is created by Confluent Control Center.
+      # CONNECT_CONFLUENT_MONITORING_INTERCEPTOR_PUBLISHMS: 15 # (default: 15) Period the interceptor should use to publish messages to. 
+      # https://docs.confluent.io/current/kafka/metrics-reporter.html
+      CONNECT_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter # (default: "") A list of classes to use as metrics custom reporters. The definied reporter writes metrics to _confluent-metrics topic, which is required by Control Center.
+      CONNECT_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka:9092 # (required) Point to Kafka brokers in the metrics cluster. In this scenario, metrics are not stored in a separate cluster.
+      CONNECT_CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1 # (default: 3) Number of replicas in the metric topic. Must be 1, because we only have a single broker.
+      CONNECT_CONFLUENT_METRICS_REPORTER_PUBLISHMS: 5000 # (default: 15000) The Confluent Metrics Reporter will publish new metrics to the metrics topic in intervals defined by this setting. Reduced for development, to reduce the health data lag.
+    healthcheck:
+      test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:8083/connectors) -eq 200 || exit 1
+      start_period: 60s
+      interval: 10s
+      timeout: 10s
+      retries: 10
+  connect2:
+    image: novatec/cp-server-connect-emob:${VERSION_CONFLUENT}
+    build:
+      context: .
+      dockerfile: Dockerfile.connect
+      args:
+        VERSION_CONFLUENT: ${VERSION_CONFLUENT}
+        CONNECTORS: |-
+          confluentinc/kafka-connect-mqtt:1.3.0
+          confluentinc/kafka-connect-jdbc:5.5.1
+          mongodb/kafka-connect-mongodb:1.2.0
+          debezium/debezium-connector-mongodb:1.2.2
+    hostname: connect2
+    container_name: connect2
+    restart: always
+    depends_on:
+      kafka1:
+        condition: service_healthy
+      kafka2:
+        condition: service_healthy
+      kafka3:
+        condition: service_healthy
+      schema-registry1:
+        condition: service_healthy
+      schema-registry2:
+        condition: service_healthy
+    ports:
+    - 28083:8083
+    networks:
+      default:
+        aliases:
+        - connect
+    # https://docs.confluent.io/current/installation/configuration/connect/index.html
+    # https://docs.confluent.io/current/installation/docker/config-reference.html#kafka-connect-configuration
+    # https://docs.confluent.io/current/installation/configuration/connect/source-connect-configs.html
+    # https://docs.confluent.io/current/installation/configuration/connect/sink-connect-configs.html
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: kafka:9092 # (required) A host:port pair for establishing the initial connection to the Kafka cluster.
+      CONNECT_CUB_KAFKA_MIN_BROKERS: 3 # (default: 1) Docker image setting, which specifies the minimum numbers of expected brokers to be available. Could be used, to get rid of Docker healthchecks. 
+      CONNECT_CUB_KAFKA_TIMEOUT: 60 # (default: 40) Docker image setting, which specifies the amount of time to wait for Kafka. Could be used, to get rid of Docker healthchecks. 
+      CONNECT_REST_ADVERTISED_HOST_NAME: connect2 # (required) The hostname that is given out to other workers to connect to. Must be resolvable by all containers.
+      CONNECT_REST_PORT: 8083 # (default: 8083) Port for the REST API to listen on.
+      CONNECT_GROUP_ID: emob_connect # (required) A unique string that identifies the Connect cluster group this worker belongs to.
+      CONNECT_CONFIG_STORAGE_TOPIC: emob_connect-configs # (required) The name of the topic in which to store connector and task configuration data. This must be the same for all workers with the same group.id
+      CONNECT_OFFSET_FLUSH_INTERVAL_MS: 10000 # (default: 60000) Interval at which to try committing offsets for tasks. Explicitly reduced for dev environment.
+      CONNECT_OFFSET_STORAGE_TOPIC: emob_connect-offsets # (required) The name of the topic in which to store offset data for connectors. This must be the same for all workers with the same group.id
+      CONNECT_STATUS_STORAGE_TOPIC: emob_connect-status # (required) The name of the topic in which to store state for connectors. This must be the same for all workers with the same group.id
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter # (required) Converter class for keys. This controls the format of the data that will be written to Kafka for source connectors or read from Kafka for sink connectors.
+      CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter # (required) Converter class for values. This controls the format of the data that will be written to Kafka for source connectors or read from Kafka for sink connectors.
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081 # (required) Schema Registry Url which is used by AvroConvertor.
+      CONNECT_INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter # (required) Converter class for internal keys.
+      CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter # (required) Converter class for internal values.
+      CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components,/etc/kafka-connect/jars # (default: /usr/share/java,/usr/share/confluent-hub-components) The plugin.path value that indicates the location from which to load Connect plugins in classloading isolation.
+      CONNECT_PRODUCER_ACKS: all # (default: 1)  When a producer sets acks to "all" (or "-1"), min.insync.replicas specifies the minimum number of replicas that must acknowledge a write for the write to be considered successful. If this minimum cannot be met, then the producer will raise an exception.
+      CLASSPATH: /usr/share/java/kafka/*:/usr/share/java/monitoring-interceptors/* # CLASSPATH required due to CC-2422
+      # https://docs.confluent.io/current/control-center/installation/clients.html#confluent-monitoring-interceptors
+      CONNECT_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+      CONNECT_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor 
+      # CONNECT_CONFLUENT_MONITORING_INTERCEPTOR_TOPIC: _confluent-monitoring # (default: _confluent-monitoring) Topic on which monitoring data will be written. The topic is created by Confluent Control Center.
+      # CONNECT_CONFLUENT_MONITORING_INTERCEPTOR_PUBLISHMS: 15 # (default: 15) Period the interceptor should use to publish messages to.
+      # https://docs.confluent.io/current/kafka/metrics-reporter.html
+      CONNECT_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter # (default: "") A list of classes to use as metrics custom reporters. The definied reporter writes metrics to _confluent-metrics topic, which is required by Control Center.
+      CONNECT_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka:9092 # (required) Point to Kafka brokers in the metrics cluster. In this scenario, metrics are not stored in a separate cluster.
+      CONNECT_CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1 # (default: 3) Number of replicas in the metric topic. Must be 1, because we only have a single broker.
+      CONNECT_CONFLUENT_METRICS_REPORTER_PUBLISHMS: 5000 # (default: 15000) The Confluent Metrics Reporter will publish new metrics to the metrics topic in intervals defined by this setting. Reduced for development, to reduce the health data lag.
+    healthcheck:
+      test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:8083/connectors) -eq 200 || exit 1
+      start_period: 60s
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  #############################################################
+  # Confluent ksqlDB Server                                   #
+  #############################################################
+  ksqldb-server1:
+    image: novatec/ksqldb-server-emob:${VERSION_KSQLDB}
+    build:
+      context: .
+      dockerfile: Dockerfile.ksqldb
+      args:
+        VERSION_CONFLUENT: ${VERSION_CONFLUENT}
+        VERSION_KSQLDB: ${VERSION_KSQLDB}
+    hostname: ksqldb-server1
+    container_name: ksqldb-server1
+    restart: always
+    depends_on:
+      kafka1:
+        condition: service_healthy
+      kafka2:
+        condition: service_healthy
+      kafka3:
+        condition: service_healthy
+      schema-registry1:
+        condition: service_healthy
+      schema-registry2:
+        condition: service_healthy
+      connect1:
+        condition: service_healthy
+      connect2:
+        condition: service_healthy
+    ports:
+    - 8088:8088  
+    - 18088:8088
+    networks:
+      default:
+        aliases:
+        - ksqldb-server
+    # https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/server-config/config-reference/
+    # https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/install-ksqldb-with-docker/
+    environment:
+      ## ksqlDB Kafka Streams and Kafka Client Settings 
+      ## https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/server-config/config-reference/#kafka-streams-and-kafka-client-settings
+      KSQL_BOOTSTRAP_SERVERS: kafka:9092 # (default: localhost:9092) list of host and port pairs that is used for establishing the initial connection to the Kafka cluster
+      KSQL_KSQL_STREAMS_AUTO_OFFSET_RESET: earliest # (default: latest) determines what to do when there is no initial offset in Apache Kafka
+      KSQL_KSQL_STREAMS_NUM_STREAM_THREADS: 1 # (default: 1) number of stream threads in an instance of the Kafka Streams application
+      KSQL_KSQL_STREAMS_PRODUCER_DELIVERY_TIMEOUT_MS: 2147483647 # (default: 120000) Set the batch expiry to Integer.MAX_VALUE to ensure that queries will not terminate if the underlying Kafka cluster is unavailable
+      KSQL_KSQL_STREAMS_PRODUCER_MAX_BLOCK_MS: 9223372036854775807 # (default: 60000) Set the maximum allowable time for the producer to block to Long.MAX_VALUE. This allows ksqlDB to pause processing if the underlying Kafka cluster is unavailable. 
+      # Data is flushed to the state store and forwarded to the next downstream processor node whenever the earliest of commit.interval.ms or cache.max.bytes.buffering (cache pressure) hits.
+      # Therfore, we set cache.max.bytes.buffering to 0, to ensure that every single record is set downstream, which can be helpful for debuging. Don't do this in production environments with high throughput.
+      KSQL_KSQL_STREAMS_COMMIT_INTERVAL_MS: 2000 # (default: 2000) frequency to save the position of the processor
+      KSQL_KSQL_STREAMS_CACHE_MAX_BYTES_BUFFERING: 0 # (default: 10000000) maximum number of memory bytes to be used for buffering across all threads   
+      # Configure underlying Kafka Streams internal topics to achieve better fault tolerance and durability, even in the face of Kafka broker failures.
+      KSQL_KSQL_STREAMS_PRODUCER_ACKS: all # (default: 1)
+      KSQL_KSQL_STREAMS_REPLICATION_FACTOR: 3 # (default: 1)
+      KSQL_KSQL_STREAMS_TOPIC_MIN_INSYNC_REPLICAS: 2 # (default: 1)
+      KSQL_KSQL_STREAMS_NUM_STANDBY_REPLICAS: 1 # (default: 1) the number of replicas for state storage for stateful operations. By having two replicas recovery from node failures is quicker. Essential for pull queries to be highly available during node failures
+      ## ksqlDB Query Settings
+      ## https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/server-config/config-reference/#ksqldb-query-settings
+      KSQL_KSQL_SERVICE_ID: emob_ksql_ # (default: default_) used to define the ksqlDB cluster membership of a ksqlDB Server instance
+      KSQL_KSQL_OUTPUT_TOPIC_NAME_PREFIX: "" # (default: "") default prefix for automatically created topic names
+      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schema-registry:8081 # (required for Avro) Schema Registry URL path to connect ksqlDB to
+      ## ksqlDB Server Settings
+      ## https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/server-config/config-reference/#ksqldb-server-settings
+      # Configuring Listeners of a ksqlDB Cluster (https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/server-config/#configuring-listeners-of-a-ksqldb-cluster)
+      KSQL_LISTENERS: http://0.0.0.0:8088 # (default: http://0.0.0.0:8088) controls the REST API endpoint for the ksqlDB Server
+      KSQL_KSQL_ADVERTISED_LISTENER: http://ksqldb-server1:8088 # (default: first listener defined by listeners) This is the URL used for inter-node communication. It is used to set an routable URL that other ksqlDB nodes will use to communicate with this node.
+      KSQL_KSQL_STREAMS_STATE_DIR: /tmp/kafka-streams # (default: /tmp/kafka-streams) the storage directory for stateful operations, like aggregations and joins
+      KSQL_KSQL_EXTENSION_DIR: /etc/ksql/ext # extension directory for UDFs, see https://docs.ksqldb.io/en/latest/developer-guide/implement-a-udf/
+      ## ksqlDB Connect Settings
+      KSQL_KSQL_CONNECT_URL: http://connect:8083 # The Connect cluster URL to integrate with.
+      KSQL_KSQL_CONNECT_POLLING_ENABLE: "true" # Toggles whether or not to poll connect for new connectors and automatically register them in ksqlDB.
+      # ksqlDB Monitoring Settings (https://docs.confluent.io/current/control-center/installation/clients.html#confluent-monitoring-interceptors)
+      KSQL_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+      KSQL_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+      # KSQL_CONFLUENT_MONITORING_INTERCEPTOR_TOPIC: _confluent-monitoring # (default: _confluent-monitoring) Topic on which monitoring data will be written. The topic is created by Confluent Control Center.
+      # KSQL_CONFLUENT_MONITORING_INTERCEPTOR_PUBLISHMS: 15 # (default: 15) Period the interceptor should use to publish messages to.
+    healthcheck:
+      test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:8088/healthcheck) -eq 200 || exit 1
+      start_period: 30s
+      interval: 10s
+      timeout: 10s
+      retries: 10
+  ksqldb-server2:
+    image: novatec/ksqldb-server-emob:${VERSION_KSQLDB}
+    build:
+      context: .
+      dockerfile: Dockerfile.ksqldb
+      args:
+        VERSION_CONFLUENT: ${VERSION_CONFLUENT}
+        VERSION_KSQLDB: ${VERSION_KSQLDB}
+    hostname: ksqldb-server2
+    container_name: ksqldb-server2
+    restart: always
+    depends_on:
+      kafka1:
+        condition: service_healthy
+      kafka2:
+        condition: service_healthy
+      kafka3:
+        condition: service_healthy
+      schema-registry1:
+        condition: service_healthy
+      schema-registry2:
+        condition: service_healthy
+      connect1:
+        condition: service_healthy
+      connect2:
+        condition: service_healthy
+    ports:
+    - 28088:8088
+    networks:
+      default:
+        aliases:
+        - ksqldb-server
+    # https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/server-config/config-reference/
+    # https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/install-ksqldb-with-docker/
+    environment:
+      ## ksqlDB Kafka Streams and Kafka Client Settings 
+      ## https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/server-config/config-reference/#kafka-streams-and-kafka-client-settings
+      KSQL_BOOTSTRAP_SERVERS: kafka:9092 # (default: localhost:9092) list of host and port pairs that is used for establishing the initial connection to the Kafka cluster
+      KSQL_KSQL_STREAMS_AUTO_OFFSET_RESET: earliest # (default: latest) determines what to do when there is no initial offset in Apache Kafka
+      KSQL_KSQL_STREAMS_NUM_STREAM_THREADS: 1 # (default: 1) number of stream threads in an instance of the Kafka Streams application
+      KSQL_KSQL_STREAMS_PRODUCER_DELIVERY_TIMEOUT_MS: 2147483647 # (default: 120000) Set the batch expiry to Integer.MAX_VALUE to ensure that queries will not terminate if the underlying Kafka cluster is unavailable
+      KSQL_KSQL_STREAMS_PRODUCER_MAX_BLOCK_MS: 9223372036854775807 # (default: 60000) Set the maximum allowable time for the producer to block to Long.MAX_VALUE. This allows ksqlDB to pause processing if the underlying Kafka cluster is unavailable. 
+      # Data is flushed to the state store and forwarded to the next downstream processor node whenever the earliest of commit.interval.ms or cache.max.bytes.buffering (cache pressure) hits.
+      # Therfore, we set cache.max.bytes.buffering to 0, to ensure that every single record is set downstream, which can be helpful for debuging. Don't do this in production environments with high throughput.
+      KSQL_KSQL_STREAMS_COMMIT_INTERVAL_MS: 2000 # (default: 2000) frequency to save the position of the processor
+      KSQL_KSQL_STREAMS_CACHE_MAX_BYTES_BUFFERING: 0 # (default: 10000000) maximum number of memory bytes to be used for buffering across all threads   
+      # Configure underlying Kafka Streams internal topics to achieve better fault tolerance and durability, even in the face of Kafka broker failures.
+      KSQL_KSQL_STREAMS_PRODUCER_ACKS: all # (default: 1)
+      KSQL_KSQL_STREAMS_REPLICATION_FACTOR: 3 # (default: 1)
+      KSQL_KSQL_STREAMS_TOPIC_MIN_INSYNC_REPLICAS: 2 # (default: 1)
+      KSQL_KSQL_STREAMS_NUM_STANDBY_REPLICAS: 1 # (default: 1) the number of replicas for state storage for stateful operations. By having two replicas recovery from node failures is quicker. Essential for pull queries to be highly available during node failures
+      ## ksqlDB Query Settings
+      ## https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/server-config/config-reference/#ksqldb-query-settings
+      KSQL_KSQL_SERVICE_ID: emob_ksql_ # (default: default_) used to define the ksqlDB cluster membership of a ksqlDB Server instance
+      KSQL_KSQL_OUTPUT_TOPIC_NAME_PREFIX: "" # (default: "") default prefix for automatically created topic names
+      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schema-registry:8081 # (required for Avro) Schema Registry URL path to connect ksqlDB to
+      ## ksqlDB Server Settings
+      ## https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/server-config/config-reference/#ksqldb-server-settings
+      # Configuring Listeners of a ksqlDB Cluster (https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/server-config/#configuring-listeners-of-a-ksqldb-cluster)
+      KSQL_LISTENERS: http://0.0.0.0:8088 # (default: http://0.0.0.0:8088) controls the REST API endpoint for the ksqlDB Server
+      KSQL_KSQL_ADVERTISED_LISTENER: http://ksqldb-server2:8088 # (default: first listener defined by listeners) This is the URL used for inter-node communication. It is used to set an routable URL that other ksqlDB nodes will use to communicate with this node.
+      KSQL_KSQL_STREAMS_STATE_DIR: /tmp/kafka-streams # (default: /tmp/kafka-streams) the storage directory for stateful operations, like aggregations and joins
+      KSQL_KSQL_EXTENSION_DIR: /etc/ksql/ext # extension directory for UDFs, see https://docs.ksqldb.io/en/latest/developer-guide/implement-a-udf/
+      ## ksqlDB Connect Settings
+      KSQL_KSQL_CONNECT_URL: http://connect:8083 # The Connect cluster URL to integrate with.
+      KSQL_KSQL_CONNECT_POLLING_ENABLE: "true" # Toggles whether or not to poll connect for new connectors and automatically register them in ksqlDB.
+      # ksqlDB Monitoring Settings (https://docs.confluent.io/current/control-center/installation/clients.html#confluent-monitoring-interceptors)
+      KSQL_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+      KSQL_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+      # KSQL_CONFLUENT_MONITORING_INTERCEPTOR_TOPIC: _confluent-monitoring # (default: _confluent-monitoring) Topic on which monitoring data will be written. The topic is created by Confluent Control Center.
+      # KSQL_CONFLUENT_MONITORING_INTERCEPTOR_PUBLISHMS: 15 # (default: 15) Period the interceptor should use to publish messages to.
+    healthcheck:
+      test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:8088/healthcheck) -eq 200 || exit 1
+      start_period: 30s
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  #############################################################
+  # Confluent Control Center (CP)                             #
+  #############################################################
+  control-center1:
+    image: confluentinc/cp-enterprise-control-center:${VERSION_CONFLUENT}
+    hostname: control-center1
+    container_name: control-center1
+    restart: always
+    depends_on:
+      kafka1:
+        condition: service_healthy
+      kafka2:
+        condition: service_healthy
+      kafka3:
+        condition: service_healthy
+      schema-registry1:
+        condition: service_healthy
+      schema-registry2:
+        condition: service_healthy
+      connect1:
+        condition: service_healthy
+      connect2:
+        condition: service_healthy
+      ksqldb-server1:
+        condition: service_healthy
+      ksqldb-server2:
+        condition: service_healthy    
+    ports:
+    - 9021:9021
+    - 19021:9021
+    networks:
+      default:
+        aliases:
+        - control-center
+    # https://docs.confluent.io/current/control-center/installation/configuration.html
+    # https://docs.confluent.io/current/installation/docker/config-reference.html#c3-configuration
+    environment:
+      CONTROL_CENTER_ID: 1 # (default: 1) Identifier used as a prefix so that multiple instances of Control Center can co-exist.
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: kafka:9092 # (required) A host:port pair for establishing the initial connection to the Kafka cluster. Multiple bootstrap servers can be used in the form host1:port1,host2:port2,host3:port3....
+      CONTROL_CENTER_REPLICATION_FACTOR: 3 # (required) Replication factor for Control Center topics.
+      CONTROL_CENTER_CUB_KAFKA_TIMEOUT: 300 # (default: 300) # Docker images waits for this amount of time until at least CONTROL_CENTER_REPLICATION_FACTOR brokers are alive.
+      CONTROL_CENTER_REST_LISTENERS: http://0.0.0.0:9021 # Set this to the HTTP or HTTPS of Control Center UI.
+      CONTROL_CENTER_REST_ADVERTISED_URL: http://localhost:9091 # Externally visible host. Control Center uses this as an override to rest.listeners when generating URLs for external communications such as alert emails.
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081 # Schema Registry URL
+      CONTROL_CENTER_CONNECT_EMOB_CLUSTER: http://connect:8083 # Comma-separated list of Kafka Connect worker URLs for the Connect cluster
+      CONTROL_CENTER_KSQL_EMOB_URL: http://ksqldb-server:8088  # Comma-separated list of the ksqlDB server hostnames and listener ports for the ksqlDB cluster
+      CONTROL_CENTER_KSQL_EMOB_ADVERTISED_URL: http://localhost:8088 # Comma-separated list of advertised URLs to access the ksqlDB cluster on Control Center. These hostnames must be reachable from any browser that will use the ksqlDB web interface in Control Center.
+      CONTROL_CENTER_SERVICE_HEALTHCHECK_INTERVAL_SEC: 15 # The interval (in seconds) used for checking the health of Confluent Platform nodes. This includes ksqlDB, Connect, Schema Registry, REST Proxy, and Metadata Service (MDS).
+    healthcheck:
+      test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:9021/2.0/alerts/history/) -eq 200 || exit 1
+      start_period: 30s
+      interval: 10s
+      timeout: 10s
+      retries: 10
+  control-center2:
+    image: confluentinc/cp-enterprise-control-center:${VERSION_CONFLUENT}
+    hostname: control-center2
+    container_name: control-center2
+    restart: always
+    depends_on:
+      kafka1:
+        condition: service_healthy
+      kafka2:
+        condition: service_healthy
+      kafka3:
+        condition: service_healthy
+      schema-registry1:
+        condition: service_healthy
+      schema-registry2:
+        condition: service_healthy
+      connect1:
+        condition: service_healthy
+      connect2:
+        condition: service_healthy
+      ksqldb-server1:
+        condition: service_healthy
+      ksqldb-server2:
+        condition: service_healthy    
+    ports:
+    - 29021:9021
+    networks:
+      default:
+        aliases:
+        - control-center
+    # https://docs.confluent.io/current/control-center/installation/configuration.html
+    # https://docs.confluent.io/current/installation/docker/config-reference.html#c3-configuration
+    environment:
+      CONTROL_CENTER_ID: 2 # (default: 1) Identifier used as a prefix so that multiple instances of Control Center can co-exist.
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: kafka:9092 # (required) A host:port pair for establishing the initial connection to the Kafka cluster. Multiple bootstrap servers can be used in the form host1:port1,host2:port2,host3:port3....
+      CONTROL_CENTER_REPLICATION_FACTOR: 3 # (required) Replication factor for Control Center topics.
+      CONTROL_CENTER_CUB_KAFKA_TIMEOUT: 300 # (default: 300) # Docker images waits for this amount of time until at least CONTROL_CENTER_REPLICATION_FACTOR brokers are alive.
+      CONTROL_CENTER_REST_LISTENERS: http://0.0.0.0:9021 # Set this to the HTTP or HTTPS of Control Center UI.
+      CONTROL_CENTER_REST_ADVERTISED_URL: http://localhost:9091 # Externally visible host. Control Center uses this as an override to rest.listeners when generating URLs for external communications such as alert emails.
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081 # Schema Registry URL
+      CONTROL_CENTER_CONNECT_EMOB_CLUSTER: http://connect:8083 # Comma-separated list of Kafka Connect worker URLs for the Connect cluster
+      CONTROL_CENTER_KSQL_EMOB_URL: http://ksqldb-server:8088  # Comma-separated list of the ksqlDB server hostnames and listener ports for the ksqlDB cluster
+      CONTROL_CENTER_KSQL_EMOB_ADVERTISED_URL: http://localhost:8088 # Comma-separated list of advertised URLs to access the ksqlDB cluster on Control Center. These hostnames must be reachable from any browser that will use the ksqlDB web interface in Control Center.
+      CONTROL_CENTER_SERVICE_HEALTHCHECK_INTERVAL_SEC: 15 # The interval (in seconds) used for checking the health of Confluent Platform nodes. This includes ksqlDB, Connect, Schema Registry, REST Proxy, and Metadata Service (MDS).
+    healthcheck:
+      test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:9021/2.0/alerts/history/) -eq 200 || exit 1
+      start_period: 30s
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  #############################################################
+  # HiveMQ (ToDo: HA Cluster)                                 #
+  #############################################################
+  hivemq:
+    image: novatec/hivemq4-emob:${VERSION_HIVEMQ4}
+    build:
+      context: .
+      dockerfile: Dockerfile.hivemq
+      args:
+        VERSION_HIVEMQ4: ${VERSION_HIVEMQ4}
+        EXTENSIONS: |-
+          hivemq-heartbeat-extension-1.0.2
+    hostname: hivemq
+    container_name: hivemq
+    restart: always
+    ports:
+    - 8080:8080
+    - 1883:1883 
+    - 9090:9090
+    healthcheck:
+      test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:9090/heartbeat) -eq 200 || exit 1
+      start_period: 10s
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  #############################################################
+  # MongoDB (ToDo: HA Cluster)                                #
+  #############################################################
+  mongo:
+    image: mongo:${VERSION_MONGODB}
+    hostname: mongo
+    container_name: mongo
+    restart: always
+    ports:
+    - 27017:27017
+    command: --bind_ip_all --smallfiles --replSet rs0
+    healthcheck:
+      test: test $$(echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet) -eq 1 || exit 1
+      start_period: 10s
+      interval: 10s
+      timeout: 10s
+      retries: 10
+  
+  mongosetup:
+    image: mongo:${VERSION_MONGODB}
+    hostname: mongosetup
+    container_name: mongosetup
+    restart: on-failure
+    depends_on:
+      mongo:
+        condition: service_healthy
+    volumes:
+    - ./config/mongodb-config:/scripts
+    entrypoint: ["bash","/scripts/mongo_setup.sh"]
+
+  mongoclient:
+    image: mongoclient/mongoclient:latest
+    hostname: mongoclient
+    container_name: mongoclient
+    restart: always
+    depends_on:
+      mongo:
+        condition: service_healthy
+      mongosetup:
+        condition: service_started
+    ports:
+    - 3000:3000
+    environment:
+      MONGO_URL: "mongodb://mongo:27017/mongoDB"
+      MONGOCLIENT_DEFAULT_CONNECTION_URL: "mongodb://mongo:27017/mongoDB"
+    healthcheck:
+      test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:3000/) -eq 200 || exit 1
+      start_period: 5s
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  #############################################################
+  # Node Red (ToDo: HA Cluster, if possible)                  #
+  #############################################################
+  mynodered:
+    image: nodered/node-red:latest-10-minimal
+    container_name: mynodered
+    hostname: mynodered
+    ports:
+    - 1880:1880
+    environment:
+      TZ: Europe/Amsterdam
+    volumes:
+    - ./connectIQ_MQTT_sim.json
+    healthcheck:
+      test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:1880/flows) -eq 200 || exit 1
+      start_period: 5s
+      interval: 10s
+      timeout: 10s
+      retries: 10

@@ -1,0 +1,10 @@
+ARG VERSION_KSQLDB
+
+FROM confluentinc/ksqldb-server:${VERSION_KSQLDB}
+
+ARG VERSION_CONFLUENT
+# https://docs.confluent.io/current/control-center/installation/clients.html
+RUN mkdir -p /usr/share/java/monitoring-interceptors \
+    && curl -L http://packages.confluent.io/maven/io/confluent/monitoring-interceptors/${VERSION_CONFLUENT}/monitoring-interceptors-${VERSION_CONFLUENT}.jar \
+        -o /usr/share/java/monitoring-interceptors/monitoring-interceptors-${VERSION_CONFLUENT}.jar
+ENV KSQL_CLASSPATH=/usr/share/java/my-base/*:/usr/share/java/my-ksql-server/*:/usr/share/java/monitoring-interceptors/*

@@ -1,0 +1,20 @@
+CIQ000000017/out/charge,ev
+CIQ000000017/out/charge,ready
+CIQ000000017/out/charge,charging
+CIQ000000017/out/charge,charged; amount 20 of 20
+CIQ000000017/out/charge,ev
+CIQ000000012/out/charge,ev
+CIQ000000012/out/charge,ready
+CIQ000000012/out/charge,charging
+CIQ000000012/out/charge,charged; amount 20 of 20
+CIQ000000012/out/charge,ev
+CIQ000000001/out/charge,ev
+CIQ000000001/out/charge,ready
+CIQ000000001/out/charge,charging
+CIQ000000001/out/charge,charged; amount 20 of 20
+CIQ000000001/out/charge,ev
+CIQ000000017/out/blink,red
+CIQ000000012/out/blink,green
+CIQ000000001/out/blink,blue
+CIQ000000001/in/charge,action: status
+CIQ000000001/in/charge,action: charge; params: [20000]

@@ -1,10 +1,6 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-# Create necessary topics
-source ./setup-createtopics.sh
+# Atomatically deploys topics, connectors and ksqlDB statements.
 
-# setup Kafka connectors
-source ./setup-connectors.sh
-
-# setup KSQL streaming processor
-source ./setup-ksqlquery.sh
+echo "Deprecated: Use ./emob-dc.sh start deploy"
+exec $(dirname $0)/emob-dc.sh start deploy

@@ -1,0 +1,33 @@
+#############################################################
+# Emob Cli Tools                                           #
+#############################################################
+---
+version: '2.4'
+services:
+
+  ksqldb-cli:
+    image: confluentinc/ksqldb-cli:${VERSION_KSQLDB}
+    container_name: ksqldb-cli
+    environment: 
+      KSQL_REST_API_URL: http://ksqldb-server:8088
+    volumes:
+    - .:/workspace
+    working_dir: /workspace
+    entrypoint: /bin/bash
+    tty: true
+
+  kafka-cli:  
+    image: novatec/cp-deploy-emob:${VERSION_CONFLUENT}
+    build:
+      context: .
+      dockerfile: Dockerfile.deploy
+      args:
+        VERSION_CONFLUENT: ${VERSION_CONFLUENT}
+    container_name: kafka-cli
+    environment: 
+      KAFKA_BOOTSTRAP_SERVER: kafka:9092
+    volumes:
+    - .:/workspace
+    working_dir: /workspace
+    entrypoint: /bin/bash
+    tty: true

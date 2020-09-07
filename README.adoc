@@ -4,62 +4,57 @@ Showcase Emob
 Requirements
 ~~~~~~~~~~~~
 
-The following Kafka connectors are required:
-
-- MQTT connector: https://www.confluent.io/hub/confluentinc/kafka-connect-mqtt 
-- MongoDB connector: https://www.confluent.io/hub/mongodb/kafka-connect-mongodb
-- Debezium MongoDB CDC Connector: https://www.confluent.io/hub/debezium/debezium-connector-mongodb
-
 clone the git-repository
 ----
-cd ./showcase
-docker-compose down
-rm docker-compose.yml
-cd ..
 git clone https://github.com/NovatecConsulting/technologyconsulting-showcase-emob.git
 ----
 
-Create the showcase network
-----
-docker network create showcase_emob
-----
-
+This project uses a local setup based on Docker-Compose. Therefore, in order to run this showcase on your
+local machine, you need Docker and Docker-Compose which at least supports the Docker-Compose file format 2.4.
 
 Quickstart
 ~~~~~~~~~~
-.Change in the showcase directory, create the following subfolder _/connectors/jars_ and extract the downloaded connectors to it.
+
+.Change in the showcase directory
 ----
 cd ./technologyconsulting-showcase-emob
 ----
 
-.To start and setup the environment in one step run:
+.To start the infrastructure services, deploy the application (topic creation, connectors and ksqlDB statement deployment) and import the test data in one step, run: 
 ----
-./startup-and-setup.sh
+./emob-dc.sh start all
 ----
-.Note that it could take a while until the connect service is healthy (~about 5-10 minutes)
+.Note that this could take serveral minutes
+
+In the following it is described how you can do this step by step:
 
 .To start the showcase from the base directory of the showcase (technologyconsulting-showcase-emob) and do the configuration in separate single tasks perform the following
 ----
+./emob-dc.sh start infra
+----
+
+.Alternatively you can still use docker-compose directly (in order to start the single instance setup):
+----
 docker-compose up -d
-or if you want to see the output on the console
+# or if you want to see the output on the console
 docker-compose up 
 ----
 
-.Wait until all components and modules (especially) _connect_ are up. Verify with 
+.You can check the health of the services with:
 ----
+./emob-dc.sh ps
+# or with plain docker-compose
 docker-compose ps
 ----
 
-.Configure the MQTT and MongoDB connectors and KSQL query. Verify that the following shell-scripts: setup.sh, setup-createtopics.sh, setup-connectors.sh, setup-ksqlquery.sh are executable by chmod +x
+.The startup command blocks until all services are healthy. After this you can deploy the app (which includes topic creation, connectors and ksqlDB statement deployment):
 ----
-chmod +x setup.sh
-./setup.sh
+./emob-dc.sh start deploy
 ----
 
-.Publish test data to HiveMQ (chmod +x if necessary)
+.Finally you can publish test data to HiveMQ
 ----
-chmod +x test-connect.sh
-./test-connect.sh
+./emob-dc.sh start testdata
 ----
 
 * The test publishes some sample messages to different topics e.g. _CIQ000000017/out/charge_ _CIQ000000012/out/blink_ on HiveMQ broker. 
@@ -86,7 +81,8 @@ kafka-avro-console-consumer --bootstrap-server localhost:19092 \
 
 .Stop the showcase 
 ----
-docker-compose down
+./emob-dc.sh down
+docker-compose down -v --remove-orphans
 ----
 
 Overview of Components
@@ -134,4 +130,31 @@ Network and Credentials
 | Node-RED      | localhost:1880
 |===
 
+Kafka Connect Connectors
+~~~~~~~~~~~~~~~~~~~~~~~~
 
+The following Kafka connectors are used by the showcase:
+
+- MQTT connector: https://www.confluent.io/hub/confluentinc/kafka-connect-mqtt 
+- MongoDB connector: https://www.confluent.io/hub/mongodb/kafka-connect-mongodb
+- Debezium MongoDB CDC Connector: https://www.confluent.io/hub/debezium/debezium-connector-mongodb
+
+The required connectors are automatically downloaded and installed, when the Docker image for connect is created.
+Which connectors are to be installed is specified in the Docker-Compose file.
+
+----
+connect:
+  image: novatec/cp-kafka-connect-emob:${VERSION_CONFLUENT}
+  build:
+    context: .
+    dockerfile: Dockerfile.connect
+    args:
+      VERSION_CONFLUENT: ${VERSION_CONFLUENT}
+      CONNECTORS: |-
+        confluentinc/kafka-connect-mqtt:1.3.0
+        confluentinc/kafka-connect-jdbc:5.5.1
+        mongodb/kafka-connect-mongodb:1.2.0
+        debezium/debezium-connector-mongodb:1.2.2
+----
+
+If a connector is added or removed, the image can be rebuilt with the command `docker-compse build connect`.

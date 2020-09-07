@@ -1,2 +1,4 @@
 connectors/
 *.log
+
+.emob-dc-infra

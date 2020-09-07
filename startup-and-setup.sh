@@ -1,23 +1,11 @@
-#!/usr/bin/env bash
-set -e
-date +"%T"
-docker-compose up -d
-echo "This could take several minutes:"
-while [[ $(docker inspect -f {{.State.Health.Status}} connect) != *healthy* ]]; do
-    echo -ne "\r\033[0KWaiting for connect service to be healthy";
-    sleep 1
-    echo -n "."
-    sleep 1
-    echo -n "."
-    sleep 1
-    echo -n "."
-done
+#!/usr/bin/env sh
 
-echo "connect service is healthy"
+# Automatically starts the emob infrastructre services, 
+# deploys the application (topc creation, connectors and ksqlDB statement deployment) 
+# and imports test data.
 
-echo "Setting up connectors & ksql"
-source ./setup.sh
+# By default the single instance set up is executed. 
+# With "./emob-dc.sh mode ha" yo can switch to a HA setup.
 
-echo "test connection"
-source ./test-connect.sh
-date +"%T"
+echo "Deprecated: Use ./emob-dc.sh start all"
+exec $(dirname $0)/emob-dc.sh start all

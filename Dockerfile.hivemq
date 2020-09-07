@@ -1,0 +1,9 @@
+ARG VERSION_HIVEMQ4
+FROM hivemq/hivemq4:${VERSION_HIVEMQ4}
+
+ARG EXTENSIONS=""
+RUN for e in ${EXTENSIONS}; do \
+        curl -Ls https://www.hivemq.com/releases/extensions/${e}.zip -O \
+            && unzip -d /opt/hivemq/extensions/ ${e}.zip \
+            && rm ${e}.zip; \
+    done
