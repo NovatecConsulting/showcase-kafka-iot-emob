@@ -24,8 +24,8 @@ services:
     healthcheck:
       test: zookeeper-shell localhost:2181 ls / >/dev/null 2>&1 || exit 1
       start_period: 10s
-      interval: 10s
-      timeout: 10s
+      interval: 20s
+      timeout: 18s
       retries: 10
 
   #############################################################
@@ -67,9 +67,9 @@ services:
       CONFLUENT_METRICS_REPORTER_PUBLISHMS: 5000 # (default: 15000) The Confluent Metrics Reporter will publish new metrics to the metrics topic in intervals defined by this setting. Reduced for development, to reduce the health data lag.
     healthcheck:
       test: "(kafka-topics --bootstrap-server localhost:9092 --describe --topic _confluent-license | grep '_confluent-license.*Isr: [0-9]\\+' >/dev/null 2>&1) || exit 1"
-      start_period: 10s
-      interval: 10s
-      timeout: 10s
+      start_period: 20s
+      interval: 30s
+      timeout: 25s
       retries: 10
 
   #############################################################
@@ -98,8 +98,8 @@ services:
     healthcheck:
       test: test $$(curl -s -o /dev/null -w %{http_code}  http://localhost:8081/subjects) -eq 200 || exit 1
       start_period: 10s
-      interval: 10s
-      timeout: 10s
+      interval: 20s
+      timeout: 18s
       retries: 10
 
   #############################################################
@@ -164,9 +164,9 @@ services:
       CONNECT_CONFLUENT_METRICS_REPORTER_PUBLISH_MS: 5000 # (default: 15000) The Confluent Metrics Reporter will publish new metrics to the metrics topic in intervals defined by this setting. Reduced for development, to reduce the health data lag.
     healthcheck:
       test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:8083/connectors) -eq 200 || exit 1
-      start_period: 30s
-      interval: 10s
-      timeout: 10s
+      start_period: 60s
+      interval: 20s
+      timeout: 18s
       retries: 10
 
   #############################################################
@@ -227,9 +227,9 @@ services:
       # KSQL_CONFLUENT_MONITORING_INTERCEPTOR_PUBLISHMS: 15 # (default: 15) Period the interceptor should use to publish messages to.
     healthcheck:
       test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:8088/healthcheck) -eq 200 || exit 1
-      start_period: 20s
-      interval: 10s
-      timeout: 10s
+      start_period: 45s
+      interval: 20s
+      timeout: 18s
       retries: 10
 
   #############################################################
@@ -266,9 +266,9 @@ services:
       CONTROL_CENTER_SERVICE_HEALTHCHECK_INTERVAL_SEC: 15 # The interval (in seconds) used for checking the health of Confluent Platform nodes. This includes ksqlDB, Connect, Schema Registry, REST Proxy, and Metadata Service (MDS).
     healthcheck:
       test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:9021/2.0/alerts/history/) -eq 200 || exit 1
-      start_period: 30s
-      interval: 10s
-      timeout: 10s
+      start_period: 45s
+      interval: 20s
+      timeout: 18s
       retries: 10
 
   #############################################################
@@ -293,8 +293,8 @@ services:
     healthcheck:
       test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:9090/heartbeat) -eq 200 || exit 1
       start_period: 10s
-      interval: 10s
-      timeout: 10s
+      interval: 20s
+      timeout: 18s
       retries: 10
 
   #############################################################
@@ -311,8 +311,8 @@ services:
     healthcheck:
       test: test $$(echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet) -eq 1 || exit 1
       start_period: 10s
-      interval: 10s
-      timeout: 10s
+      interval: 20s
+      timeout: 18s
       retries: 10
   
   mongosetup:
@@ -344,9 +344,9 @@ services:
       MONGOCLIENT_DEFAULT_CONNECTION_URL: "mongodb://mongo:27017/mongoDB"
     healthcheck:
       test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:3000/) -eq 200 || exit 1
-      start_period: 5s
-      interval: 10s
-      timeout: 10s
+      start_period: 10s
+      interval: 20s
+      timeout: 18s
       retries: 10
 
   #############################################################
@@ -362,9 +362,9 @@ services:
       TZ: Europe/Amsterdam
     healthcheck:
       test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:1880/flows) -eq 200 || exit 1
-      start_period: 5s
-      interval: 10s
-      timeout: 10s
+      start_period: 10s
+      interval: 20s
+      timeout: 18s
       retries: 10
 
 networks:
