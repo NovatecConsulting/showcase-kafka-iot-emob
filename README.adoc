@@ -120,14 +120,35 @@ Network and Credentials
 [cols="h,1"]
 .Access to services from host
 |===
-| Kafka Bootstrap Server|  localhost:9092
-| Schema Registry Url | localhost:8081
-| Confluent Control Center | localhost:9021 
-| Kafka Connect | localhost:8083
-| KSQL server   | localhost:8088
-| HiveMQ Broker | localhost:8080
-| MongoDB client| localhost:3000
-| Node-RED      | localhost:1880
+| Kafka Bootstrap Server|  localhost:19092
+| Schema Registry Url | http://localhost:8081
+| Confluent Control Center | http://localhost:9021 
+| Kafka Connect | http://localhost:8083
+| KSQL server   | http://localhost:8088
+| HiveMQ UI     | http://localhost:8080
+| HiveMQ Broker | localhost:1883
+| MongoDB client| http://localhost:3000
+| Node-RED      | http://localhost:1880
+|===
+
+Access Services by Name
+~~~~~~~~~~~~~~~~~~~~~~~
+
+If you enable the Docker hostmanager with `./emob-dc.sh hostmanager enable`, you can access all services
+with their fqdn. The domain name which is used for this project is `emob`.
+
+[cols="h,1"]
+.Access to services from host with enabled hostmanager
+|===
+| Kafka Bootstrap Server|  kafka.emob:9092
+| Schema Registry Url | http://schema-registry.emob:8081
+| Confluent Control Center | http://control-center.emob:9021 
+| Kafka Connect | http://connect.emob:8083
+| KSQL server   | http://ksqldb-server.emob:8088
+| HiveMQ UI     | http://hivemq:8080
+| HiveMQ Broker | hivemq:1883
+| MongoDB client| http://mongoclient.emob:3000
+| Node-RED      | http://mynodered.emob:1880
 |===
 
 Kafka Connect Connectors

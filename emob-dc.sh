@@ -179,6 +179,45 @@ function forward_kafka_cli () {
     dc_in_env run --rm workspace /workspace/emob-kafka.sh "$@"
 }
 
+function determine_hostsfile () {
+    local unameOut="$(uname -s)"
+    local hostsfile
+    case "${unameOut}" in
+        Linux*)     hostsfile=/etc/hosts;;
+        Darwin*)    hostsfile=/etc/hosts;;
+        CYGWIN*)    hostsfile=/c/Windows/System32/drivers/etc/hosts;;
+        MINGW*)     hostsfile=/c/Windows/System32/drivers/etc/hosts;;
+        *)          hostsfile=""
+    esac
+    if [ -e "${hostsfile}" ]; then
+        echo ${hostsfile}
+    else
+        echo ""
+    fi
+}
+
+function enable_hostmanager () {
+    local dockersocket=${1:-"/var/run/docker.sock"}
+    local hostsfile=${2:-$(determine_hostsfile)}
+    if [ ! -z ${hostsfile} ]; then
+        if [ -z "$(docker ps -f name=docker-hostmanager -q)" ]; then
+            docker run -d --name docker-hostmanager --restart=always -v ${dockersocket}:/var/run/docker.sock -v ${hostsfile}:/hosts iamluc/docker-hostmanager
+            log "INFO" "Enabled Docker hostmanager. /etc/hosts file is automatically updated now."
+        else
+            log "INFO" "Docker hostmanager is already running."
+        fi
+    else
+        log "ERROR" "Could not enable hostmanager, because hostsfile could not be located!"
+    fi
+}
+
+function disable_hostmanager () {
+    if [ ! -z "$(docker ps -f name=docker-hostmanager -q)" ]; then
+        docker rm -f docker-hostmanager > /dev/null 2>&1 || true
+        log "INFO" "Disabled Docker hostmanager. It may be necassary to manually clean up $(determine_hostsfile) file."
+    fi
+}
+
 ## CLI Commands
 _CMD=(
     'cmd=("mode" "Switch between single instance and ha mode. Requires that environment is down." "usage _CMD_MODE" "exec_cmd _CMD_MODE")'
@@ -189,6 +228,7 @@ _CMD=(
     'cmd=("ps" "Show running services." "dc_in_env ps" "dc_in_env ps")'
     'cmd=("cli" "Open a Emob Cli." "show_services cli" "start_and_exec_container")'
     'cmd=("dc" "Run any docker-compose command in environment" "dc_in_env" "dc_in_env")'
+    'cmd=("hostmanager" "Manage Docker hostnames in your hosts file" "usage _CMD_HOSTMANAGER" "exec_cmd _CMD_HOSTMANAGER")'
     'cmd=("kafka" "Emob Kafka cli in docker" "forward_kafka_cli" "forward_kafka_cli")'
 )
 
@@ -216,6 +256,11 @@ _CMD_LOGS=(
     'cmd=("deploy" "Attach to logs of deployment jobs." "show_logs deploy" "show_logs deploy")'
     'cmd=("testdata" "Attach to logs of test data import." "show_logs testdata" "show_logs testdata")'
     'cmd=("service" "Attach to logs of specific services." "show_services" "show_logs all")'
+)
+
+_CMD_HOSTMANAGER=(
+    'cmd=("enable" "Stop specific services." "enable_hostmanager" "enable_hostmanager")'
+    'cmd=("disable" "Stop specific services." "disable_hostmanager" "exec_cmd _CMD_HOSTMANAGER")'
 )
 
 function usage () {
