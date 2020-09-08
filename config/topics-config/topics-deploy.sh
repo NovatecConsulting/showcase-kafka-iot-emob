@@ -14,7 +14,7 @@ function log () {
 }
 
 function wait_until_available () {
-    while [ -z "$(timeout 10 ${KAFKA_TOPICS_CMD} --bootstrap-server ${KAFKA_BOOTSTRAP_SERVER} --describe --topic _confluent-license | grep '_confluent-license.*Isr: [0-9,]\+.*Offline: *$')" ]; do 
+    while [ -z "$(timeout 60 ${KAFKA_TOPICS_CMD} --bootstrap-server ${KAFKA_BOOTSTRAP_SERVER} --describe --topic _confluent-license | grep '_confluent-license.*Isr: [0-9,]\+.*Offline: *$')" ]; do 
         echo -n "."; sleep 2; 
     done
 }
@@ -25,7 +25,7 @@ function deploy_topic () {
     local partitions="$(echo "${definition}" | jq -r '.partitions | values')"
     local replicationFactor="$(echo "${definition}" | jq -r '.replicationFactor | values | " --replication-factor "+(.|tostring)')"
     local configs="$(echo $topic | jq -r '.configs | values | .[] | " --config "+.' | tr -d '\n')"
-    timeout 10 ${KAFKA_TOPICS_CMD} --bootstrap-server "${KAFKA_BOOTSTRAP_SERVER}" --create \
+    timeout 60 ${KAFKA_TOPICS_CMD} --bootstrap-server "${KAFKA_BOOTSTRAP_SERVER}" --create \
         --topic "${topicname:?Topic name missing!}" \
         --partitions "${partitions:-6}" \
         ${replicationFactor} \

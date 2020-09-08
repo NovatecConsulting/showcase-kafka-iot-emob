@@ -213,7 +213,7 @@ function enable_hostmanager () {
     if [ ! -z ${hostsfile} ]; then
         if [ -z "$(docker ps -f name=docker-hostmanager -q)" ]; then
             docker run -d --name docker-hostmanager --restart=always -v ${dockersocket}:/var/run/docker.sock -v ${hostsfile}:/hosts iamluc/docker-hostmanager
-            log "INFO" "Enabled Docker hostmanager. /etc/hosts file is automatically updated now."
+            log "INFO" "Enabled Docker hostmanager. $(determine_hostsfile) file is automatically updated now."
         else
             log "INFO" "Docker hostmanager is already running."
         fi
