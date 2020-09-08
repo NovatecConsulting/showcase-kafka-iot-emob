@@ -64,6 +64,7 @@ docker-compose ps
 * Records in _wallbox_charge_ are copied to the compacted topic _wallbox_chargestatus_ to retain only the latest status for each station. 
 * Locations of stations in mongoDB (which are inserted to mongoDB when starting up the showcase) are imported into Kafka topic _wallbox_location_ with _mongodb-source_ connector. 
 * _wallbox_location_ and _wallbox_chargestatus_ are joined with KSQL to create enriched records of _wallbox_location_chargestatus_.
+* The data of _wallbox_location_chargestatus_ is processed by Grafana with the help of PostgreSQL and then displayed on a worldmap panel in Grafana. This can be inspected from http://localhost:3000/ in the panel called "location_chargestatus".
 
 .To test the setup-procedure you can invoke a kafka-console-consumer
 ----
@@ -127,8 +128,9 @@ Network and Credentials
 | KSQL server   | http://localhost:8088
 | HiveMQ UI     | http://localhost:8080
 | HiveMQ Broker | localhost:1883
-| MongoDB client| http://localhost:3000
+| MongoDB client| http://localhost:3456
 | Node-RED      | http://localhost:1880
+| Grafana       | http://localhost:3000
 |===
 
 Access Services by Name
@@ -147,8 +149,9 @@ with their fqdn. The domain name which is used for this project is `emob`.
 | KSQL server   | http://ksqldb-server.emob:8088
 | HiveMQ UI     | http://hivemq:8080
 | HiveMQ Broker | hivemq:1883
-| MongoDB client| http://mongoclient.emob:3000
+| MongoDB client| http://mongoclient.emob:3456
 | Node-RED      | http://mynodered.emob:1880
+| Grafana       | http://grafana.emob:3000
 |===
 
 Kafka Connect Connectors
