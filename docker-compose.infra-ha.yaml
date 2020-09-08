@@ -793,12 +793,12 @@ services:
       mongosetup:
         condition: service_started
     ports:
-    - 3000:3000
+    - 3456:3000
     environment:
       MONGO_URL: "mongodb://mongo:27017/mongoDB"
       MONGOCLIENT_DEFAULT_CONNECTION_URL: "mongodb://mongo:27017/mongoDB"
     healthcheck:
-      test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:3000/) -eq 200 || exit 1
+      test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:3456/) -eq 200 || exit 1
       start_period: 10s
       interval: 20s
       timeout: 18s
@@ -823,6 +823,40 @@ services:
       interval: 20s
       timeout: 18s
       retries: 10
+
+  #############################################################
+  # PostgreSQL                                                #
+  #############################################################
+  postgres_db:
+    image: postgres:latest
+    hostname: postgres_db
+    container_name: postgres_db
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: chargeiq
+
+  #############################################################
+  # Grafana                                                   #
+  #############################################################
+  grafana:
+    image: grafana/grafana
+    hostname: grafana
+    container_name: grafana
+    depends_on:
+      - postgres_db
+    ports:
+      - 3000:3000
+    volumes:
+      - ./provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./provisioning/dashboards:/etc/grafana/provisioning/dashboards
+    environment:
+      GF_INSTALL_PLUGINS: grafana-worldmap-panel
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
 
 networks:
   default:
