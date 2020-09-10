@@ -2,6 +2,7 @@
 
 echo SETUP.sh time now: `date +"%T" `
 echo "Configure mongoDB in replica set mode"
+# it ins necessary to advertise ip, in order to enable external access to mnongo
 mongo --host mongo:27017 <<EOF
   var cfg = {
     "_id": "rs0",
@@ -9,7 +10,7 @@ mongo --host mongo:27017 <<EOF
     "members": [
       {
         "_id": 0,
-        "host": "mongo:27017",
+        "host": "$(dig +short mongo | tail -n1):27017",
         "priority": 2
       }
     ]

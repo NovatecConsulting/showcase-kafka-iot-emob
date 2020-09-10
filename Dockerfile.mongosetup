@@ -1,0 +1,7 @@
+ARG VERSION_MONGODB
+
+FROM mongo:${VERSION_MONGODB}
+
+RUN apt-get update \
+    && apt-get -y install dnsutils \
+    && apt-get -y clean

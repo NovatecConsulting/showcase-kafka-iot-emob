@@ -762,7 +762,7 @@ services:
     restart: always
     ports:
     - 27017:27017
-    command: --bind_ip_all --smallfiles --replSet rs0
+    command: --bind_ip_all --replSet rs0
     healthcheck:
       test: test $$(echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet) -eq 1 || exit 1
       start_period: 10s
@@ -771,7 +771,12 @@ services:
       retries: 10
   
   mongosetup:
-    image: mongo:${VERSION_MONGODB}
+    image: novatec/mongosetup-emob:${VERSION_MONGODB}
+    build:
+      context: .
+      dockerfile: Dockerfile.mongosetup
+      args:
+        VERSION_MONGODB: ${VERSION_MONGODB}
     hostname: mongosetup
     container_name: mongosetup
     restart: on-failure
@@ -798,7 +803,7 @@ services:
       MONGO_URL: "mongodb://mongo:27017/mongoDB"
       MONGOCLIENT_DEFAULT_CONNECTION_URL: "mongodb://mongo:27017/mongoDB"
     healthcheck:
-      test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:3456/) -eq 200 || exit 1
+      test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:3000/) -eq 200 || exit 1
       start_period: 10s
       interval: 20s
       timeout: 18s

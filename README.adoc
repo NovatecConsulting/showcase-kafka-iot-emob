@@ -52,15 +52,26 @@ docker-compose ps
 ./emob-dc.sh start deploy
 ----
 
-.Finally you can publish test data to HiveMQ
+.Finally you can publish static test data to HiveMQ
 ----
 ./emob-dc.sh start testdata
 ----
 
 * The test publishes some sample messages to different topics e.g. _CIQ000000017/out/charge_ _CIQ000000012/out/blink_ on HiveMQ broker. 
+
+.Alternatively you can start the emob testdriver which continuously simulates 500 charging stations in Germany and publishes Mqtt messages to `*/out/charge`
+----
+./emob-dc.sh start testdriver
+----
+
+.You can stop the testdriver with the command:
+----
+./emob-dc.sh start testdriver
+----
+
 * These messages are imported to Kafka topic _wallbox_source_ with _mqtt-source_ connector. This topic can be inspected from control center http://localhost:9021/.
 * The stream processor defined by the KSQL query reads imported record in _wallbox_source_, applies avro schema to it and rewrites this new record from _+/out/charge_ to topic _wallbox_charge_. 
-* The records in _wallbox_charge_ are exported to MongoDB with _mongodb-sink_ connector. The MongoDB can be inspected with MongoDB client on _localhost:3000_. On MongoDB client, connect to MongoDB using the _Default (preconfigured)_ connection. The exported record is in collection _ChargingStations_.
+* The records in _wallbox_charge_ are exported to MongoDB with _mongodb-sink_ connector. The MongoDB can be inspected with MongoDB client on _localhost:3456_. On MongoDB client, connect to MongoDB using the _Default (preconfigured)_ connection. The exported record is in collection _ChargingStations_.
 * Records in _wallbox_charge_ are copied to the compacted topic _wallbox_chargestatus_ to retain only the latest status for each station. 
 * Locations of stations in mongoDB (which are inserted to mongoDB when starting up the showcase) are imported into Kafka topic _wallbox_location_ with _mongodb-source_ connector. 
 * _wallbox_location_ and _wallbox_chargestatus_ are joined with KSQL to create enriched records of _wallbox_location_chargestatus_.
@@ -97,7 +108,6 @@ Overview of Components
 The showcase is using the following Kafka components as described in the picture below:
 
 image::Kafka_cluster_diagram_v3.svg[]
-
 
 
 Data Flow between Topics and Ksql Streams/Tables
@@ -154,7 +164,7 @@ with their fqdn. The domain name which is used for this project is `emob`.
 | KSQL server   | http://ksqldb-server.emob:8088
 | HiveMQ UI     | http://hivemq:8080
 | HiveMQ Broker | hivemq:1883
-| MongoDB client| http://mongoclient.emob:3456
+| MongoDB client| http://mongoclient.emob:3000
 | Node-RED      | http://mynodered.emob:1880
 | Grafana       | http://grafana.emob:3000
 |===
@@ -187,3 +197,11 @@ connect:
 ----
 
 If a connector is added or removed, the image can be rebuilt with the command `docker-compse build connect`.
+
+Emob Testdriver
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Emob test driver can be configured via the Docker-Compose file link:docker-compose.testdata.yaml[].
+You can, for example change the number of Stations (by default 500), and also the time range for which stations may be availabe and for which stations are in use.
+
+The test driver is located in the directory `testdata/driver`. For more information you can have a look at the test driver link:testdata/driver/README.adoc[readme].

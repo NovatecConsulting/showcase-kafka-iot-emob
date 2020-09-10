@@ -1,0 +1,24 @@
+= Emob Driver
+
+Driver is a tool for simulating car charging processes at electrical loading stations.
+
+It is written in Golang.
+
+== Quickstart
+
+Driver provides a Visual Studio Code Remote Development in Containers set up. 
+Just re-open the `testdata/driver` folder as Remote-Container, and you have a Goland development environment.
+
+Instructions about how to configure Remote Development: https://code.visualstudio.com/docs/remote/containers-tutorial
+
+=== Build
+
+----
+go build
+----
+
+=== Run
+
+----
+(./driver fetchgeo | ./driver storegeo -l 100) && ./driver simulate -s 100 -a 10 -b 120 -c 10 -d 120
+----

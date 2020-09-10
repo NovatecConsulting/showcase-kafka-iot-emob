@@ -253,11 +253,13 @@ _CMD_START=(
     'cmd=("infra" "Startup of Emob infrastructure (detached)." "time start_infra_detached" "exec_cmd _CMD_START")'
     'cmd=("deploy" "Deployment of Emob (attached)." "time start_deploy_attached" "exec_cmd _CMD_START")'
     'cmd=("testdata" "Import of test data (attached)." "time start_testdata_attached" "exec_cmd _CMD_START")'
+    'cmd=("testdriver" "Start test driver to continuously simulate stations (detached)." "start_services driver" "exec_cmd _CMD_START")'
     'cmd=("service" "Start specific services (detached)." "show_services" "time start_services")'
     'cmd=("job" "Start specific job (attached)." "show_services deploy && show_services testdata" "time run_job")'
 )
 
 _CMD_STOP=(
+    'cmd=("testdriver" "Stop test driver." "stop_services driver" "exec_cmd _CMD_STOP")'
     'cmd=("service" "Stop specific services." "show_services" "time stop_services")'
 )
 
@@ -266,6 +268,7 @@ _CMD_LOGS=(
     'cmd=("infra" "Attach to logs of infrastructure services." "show_logs infra" "show_logs infra")'
     'cmd=("deploy" "Attach to logs of deployment jobs." "show_logs deploy" "show_logs deploy")'
     'cmd=("testdata" "Attach to logs of test data import." "show_logs testdata" "show_logs testdata")'
+    'cmd=("testdriver" "Attach to logs of test driver." "dc_in_env logs -f driver" "dc_in_env -f driver")'
     'cmd=("service" "Attach to logs of specific services." "show_services" "show_logs all")'
 )
 

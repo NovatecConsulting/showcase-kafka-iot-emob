@@ -15,3 +15,31 @@ services:
     - ./testdata/mqtt:/mqtt-testdata
     command: 
     - /mqtt-testdata/mqttmessages-send.sh
+
+  driver:
+    image: novatec/driver-emob:latest
+    build:
+      context: ./testdata/driver/
+    hostname: driver
+    container_name: driver
+    restart: always
+    environment:
+      AMENITY: charging_station
+      STATION_COUNT: 500
+      MONGODB_URL: mongo:27017
+      FIELD_STATIONID: CLIENT_ID
+      FIELD_LATITUDE: x
+      FIELD_LONGITUDE: y
+      MQTT_BROKER_URL: hivemq:1883
+      MIN_SEC_FREE: 20
+      MAX_SEC_FREE: 300
+      MIN_SEC_INUSE: 20
+      MAX_SEC_INUSE: 180
+    volumes:
+    - ./testdata/driver/.cache:/cache
+    command:
+    - sh
+    - -c
+    - "(  ./driver fetchgeo -v amenity=$${AMENITY} -o /cache/$${AMENITY}.json 
+        | ./driver storegeo -t mongodb://$${MONGODB_URL}/?replicaSet=rs0 -l $${STATION_COUNT} -i $${FIELD_STATIONID} -e $${FIELD_LATITUDE} -j $${FIELD_LONGITUDE} )
+       && ./driver simulate -m tcp://$${MQTT_BROKER_URL} -s $${STATION_COUNT} -a $${MIN_SEC_FREE} -b $${MAX_SEC_FREE} -c $${MIN_SEC_INUSE} -d $${MAX_SEC_INUSE}"
