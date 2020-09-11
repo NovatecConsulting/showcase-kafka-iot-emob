@@ -66,10 +66,10 @@ docker-compose ps
 * _wallbox_location_ and _wallbox_chargestatus_ are joined with KSQL to create enriched records of _wallbox_location_chargestatus_.
 * The data of _wallbox_location_chargestatus_ is processed by Grafana with the help of PostgreSQL and then displayed on a worldmap panel in Grafana:
 
-    1. Access Grafana from http://localhost:3000
-    2. Select the menu item "Home" on the top left corner.
-    3. Select the folder "Services".
-    4. Select the panel called "location_chargestatus". All the stations and their states will be displayed on the map.
+      ** Access Grafana from http://localhost:3000
+      ** Select the menu item "Home" on the top left corner.
+      ** Select the folder "Services".
+      ** Select the panel called "location_chargestatus". All the stations and their states will be displayed on the map.
 
 .To test the setup-procedure you can invoke a kafka-console-consumer
 ----
