@@ -18,3 +18,5 @@ CIQ000000012/out/blink,green
 CIQ000000001/out/blink,blue
 CIQ000000001/in/charge,action: status
 CIQ000000001/in/charge,action: charge; params: [20000]
+ciq/2/CIQ000000017/charge,new
+ciq/2/CIQ000000012/charge,new
