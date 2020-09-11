@@ -64,7 +64,12 @@ docker-compose ps
 * Records in _wallbox_charge_ are copied to the compacted topic _wallbox_chargestatus_ to retain only the latest status for each station. 
 * Locations of stations in mongoDB (which are inserted to mongoDB when starting up the showcase) are imported into Kafka topic _wallbox_location_ with _mongodb-source_ connector. 
 * _wallbox_location_ and _wallbox_chargestatus_ are joined with KSQL to create enriched records of _wallbox_location_chargestatus_.
-* The data of _wallbox_location_chargestatus_ is processed by Grafana with the help of PostgreSQL and then displayed on a worldmap panel in Grafana. This can be inspected from http://localhost:3000/ in the panel called "location_chargestatus".
+* The data of _wallbox_location_chargestatus_ is processed by Grafana with the help of PostgreSQL and then displayed on a worldmap panel in Grafana:
+
+    1. Access Grafana from http://localhost:3000
+    2. Select the menu item "Home" on the top left corner.
+    3. Select the folder "Services".
+    4. Select the panel called "location_chargestatus". All the stations and their states will be displayed on the map.
 
 .To test the setup-procedure you can invoke a kafka-console-consumer
 ----
