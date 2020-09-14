@@ -406,6 +406,27 @@ services:
       GF_AUTH_ANONYMOUS_ENABLED: "true"
       GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
 
+  #############################################################
+  # Xeotek KaDeck                                             #
+  #############################################################
+  kadeck:
+    image: xeotek/kadeckweb:2.2.1
+    hostname: kadeck
+    container_name: kadeck
+    ports:
+      - 9091:80
+    # https://support.xeotek.com/hc/en-us/articles/360015580860-Configuration-list
+    environment:
+      xeotek_kadeck_teamid: ${XEOTEK_KADECK_TEAMID}
+      xeotek_kadeck_secret: ${XEOTEK_KADECK_SECRET}
+      xeotek_kadeck_port: 80
+    healthcheck:
+      test: (wget -Sq -O /dev/nul localhost/ready 2>&1 | grep "200 OK") || exit 1
+      start_period: 10s
+      interval: 20s
+      timeout: 18s
+      retries: 10
+
 networks:
   default:
     name: ${DOMAIN_NAME}

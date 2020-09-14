@@ -3,6 +3,11 @@ set -e
 pushd . > /dev/null
 cd $(dirname ${BASH_SOURCE[0]})
 EMOB_DC_DIR=$(pwd)
+if [ -e .env.override ]; then 
+    set -a
+    source .env.override
+    set +a
+fi
 popd > /dev/null
 
 DC_INFRA_CURRENT_FILE=".emob-dc-infra"

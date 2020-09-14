@@ -4,3 +4,4 @@ connectors/
 .emob-dc-infra
 *.override.yaml
 *.override.yml
+.env.override
