@@ -65,6 +65,8 @@ services:
       CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka:9092 # (required) Point to Kafka brokers in the metrics cluster. In this scenario, metrics are not stored in a separate cluster.
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1 # (default: 3) Number of replicas in the metric topic. Must be 1, because we only have a single broker.
       CONFLUENT_METRICS_REPORTER_PUBLISHMS: 5000 # (default: 15000) The Confluent Metrics Reporter will publish new metrics to the metrics topic in intervals defined by this setting. Reduced for development, to reduce the health data lag.
+      KAFKA_JMX_PORT: 9581
+      KAFKA_JMX_HOSTNAME: kafka.emob
     healthcheck:
       test: "(kafka-topics --bootstrap-server localhost:9092 --describe --topic _confluent-license | grep '_confluent-license.*Isr: [0-9]\\+' >/dev/null 2>&1) || exit 1"
       start_period: 20s
@@ -413,6 +415,7 @@ services:
     image: xeotek/kadeckweb:2.2.1
     hostname: kadeck
     container_name: kadeck
+    restart: always
     ports:
       - 9091:80
     # https://support.xeotek.com/hc/en-us/articles/360015580860-Configuration-list
@@ -426,6 +429,64 @@ services:
       interval: 20s
       timeout: 18s
       retries: 10
+
+  #############################################################
+  # Lenses                                                    #
+  #############################################################
+  lenses:
+    image: lensesio/lenses:4.0.2
+    hostname: lenses
+    container_name: lenses
+    restart: always
+    depends_on:
+      kafka:
+        condition: service_healthy
+      schema-registry:
+        condition: service_healthy
+      connect:
+        condition: service_healthy
+    # # Users are managed within Lenses. Here you can change the superuser username:
+    # LENSES_SECURITY_USER: admin
+    # # Users are managed within Lenses. Here you can change the superuser password:
+    # LENSES_SECURITY_PASSWORD: admin
+    ports:
+      - 9991:9991
+      - 9102:9102
+    environment:
+      LENSES_PORT: 9991
+      LENSES_KAFKA_BROKERS: "PLAINTEXT://kafka:9092"
+
+      # If you have enabled JMX for your brokers, set the port here
+      LENSES_KAFKA_METRICS_DEFAULT_PORT: 9581
+
+      # # If you use AVRO, configure the Schema Registry
+      LENSES_SCHEMA_REGISTRY_URLS: |
+        [
+          {url:"http://schema-registry:8081"}
+        ]
+
+      # # If you use Kafka Connect, configure the workers.
+      LENSES_KAFKA_CONNECT_CLUSTERS: |
+        [
+          {
+            name:"emob_connect",
+            urls: [
+              {url:"http://connect:8083"}
+            ],
+            statuses:"emob_connect-status",
+            configs:"emob_connect-configs",
+            offsets:"emob_connect-offsets"
+          }
+        ]
+
+      # Zookeeper access is optional
+      LENSES_ZOOKEEPER_HOSTS: |
+        [
+          {url:"zookeeper:2181"}
+        ]
+
+      # License
+      LICENSE: ${LENSES_LICENSE}  
 
 networks:
   default:
