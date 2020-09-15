@@ -3,3 +3,18 @@ FROM confluentinc/cp-server-connect-base:${VERSION_CONFLUENT}
 
 ARG CONNECTORS=""
 RUN for c in ${CONNECTORS}; do confluent-hub install --no-prompt $c; done;
+
+ARG OPENTRACING_SPECIALAGENT_VERSION=1.7.4
+RUN mkdir -p /usr/share/java/tracing-agents \
+    && curl -L https://repo1.maven.org/maven2/io/opentracing/contrib/specialagent/opentracing-specialagent/${OPENTRACING_SPECIALAGENT_VERSION}/opentracing-specialagent-${OPENTRACING_SPECIALAGENT_VERSION}.jar \
+        -o /usr/share/java/tracing-agents/opentracing-specialagent-${OPENTRACING_SPECIALAGENT_VERSION}.jar
+ENV KAFKA_OPTS="-javaagent:/usr/share/java/tracing-agents/opentracing-specialagent-${OPENTRACING_SPECIALAGENT_VERSION}.jar"
+ARG OPENTRACING_SPECIALAGENT_EXPORTER=jaeger
+ENV KAFKA_OPTS="${KAFKA_OPTS} -Dsa.exporter=${OPENTRACING_SPECIALAGENT_EXPORTER}"
+ENV CLASSPATH="${CLASSPATH}:/usr/share/java/tracing-agents/*"
+
+ARG OPENTRACING_KAFKA_CLIENT_VERSION=0.1.13
+RUN mkdir -p /usr/share/java/tracing-interceptors \
+    && curl -L https://repo1.maven.org/maven2/io/opentracing/contrib/opentracing-kafka-client/${OPENTRACING_KAFKA_CLIENT_VERSION}/opentracing-kafka-client-${OPENTRACING_KAFKA_CLIENT_VERSION}.jar \
+        -o /usr/share/java/tracing-interceptors/opentracing-kafka-client-${OPENTRACING_KAFKA_CLIENT_VERSION}.jar
+ENV CLASSPATH="${CLASSPATH}:/usr/share/java/tracing-interceptors/*"

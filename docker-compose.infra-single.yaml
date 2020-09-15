@@ -155,8 +155,8 @@ services:
       CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components,/etc/kafka-connect/jars # (default: /usr/share/java,/usr/share/confluent-hub-components) The plugin.path value that indicates the location from which to load Connect plugins in classloading isolation.
       CLASSPATH: /usr/share/java/kafka/*:/usr/share/java/monitoring-interceptors/* # CLASSPATH required due to CC-2422
       # https://docs.confluent.io/current/control-center/installation/clients.html#confluent-monitoring-interceptors
-      CONNECT_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
-      CONNECT_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+      CONNECT_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor #,io.opentracing.contrib.kafka.TracingProducerInterceptor
+      CONNECT_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor #,io.opentracing.contrib.kafka.TracingConsumerInterceptor
       # CONNECT_CONFLUENT_MONITORING_INTERCEPTOR_TOPIC: _confluent-monitoring # (default: _confluent-monitoring) Topic on which monitoring data will be written. The topic is created by Confluent Control Center.
       # CONNECT_CONFLUENT_MONITORING_INTERCEPTOR_PUBLISHMS: 15 # (default: 15) Period the interceptor should use to publish messages to.
       # https://docs.confluent.io/current/kafka/metrics-reporter.html
@@ -164,6 +164,12 @@ services:
       CONNECT_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka:9092 # (required) Point to Kafka brokers in the metrics cluster. In this scenario, metrics are not stored in a separate cluster.
       CONNECT_CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1 # (default: 3) Number of replicas in the metric topic. Must be 1, because we only have a single broker.
       CONNECT_CONFLUENT_METRICS_REPORTER_PUBLISH_MS: 5000 # (default: 15000) The Confluent Metrics Reporter will publish new metrics to the metrics topic in intervals defined by this setting. Reduced for development, to reduce the health data lag.
+      # Jaeger Tracing
+      JAEGER_SERVICE_NAME: emob_connect
+      JAEGER_AGENT_HOST: jaeger
+      JAEGER_AGENT_PORT: 6831
+      JAEGER_SAMPLER_TYPE: probabilistic
+      JAEGER_SAMPLER_PARAM: 0.01
     healthcheck:
       test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:8083/connectors) -eq 200 || exit 1
       start_period: 60s
@@ -223,10 +229,16 @@ services:
       KSQL_KSQL_CONNECT_URL: http://connect:8083 # The Connect cluster URL to integrate with.
       KSQL_KSQL_CONNECT_POLLING_ENABLE: "true" # Toggles whether or not to poll connect for new connectors and automatically register them in ksqlDB.
       # ksqlDB Monitoring Settings (https://docs.confluent.io/current/control-center/installation/clients.html#confluent-monitoring-interceptors)
-      KSQL_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
-      KSQL_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+      KSQL_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor #,io.opentracing.contrib.kafka.TracingProducerInterceptor
+      KSQL_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor #,io.opentracing.contrib.kafka.TracingConsumerInterceptor
       # KSQL_CONFLUENT_MONITORING_INTERCEPTOR_TOPIC: _confluent-monitoring # (default: _confluent-monitoring) Topic on which monitoring data will be written. The topic is created by Confluent Control Center.
       # KSQL_CONFLUENT_MONITORING_INTERCEPTOR_PUBLISHMS: 15 # (default: 15) Period the interceptor should use to publish messages to.
+      # Jaeger Tracing
+      JAEGER_SERVICE_NAME: emob_ksql
+      JAEGER_AGENT_HOST: jaeger
+      JAEGER_AGENT_PORT: 6831
+      JAEGER_SAMPLER_TYPE: probabilistic
+      JAEGER_SAMPLER_PARAM: 0.01
     healthcheck:
       test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:8088/healthcheck) -eq 200 || exit 1
       start_period: 45s
@@ -487,6 +499,31 @@ services:
 
       # License
       LICENSE: ${LENSES_LICENSE}  
+
+  #############################################################
+  # Jaeger Tracing                                            #
+  #############################################################
+  # https://www.jaegertracing.io/docs/1.19/getting-started/
+  # https://www.jaegertracing.io/docs/1.19/sampling/
+  # https://github.com/opentracing-contrib/java-kafka-client
+  # https://github.com/opentracing-contrib/java-specialagent
+  # https://github.com/jaegertracing/jaeger-client-java/blob/master/jaeger-core/README.md#configuration-via-environment
+  # https://opencensus.io
+  jaeger:
+    image: jaegertracing/all-in-one:1.19.2
+    hostname: jaeger
+    container_name: jaeger
+    restart: always
+    ports:
+      - 6831:6831/udp
+      - 6832:6832/udp
+      - 5778:5778
+      - 16686:16686
+      - 14268:14268
+      - 14250:14250
+      - 9411:9411
+    environment:
+      COLLECTOR_ZIPKIN_HTTP_PORT: 9411
 
 networks:
   default:
