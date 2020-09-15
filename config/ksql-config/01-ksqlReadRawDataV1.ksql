@@ -1,4 +1,4 @@
-CREATE STREAM wallbox_source (
+CREATE STREAM wallbox_source_v1 (
         MQTT_TOPIC VARCHAR KEY, 
         PAYLOAD VARCHAR
   ) WITH (

@@ -1,13 +1,13 @@
-CREATE STREAM wallbox_charge 
+CREATE STREAM wallbox_charge_v1
     WITH (
-        KAFKA_TOPIC='wallbox_charge',
+        KAFKA_TOPIC='wallbox_charge_v1',
         VALUE_FORMAT='AVRO'
-  ) AS SELECT 
-        PAYLOAD AS CHARGE, 
+  ) AS SELECT  
         REGEXP_EXTRACT('(.*)/(.*)/(.*)', MQTT_TOPIC, 1) AS CLIENT_ID_KEY, 
         AS_VALUE(REGEXP_EXTRACT('(.*)/(.*)/(.*)', MQTT_TOPIC, 1)) AS CLIENT_ID, 
+        PAYLOAD AS CHARGE,
         ROWTIME AS TIMESTAMP 
-    FROM wallbox_source 
+    FROM wallbox_source_v1 
     WHERE 
         REGEXP_EXTRACT('(.*)/(.*)/(.*)', MQTT_TOPIC, 3)='charge' 
         AND REGEXP_EXTRACT('(.*)/(.*)/(.*)', MQTT_TOPIC, 2)='out' 

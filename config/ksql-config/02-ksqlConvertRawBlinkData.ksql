@@ -7,7 +7,7 @@ CREATE STREAM wallbox_blink
         REGEXP_EXTRACT('(.*)/(.*)/(.*)', MQTT_TOPIC, 1) AS CLIENT_ID_KEY, 
         AS_VALUE(REGEXP_EXTRACT('(.*)/(.*)/(.*)', MQTT_TOPIC, 1)) AS CLIENT_ID, 
         ROWTIME AS TIMESTAMP 
-    FROM wallbox_source 
+    FROM wallbox_source_v1 
     WHERE 
         REGEXP_EXTRACT('(.*)/(.*)/(.*)', MQTT_TOPIC, 3)='blink' 
         AND REGEXP_EXTRACT('(.*)/(.*)/(.*)', MQTT_TOPIC, 2)='out' 
