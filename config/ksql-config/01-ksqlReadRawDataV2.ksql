@@ -1,0 +1,7 @@
+CREATE STREAM wallbox_source_V2 (
+        MQTT_TOPIC VARCHAR KEY,
+        PAYLOAD VARCHAR
+  ) WITH (
+        KAFKA_TOPIC='wallbox_source',
+        VALUE_FORMAT='JSON'
+  );

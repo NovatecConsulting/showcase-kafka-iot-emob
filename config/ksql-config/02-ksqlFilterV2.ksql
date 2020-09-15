@@ -1,10 +1,14 @@
-INSERT INTO wallbox_charge
-SELECT
-        PAYLOAD AS CHARGE,
+CREATE STREAM wallbox_V2
+    WITH (
+        KAFKA_TOPIC='wallbox_V2',
+        VALUE_FORMAT='AVRO'
+  ) AS SELECT
+        PAYLOAD AS EVENT,
+        REGEXP_EXTRACT('ciq/(.*)/(.*)/(.*)', MQTT_TOPIC, 3) AS MQTT_TOPIC,
         REGEXP_EXTRACT('ciq/(.*)/(.*)/(.*)', MQTT_TOPIC, 2) AS CLIENT_ID_KEY,
         AS_VALUE(REGEXP_EXTRACT('ciq/(.*)/(.*)/(.*)', MQTT_TOPIC, 2)) AS CLIENT_ID,
         ROWTIME AS TIMESTAMP
-    FROM wallbox_source
+    FROM wallbox_source_V2
     WHERE
         REGEXP_EXTRACT('ciq/(.*)/(.*)/(.*)', MQTT_TOPIC, 3)='charge'
     PARTITION BY REGEXP_EXTRACT('ciq/(.*)/(.*)/(.*)', MQTT_TOPIC, 2);

@@ -1,0 +1,12 @@
+CREATE STREAM wallbox_blink
+    WITH (
+        KAFKA_TOPIC='wallbox_blink',
+        VALUE_FORMAT='AVRO'
+  ) AS SELECT
+        EVENT AS BLINK,
+        CLIENT_ID_KEY AS CLIENT_ID_KEY,
+        CLIENT_ID AS CLIENT_ID,
+        TIMESTAMP AS TIMESTAMP
+    FROM wallbox_V1
+    WHERE
+        MQTT_TOPIC='blink';

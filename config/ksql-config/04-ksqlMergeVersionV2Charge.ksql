@@ -1,0 +1,9 @@
+INSERT INTO wallbox_charge
+SELECT
+     EVENT AS CHARGE,
+     CLIENT_ID_KEY,
+     CLIENT_ID,
+     TIMESTAMP
+FROM wallbox_V2
+WHERE
+     MQTT_TOPIC='charge';
