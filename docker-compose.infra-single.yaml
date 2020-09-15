@@ -95,7 +95,7 @@ services:
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081 # (default: http://0.0.0.0:8081) Comma-separated list of listeners that listen for API requests
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092 # (required) A list of Kafka brokers to connect. If kafkastore.connection.url is not specified, the Kafka cluster containing these bootstrap servers is used both to coordinate Schema Registry instances (primary election) and to store schema data.
       SCHEMA_REGISTRY_CUB_KAFKA_TIMEOUT: 60 # (default: 40) Docker image setting, which specifies the amount of time to wait for Kafka. Could be used, to get rid of Docker healthchecks. 
-      SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: # (default: 3) The desired replication factor of the schema topic. Must be 1, because we only have a single broker.
+      SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: 1 # (default: 3) The desired replication factor of the schema topic. Must be 1, because we only have a single broker.
       SCHEMA_REGISTRY_AVRO_COMPATIBILITY_LEVEL: backward # (default: backward) The Avro compatibility type.
     healthcheck:
       test: test $$(curl -s -o /dev/null -w %{http_code}  http://localhost:8081/subjects) -eq 200 || exit 1
