@@ -1,5 +1,5 @@
 {
-    "name": "mongodb-source",
+    "name": "mongodb-wallboxlocation-source",
     "config": {
         "connector.class": "io.debezium.connector.mongodb.MongoDbConnector",
         "tasks.max": 1,
@@ -8,7 +8,7 @@
         "collection.whitelist": "mongoDB.StationLocations",
         "value.converter": "io.confluent.connect.avro.AvroConverter",
         "value.converter.schema.registry.url": "http://schema-registry:8081",
-        "transforms": "extractMongoDocument,copyClientIDToKey,dropKeyStruct,renameEventIdField,targetKafkaTopic",
+        "transforms": "extractMongoDocument,copyClientIDToKey,dropKeyStruct,renameEventIdField,targetKafkaTopic,insertKaDeckHeader",
         "transforms.extractMongoDocument.type": "io.debezium.connector.mongodb.transforms.ExtractNewDocumentState",
         "transforms.copyClientIDToKey.type": "org.apache.kafka.connect.transforms.ValueToKey",
         "transforms.copyClientIDToKey.fields": "CLIENT_ID",
@@ -18,6 +18,9 @@
         "transforms.renameEventIdField.renames": "id:EVENT_ID",
         "transforms.targetKafkaTopic.type": "org.apache.kafka.connect.transforms.RegexRouter",
         "transforms.targetKafkaTopic.regex": "(.*)",
-        "transforms.targetKafkaTopic.replacement": "wallbox_location"
+        "transforms.targetKafkaTopic.replacement": "wallbox_location",
+        "transforms.insertKaDeckHeader.type": "de.novatec.kafka.connect.transforms.InsertHeader",
+        "transforms.insertKaDeckHeader.header": "producerid",
+        "transforms.insertKaDeckHeader.literal.value": "mongodb-wallboxlocation"
     }
 }

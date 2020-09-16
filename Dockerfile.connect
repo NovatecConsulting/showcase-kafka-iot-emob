@@ -1,6 +1,11 @@
 ARG VERSION_CONFLUENT
-FROM confluentinc/cp-server-connect-base:${VERSION_CONFLUENT}
 
+FROM openjdk:8-jdk-slim as builder
+WORKDIR /workspace
+COPY lib/novatec-kafka-connect-transforms .
+RUN ./gradlew build
+
+FROM confluentinc/cp-server-connect-base:${VERSION_CONFLUENT}
 ARG CONNECTORS=""
 RUN for c in ${CONNECTORS}; do confluent-hub install --no-prompt $c; done;
 
@@ -13,8 +18,11 @@ ARG OPENTRACING_SPECIALAGENT_EXPORTER=jaeger
 ENV KAFKA_OPTS="${KAFKA_OPTS} -Dsa.exporter=${OPENTRACING_SPECIALAGENT_EXPORTER}"
 ENV CLASSPATH="${CLASSPATH}:/usr/share/java/tracing-agents/*"
 
-ARG OPENTRACING_KAFKA_CLIENT_VERSION=0.1.13
-RUN mkdir -p /usr/share/java/tracing-interceptors \
-    && curl -L https://repo1.maven.org/maven2/io/opentracing/contrib/opentracing-kafka-client/${OPENTRACING_KAFKA_CLIENT_VERSION}/opentracing-kafka-client-${OPENTRACING_KAFKA_CLIENT_VERSION}.jar \
-        -o /usr/share/java/tracing-interceptors/opentracing-kafka-client-${OPENTRACING_KAFKA_CLIENT_VERSION}.jar
-ENV CLASSPATH="${CLASSPATH}:/usr/share/java/tracing-interceptors/*"
+COPY --from=builder /workspace/build/libs /usr/share/java/custom-transforms
+ENV CLASSPATH="${CLASSPATH}:/usr/share/java/custom-transforms/*"
+
+#ARG OPENTRACING_KAFKA_CLIENT_VERSION=0.1.13
+#RUN mkdir -p /usr/share/java/tracing-interceptors \
+#    && curl -L https://repo1.maven.org/maven2/io/opentracing/contrib/opentracing-kafka-client/${OPENTRACING_KAFKA_CLIENT_VERSION}/opentracing-kafka-client-${OPENTRACING_KAFKA_CLIENT_VERSION}.jar \
+#        -o /usr/share/java/tracing-interceptors/opentracing-kafka-client-${OPENTRACING_KAFKA_CLIENT_VERSION}.jar
+#ENV CLASSPATH="${CLASSPATH}:/usr/share/java/tracing-interceptors/*"
