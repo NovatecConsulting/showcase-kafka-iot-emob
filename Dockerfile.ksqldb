@@ -17,9 +17,3 @@ ENV KSQL_OPTS="-javaagent:/usr/share/java/tracing-agents/opentracing-specialagen
 ARG OPENTRACING_SPECIALAGENT_EXPORTER=jaeger
 ENV KSQL_OPTS="${KSQL_OPTS} -Dsa.exporter=${OPENTRACING_SPECIALAGENT_EXPORTER}"
 ENV KSQL_CLASSPATH="${KSQL_CLASSPATH}:/usr/share/java/tracing-agents/*"
-
-#ARG OPENTRACING_KAFKA_CLIENT_VERSION=0.1.13
-#RUN mkdir -p /usr/share/java/tracing-interceptors \
-#    && curl -L https://repo1.maven.org/maven2/io/opentracing/contrib/opentracing-kafka-client/${OPENTRACING_KAFKA_CLIENT_VERSION}/opentracing-kafka-client-${OPENTRACING_KAFKA_CLIENT_VERSION}.jar \
-#        -o /usr/share/java/tracing-interceptors/opentracing-kafka-client-${OPENTRACING_KAFKA_CLIENT_VERSION}.jar
-#ENV KSQL_CLASSPATH="${KSQL_CLASSPATH}:/usr/share/java/tracing-interceptors/*"

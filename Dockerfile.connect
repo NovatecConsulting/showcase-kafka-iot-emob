@@ -20,9 +20,3 @@ ENV CLASSPATH="${CLASSPATH}:/usr/share/java/tracing-agents/*"
 
 COPY --from=builder /workspace/build/libs /usr/share/java/custom-transforms
 ENV CLASSPATH="${CLASSPATH}:/usr/share/java/custom-transforms/*"
-
-#ARG OPENTRACING_KAFKA_CLIENT_VERSION=0.1.13
-#RUN mkdir -p /usr/share/java/tracing-interceptors \
-#    && curl -L https://repo1.maven.org/maven2/io/opentracing/contrib/opentracing-kafka-client/${OPENTRACING_KAFKA_CLIENT_VERSION}/opentracing-kafka-client-${OPENTRACING_KAFKA_CLIENT_VERSION}.jar \
-#        -o /usr/share/java/tracing-interceptors/opentracing-kafka-client-${OPENTRACING_KAFKA_CLIENT_VERSION}.jar
-#ENV CLASSPATH="${CLASSPATH}:/usr/share/java/tracing-interceptors/*"

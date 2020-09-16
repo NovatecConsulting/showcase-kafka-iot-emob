@@ -130,6 +130,8 @@ Network and Credentials
 |===
 | Service | Username | Password
 | hivemq  | admin    | hivemq
+| KaDeck  | admin    | admin
+| Lenses  | admin    | admin
 |===
 
 
@@ -146,6 +148,9 @@ Network and Credentials
 | MongoDB client| http://localhost:3456
 | Node-RED      | http://localhost:1880
 | Grafana       | http://localhost:3000
+| KaDeck        | http://localhost:9091
+| Jaeger        | http://localhost:16686
+| Lenses        | http://localhost:9991
 |===
 
 Access Services by Name
@@ -167,6 +172,9 @@ with their fqdn. The domain name which is used for this project is `emob`.
 | MongoDB client| http://mongoclient.emob:3000
 | Node-RED      | http://mynodered.emob:1880
 | Grafana       | http://grafana.emob:3000
+| KaDeck        | http://kadeck.emob
+| Jaeger        | http://jaeger.emob:16686
+| Lenses        | http://lenses.emob:9991
 |===
 
 Kafka Connect Connectors
