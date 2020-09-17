@@ -1,0 +1,94 @@
+#############################################################
+# Emob Infra Services Overrides for Slow CPU (Single)       #
+#############################################################
+# In order to use, rename to docker-compose.infra-single.override.yaml
+---
+  version: '2.4'
+  services:
+  
+    #############################################################
+    # Apache Zookeeper (CP)                                     #
+    #############################################################
+    zookeeper:
+      healthcheck:
+        start_period: 20s
+        interval: 30s
+        timeout: 28s
+        retries: 10
+  
+    #############################################################
+    # Confluent Server (CP)                                     #
+    #############################################################
+    kafka:
+      healthcheck:
+        start_period: 20s
+        interval: 30s
+        timeout: 25s
+        retries: 10
+  
+    #############################################################
+    # Confluent Schema Registry (CP)                            #
+    #############################################################
+    schema-registry:
+      healthcheck:
+        start_period: 20s
+        interval: 30s
+        timeout: 28s
+        retries: 10
+  
+    #############################################################
+    # Kafka Connect (CP)                                        #
+    #############################################################
+    connect:
+      healthcheck:
+        start_period: 120s
+        interval: 30s
+        timeout: 28s
+        retries: 10
+  
+    #############################################################
+    # Confluent ksqlDB Server                                   #
+    #############################################################
+    ksqldb-server:
+      healthcheck:
+        start_period: 60s
+        interval: 30s
+        timeout: 28s
+        retries: 10
+  
+    #############################################################
+    # Confluent Control Center (CP)                             #
+    #############################################################
+    control-center:
+      healthcheck:
+        start_period: 60s
+        interval: 30s
+        timeout: 28s
+        retries: 10
+  
+    #############################################################
+    # HiveMQ                                                    #
+    #############################################################
+    hivemq:
+      healthcheck:
+        start_period: 10s
+        interval: 30s
+        timeout: 28s
+        retries: 10
+  
+    #############################################################
+    # MongoDB                                                   #
+    #############################################################
+    mongo:
+      healthcheck:
+        start_period: 10s
+        interval: 30s
+        timeout: 28s
+        retries: 10
+  
+    mongoclient:
+      healthcheck:
+        start_period: 5s
+        interval: 30s
+        timeout: 28s
+        retries: 10
