@@ -2,7 +2,7 @@ ARG VERSION_KSQLDB
 
 FROM openjdk:8-jdk-slim as builder
 WORKDIR /workspace
-COPY ksql-functions/ .
+COPY lib/ksql-functions .
 RUN ./mvnw clean install
 
 FROM confluentinc/ksqldb-server:${VERSION_KSQLDB}

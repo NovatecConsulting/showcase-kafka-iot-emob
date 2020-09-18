@@ -1,4 +1,4 @@
-package novatec.showcase.emob.ksql;
+package de.novatec.ksql.functions;
 
 import io.confluent.ksql.function.udf.Udf;
 import io.confluent.ksql.function.udf.UdfDescription;

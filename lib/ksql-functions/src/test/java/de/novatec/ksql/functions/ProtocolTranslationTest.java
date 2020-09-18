@@ -1,4 +1,4 @@
-package novatec.showcase.emob.ksql;
+package de.novatec.ksql.functions;
 
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
