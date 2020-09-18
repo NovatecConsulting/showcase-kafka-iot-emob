@@ -1,7 +1,0 @@
-CREATE STREAM wallbox_charge
-     WITH (
-        KAFKA_TOPIC='wallbox_charge',
-        VALUE_FORMAT='AVRO'
-  ) AS SELECT * FROM wallbox_charge_v1;
-INSERT INTO wallbox_charge
-    SELECT * FROM wallbox_charge_v2;

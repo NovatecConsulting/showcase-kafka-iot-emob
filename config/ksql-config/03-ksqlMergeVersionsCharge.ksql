@@ -1,0 +1,12 @@
+CREATE STREAM wallbox_charge
+    WITH (
+        KAFKA_TOPIC='wallbox_charge',
+        VALUE_FORMAT='AVRO'
+  ) AS SELECT
+        CLIENT_ID_KEY AS CLIENT_ID_KEY,
+        CLIENT_ID AS CLIENT_ID,
+        EVENT AS CHARGE,
+        TIMESTAMP AS TIMESTAMP
+    FROM wallbox_V1
+    WHERE
+        MQTT_TOPIC='charge';
