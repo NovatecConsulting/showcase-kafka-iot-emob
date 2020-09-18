@@ -1,0 +1,9 @@
+INSERT INTO wallbox_blink
+SELECT
+     CLIENT_ID_KEY,
+     CLIENT_ID,
+     EVENT AS BLINK,
+     TIMESTAMP
+FROM wallbox_V2
+WHERE
+     MQTT_TOPIC='blink';

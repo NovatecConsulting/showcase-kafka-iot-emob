@@ -1,5 +1,10 @@
 ARG VERSION_KSQLDB
 
+FROM openjdk:8-jdk-slim as builder
+WORKDIR /workspace
+COPY lib/ksql-functions .
+RUN ./mvnw clean install
+
 FROM confluentinc/ksqldb-server:${VERSION_KSQLDB}
 
 ARG VERSION_CONFLUENT
@@ -8,6 +13,8 @@ RUN mkdir -p /usr/share/java/monitoring-interceptors \
     && curl -L http://packages.confluent.io/maven/io/confluent/monitoring-interceptors/${VERSION_CONFLUENT}/monitoring-interceptors-${VERSION_CONFLUENT}.jar \
         -o /usr/share/java/monitoring-interceptors/monitoring-interceptors-${VERSION_CONFLUENT}.jar
 ENV KSQL_CLASSPATH=/usr/share/java/my-base/*:/usr/share/java/my-ksql-server/*:/usr/share/java/monitoring-interceptors/*
+
+COPY --from=builder /workspace/target /etc/ksql/ext
 
 ARG OPENTRACING_SPECIALAGENT_VERSION=1.7.4
 RUN mkdir -p /usr/share/java/tracing-agents \

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="maven-antrun-" default="main"  >
+<target name="main">
+  <copy file="/home/nadja/showcase/technologyconsulting-showcase-emob/ksql-functions/target/ksql-functions.jar" todir="/home/nadja/showcase/technologyconsulting-showcase-emob/ksql-functions/../config/ksql-config/custom-functions/"/>
+</target>
+</project>

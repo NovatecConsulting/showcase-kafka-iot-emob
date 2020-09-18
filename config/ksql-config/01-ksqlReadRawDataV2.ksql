@@ -1,0 +1,15 @@
+CREATE STREAM wallbox_source_v2 (
+        MQTT_TOPIC VARCHAR KEY, 
+        status VARCHAR,
+        event VARCHAR,
+        amount BIGINT,
+        action VARCHAR,
+        max BIGINT,
+        response STRUCT <
+            amount BIGINT,
+            max BIGINT
+        >
+  ) WITH (
+        KAFKA_TOPIC='wallbox_source', 
+        VALUE_FORMAT='JSON'
+  );

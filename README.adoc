@@ -15,9 +15,14 @@ local machine, you need Docker and Docker-Compose which at least supports the Do
 Quickstart
 ~~~~~~~~~~
 
-.Change in the showcase directory
+.Change in the showcase base directory
 ----
 cd ./technologyconsulting-showcase-emob
+----
+
+.Build all necessary Docker images
+----
+./emob-dc.sh dc build
 ----
 
 .To start the infrastructure services, deploy the application (topic creation, connectors and ksqlDB statement deployment) and import the test data in one step, run: 

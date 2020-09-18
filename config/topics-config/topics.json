@@ -2,6 +2,8 @@
   "topics": [
     {"topic": "wallbox_source"},
     {"topic": "wallbox_charge", "enabled": false, "comment": "Created by ksqlDB"},
+    {"topic": "wallbox_V1", "enabled": false, "comment": "Created by ksqlDB"},
+    {"topic": "wallbox_V2", "enabled": false, "comment": "Created by ksqlDB"},
     {"topic": "wallbox_blink", "enabled": false, "comment": "Created by ksqlDB"},
     {"topic": "wallbox_chargestatus", "configs": ["cleanup.policy=compact"], "enabled": false, "comment": "Created by ksqlDB"},
     {"topic": "wallbox_location", "configs": ["cleanup.policy=compact"]},
