@@ -500,8 +500,6 @@ services:
         - ksqldb-server
     # https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/server-config/config-reference/
     # https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/install-ksqldb-with-docker/
-    volumes:
-    - ./config/ksql-config/custom-functions:/etc/ksql/ext
     environment:
       ## ksqlDB Kafka Streams and Kafka Client Settings 
       ## https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/server-config/config-reference/#kafka-streams-and-kafka-client-settings

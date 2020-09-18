@@ -1,5 +1,4 @@
 connectors/
-target/
 *.log
 
 .emob-dc-infra
