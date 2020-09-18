@@ -1,5 +1,5 @@
 {
-    "name": "mqtt-source",
+    "name": "mqtt-wallbox-source",
     "config": {
         "connector.class": "io.confluent.connect.mqtt.MqttSourceConnector",
         "tasks.max": 1,
@@ -8,6 +8,10 @@
         "kafka.topic": "wallbox_source",
         "value.converter": "org.apache.kafka.connect.converters.ByteArrayConverter", 
         "confluent.topic.bootstrap.servers": "kafka:9092",
-        "confluent.topic.replication.factor": 3
+        "confluent.topic.replication.factor": 3,
+        "transforms": "insertKaDeckHeader",
+        "transforms.insertKaDeckHeader.type": "de.novatec.kafka.connect.transforms.InsertHeader",
+        "transforms.insertKaDeckHeader.header": "producerid",
+        "transforms.insertKaDeckHeader.literal.value": "connect-mqtt-wallbox"
     }
 }
