@@ -12,10 +12,18 @@ git clone https://github.com/NovatecConsulting/technologyconsulting-showcase-emo
 This project uses a local setup based on Docker-Compose. Therefore, in order to run this showcase on your
 local machine, you need Docker and Docker-Compose which at least supports the Docker-Compose file format 2.4.
 
+JDK 1.8 or later is also needed to compile the custom KSQL function.
+
 Quickstart
 ~~~~~~~~~~
 
-.Change in the showcase directory
+.Compile custom KSQL function
+----
+cd ./technologyconsulting-showcase-emob/ksql-functions
+./mvnw clean install
+----
+
+.Change in the showcase base directory
 ----
 cd ./technologyconsulting-showcase-emob
 ----
