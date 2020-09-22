@@ -15,6 +15,7 @@ DC_INFRA_CURRENT_FILE=".emob-dc-infra"
 DC_INFRA_DEFAULT="docker-compose.yaml"
 DC_INFRA_HA="docker-compose.infra-ha.yaml"
 DC_INFRA_SINGLE="docker-compose.infra-single.yaml"
+DC_INFRA_SHOWCASE="docker-compose.infra-showcase.yaml"
 
 DC_DEPLOY="docker-compose.deploy.yaml"
 DC_TESTDATA="docker-compose.testdata.yaml"
@@ -171,7 +172,7 @@ function show_logs () {
 }
 
 function set_infra_mode () {
-    local mode="${1:?"Require mode as first parameter! Valid modes are: 'single','ha','default'"}"
+    local mode="${1:?"Require mode as first parameter! Valid modes are: 'single','ha','showcase','default'"}"
 
     if [ ! -z "$(dc_in_env ps -q)" ]; then
         log "WARNING" "Emob environment already started. You must shutdown environment first, in order to change the infra mode!"
@@ -182,10 +183,12 @@ function set_infra_mode () {
         echo "${DC_INFRA_SINGLE}" > "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
     elif [ "${mode}" == "ha" ]; then
         echo "${DC_INFRA_HA}" > "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
+    elif [ "${mode}" == "showcase" ]; then
+        echo "${DC_INFRA_SHOWCASE}" > "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
     elif [ "${mode}" == "default" ]; then
         echo "${DC_INFRA_DEFAULT}" > "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
     else
-        fail "'${mode}' is not a valid mode! Expected one of: single','ha','default'"
+        fail "'${mode}' is not a valid mode! Expected one of: single','ha','showcase','default'"
     fi
 
     log "INFO" "Switched to ${mode} mode."
@@ -251,6 +254,7 @@ _CMD=(
 _CMD_MODE=(
     'cmd=("single" "Switch to single instance mode." "set_infra_mode single" "exec_cmd _CMD_MODE")'
     'cmd=("ha" "Switch to ha mode." "set_infra_mode ha" "exec_cmd _CMD_MODE")'
+    'cmd=("showcase" "Switch to showcase instance mode." "set_infra_mode showcase" "exec_cmd _CMD_MODE")'
 )
 
 _CMD_START=(
