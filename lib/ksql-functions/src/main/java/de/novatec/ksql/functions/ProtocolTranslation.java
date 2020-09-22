@@ -17,11 +17,11 @@ public class ProtocolTranslation {
       @UdfParameter(value = "MAX", description = "Charging max") final Long max,
       @UdfParameter(value = "RESPONSE_AMOUNT", description = "Charging response amount") final Long response_amount,
       @UdfParameter(value = "RESPONSE_MAX", description = "Charging response max") final Long response_max) {
-      if (StringUtils.equals(status,"ready") || StringUtils.equals(event,"EV_lost")) return "ready";
-      if (StringUtils.equals(event,"ev"))  return "ev";
-      if (StringUtils.equals(event,"start")) return "charging 0/" + max;
-      if (StringUtils.equals(event,"stop")) return "charged " + amount + "/" + max;
-      if (StringUtils.equals(action,"amount")) return "charging " + response_amount + "/" + response_max;
+      if (StringUtils.equalsIgnoreCase(status,"ready") || StringUtils.equalsIgnoreCase(event,"EV_lost")) return "ready";
+      if (StringUtils.equalsIgnoreCase(event,"ev"))  return "ev";
+      if (StringUtils.equalsIgnoreCase(event,"start")) return "charging 0/" + max;
+      if (StringUtils.equalsIgnoreCase(event,"stop")) return "charged " + amount + "/" + max;
+      if (StringUtils.equalsIgnoreCase(action,"amount")) return "charging " + response_amount + "/" + response_max;
       return "ready";
     }
 }
