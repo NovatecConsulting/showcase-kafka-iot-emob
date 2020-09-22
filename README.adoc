@@ -132,7 +132,7 @@ image::DataFlow_v2.svg[]
 Sequential Overview of Charging a Vehicle (German)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-image::shareIQ_ElectricVehicleCharging.png
+image::shareIQ_ElectricVehicleCharging.png[]
 
 
 Using Node-RED for Simulation
