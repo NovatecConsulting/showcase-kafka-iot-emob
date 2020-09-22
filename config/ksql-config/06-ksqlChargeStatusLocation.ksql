@@ -14,8 +14,8 @@ CREATE TABLE wallbox_location_chargestatus
         status.CLIENT_ID_KEY as CLIENT_ID_KEY, 
         status.CLIENT_ID as CLIENT_ID, 
         status.STATUS as CHARGE_STATUS, 
-        location.lat as LATITUDE,
-        location.long as LONGITUDE
+        location.latitude as LATITUDE,
+        location.longitude as LONGITUDE
     FROM wallbox_chargestatus status 
         INNER JOIN wallbox_location location 
             ON status.CLIENT_ID_KEY = location.CLIENT_ID_KEY;

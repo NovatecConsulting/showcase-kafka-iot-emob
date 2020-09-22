@@ -28,8 +28,8 @@ services:
       STATION_COUNT: 500
       MONGODB_URL: mongo:27017
       FIELD_STATIONID: CLIENT_ID
-      FIELD_LATITUDE: x
-      FIELD_LONGITUDE: y
+      FIELD_LATITUDE: latitude
+      FIELD_LONGITUDE: longitude
       MQTT_BROKER_URL: hivemq:1883
       MIN_SEC_FREE: 20
       MAX_SEC_FREE: 300
