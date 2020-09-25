@@ -5,3 +5,4 @@ connectors/
 *.override.yaml
 *.override.yml
 .env.override
+license.json

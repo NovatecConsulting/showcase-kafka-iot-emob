@@ -1,5 +1,5 @@
 #############################################################
-# Emob Infrastructure Services for Showcase Emob (Single)   #
+# Emob Infrastructure Services for Showcase Emob (showcase) #
 #############################################################
 #https://docs.confluent.io/current/installation/docker/image-reference.html
 ---
@@ -111,7 +111,7 @@ services:
     image: novatec/cp-server-connect-emob:${VERSION_CONFLUENT}
     build:
       context: .
-      dockerfile: Dockerfile.connect
+      dockerfile: kafkaconnect/Dockerfile.connect
       args:
         VERSION_CONFLUENT: ${VERSION_CONFLUENT}
         CONNECTORS: |-
@@ -178,7 +178,7 @@ services:
     image: novatec/ksqldb-server-emob:${VERSION_KSQLDB}
     build:
       context: .
-      dockerfile: Dockerfile.ksqldb
+      dockerfile: ksqldb/Dockerfile.ksqldb
       args:
         VERSION_KSQLDB: ${VERSION_KSQLDB}
         VERSION_CONFLUENT: ${VERSION_CONFLUENT}
@@ -280,7 +280,7 @@ services:
     image: novatec/hivemq4-emob:${VERSION_HIVEMQ4}
     build:
       context: .
-      dockerfile: Dockerfile.hivemq
+      dockerfile: hivemq/Dockerfile.hivemq
       args:
         VERSION_HIVEMQ4: ${VERSION_HIVEMQ4}
         EXTENSIONS: |-
@@ -321,7 +321,7 @@ services:
     image: novatec/mongosetup-emob:${VERSION_MONGODB}
     build:
       context: .
-      dockerfile: Dockerfile.mongosetup
+      dockerfile: mongodb/Dockerfile.mongosetup
       args:
         VERSION_MONGODB: ${VERSION_MONGODB}
     hostname: mongosetup
@@ -331,7 +331,7 @@ services:
       mongo:
         condition: service_healthy
     volumes:
-      - ./config/mongodb-config:/scripts
+      - ./mongodb/config:/scripts
     entrypoint: ["bash","/scripts/mongo_setup.sh"]
 
   mongoclient:
@@ -400,8 +400,8 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./provisioning/datasources:/etc/grafana/provisioning/datasources
-      - ./provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
     environment:
       GF_INSTALL_PLUGINS: grafana-worldmap-panel
       GF_AUTH_DISABLE_LOGIN_FORM: "true"

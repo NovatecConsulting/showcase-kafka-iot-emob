@@ -17,7 +17,7 @@ services:
     environment: 
       KAFKA_BOOTSTRAP_SERVER: kafka:9092
     volumes:
-    - ./config/topics-config:/topics-config
+    - ./kafkatopics/config:/topics-config
     command: 
     - /topics-config/topics-deploy.sh
 
@@ -34,7 +34,7 @@ services:
       CONNECT_REST_API_URL: http://connect:8083
       KAFKA_BOOTSTRAP_SERVER: kafka:9092
     volumes:
-    - ./config/connectors-config:/connectors-config
+    - ./kafkaconnect/config:/connectors-config
     command: 
     - /connectors-config/connectors-deploy.sh
 
@@ -50,7 +50,7 @@ services:
     environment: 
       KSQL_REST_API_URL: http://ksqldb-server:8088
     volumes:
-    - ./config/ksql-config:/ksql-config
+    - ./ksqldb/config:/ksql-config
     command: 
     - /ksql-config/ksqlstatements-deploy.sh
 
@@ -66,6 +66,6 @@ services:
     environment: 
       NODERED_REST_API_URL: http://mynodered:1880
     volumes:
-    - ./config/nodered-config:/nodered-config
+    - ./nodered/config:/nodered-config
     command: 
     - /nodered-config/flows-deploy.sh

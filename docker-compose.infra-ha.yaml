@@ -322,7 +322,7 @@ services:
     image: novatec/cp-server-connect-emob:${VERSION_CONFLUENT}
     build:
       context: .
-      dockerfile: Dockerfile.connect
+      dockerfile: kafkaconnect/Dockerfile.connect
       args:
         VERSION_CONFLUENT: ${VERSION_CONFLUENT}
         CONNECTORS: |-
@@ -394,7 +394,7 @@ services:
     image: novatec/cp-server-connect-emob:${VERSION_CONFLUENT}
     build:
       context: .
-      dockerfile: Dockerfile.connect
+      dockerfile: kafkaconnect/Dockerfile.connect
       args:
         VERSION_CONFLUENT: ${VERSION_CONFLUENT}
         CONNECTORS: |-
@@ -469,7 +469,7 @@ services:
     image: novatec/ksqldb-server-emob:${VERSION_KSQLDB}
     build:
       context: .
-      dockerfile: Dockerfile.ksqldb
+      dockerfile: ksqldb/Dockerfile.ksqldb
       args:
         VERSION_CONFLUENT: ${VERSION_CONFLUENT}
         VERSION_KSQLDB: ${VERSION_KSQLDB}
@@ -547,7 +547,7 @@ services:
     image: novatec/ksqldb-server-emob:${VERSION_KSQLDB}
     build:
       context: .
-      dockerfile: Dockerfile.ksqldb
+      dockerfile: ksqldb/Dockerfile.ksqldb
       args:
         VERSION_CONFLUENT: ${VERSION_CONFLUENT}
         VERSION_KSQLDB: ${VERSION_KSQLDB}
@@ -578,7 +578,7 @@ services:
     # https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/server-config/config-reference/
     # https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/install-ksqldb-with-docker/
     volumes:
-    - ./config/ksql-config/custom-functions:/etc/ksql/ext    
+    - ./ksqldb/custom-functions:/etc/ksql/ext
     environment:
       ## ksqlDB Kafka Streams and Kafka Client Settings 
       ## https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/server-config/config-reference/#kafka-streams-and-kafka-client-settings
@@ -735,7 +735,7 @@ services:
     image: novatec/hivemq4-emob:${VERSION_HIVEMQ4}
     build:
       context: .
-      dockerfile: Dockerfile.hivemq
+      dockerfile: hivemq/Dockerfile.hivemq
       args:
         VERSION_HIVEMQ4: ${VERSION_HIVEMQ4}
         EXTENSIONS: |-
@@ -776,7 +776,7 @@ services:
     image: novatec/mongosetup-emob:${VERSION_MONGODB}
     build:
       context: .
-      dockerfile: Dockerfile.mongosetup
+      dockerfile: mongodb/Dockerfile.mongosetup
       args:
         VERSION_MONGODB: ${VERSION_MONGODB}
     hostname: mongosetup
@@ -786,7 +786,7 @@ services:
       mongo:
         condition: service_healthy
     volumes:
-    - ./config/mongodb-config:/scripts
+    - ./mongodb/config:/scripts
     entrypoint: ["bash","/scripts/mongo_setup.sh"]
 
   mongoclient:
@@ -823,7 +823,7 @@ services:
     environment:
       TZ: Europe/Amsterdam
     volumes:
-    - ./connectIQ_MQTT_sim.json
+    - ./nodered/config/sim.json
     healthcheck:
       test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:1880/flows) -eq 200 || exit 1
       start_period: 10s
@@ -857,8 +857,8 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./provisioning/datasources:/etc/grafana/provisioning/datasources
-      - ./provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
     environment:
       GF_INSTALL_PLUGINS: grafana-worldmap-panel
       GF_AUTH_DISABLE_LOGIN_FORM: "true"

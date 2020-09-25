@@ -1,5 +1,5 @@
 #############################################################
-# Emob Infrastructure Services for Showcase Emob (Single)   #
+# Emob Infrastructure Services for Showcase Emob (Lenses)   #
 #############################################################
 #https://docs.confluent.io/current/installation/docker/image-reference.html
 ---
@@ -15,7 +15,7 @@ services:
     container_name: zookeeper
     restart: always
     ports:
-    - 12181:2181
+      - 12181:2181
     # https://docs.confluent.io/current/zookeeper/deployment.html
     # https://docs.confluent.io/current/installation/docker/config-reference.html#zk-configuration
     environment:
@@ -40,13 +40,13 @@ services:
       zookeeper:
         condition: service_healthy
     ports:
-    - 19092:19092
+      - 19092:19092
     # https://docs.confluent.io/current/installation/configuration/broker-configs.html
     # https://docs.confluent.io/current/installation/docker/config-reference.html#confluent-kafka-configuration
     environment:
       KAFKA_BROKER_ID: 1 # (default: -1) The broker id for this server. If unset, a unique broker id will be generated.
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181 # (required) Instructs Kafka how to get in touch with ZooKeeper.
-      KAFKA_CUB_ZK_TIMEOUT: 60 # (default: 40) Docker image setting, which specified the amount of time to wait for Zookeeper. Could be used, to get rid of Docker healthchecks. 
+      KAFKA_CUB_ZK_TIMEOUT: 60 # (default: 40) Docker image setting, which specified the amount of time to wait for Zookeeper. Could be used, to get rid of Docker healthchecks.
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DOCKER:PLAINTEXT,HOST:PLAINTEXT # (default: PLAINTEXT:PLAINTEXT,...) Map between listener names and security protocols. In this scenario this setting is used to define listeners with names.
       KAFKA_LISTENERS: DOCKER://:9092,HOST://:19092 # (required) List of URIs we will listen on and the listener names. In this case, Kafka listens in both ports on all interfaces.
       KAFKA_ADVERTISED_LISTENERS: DOCKER://kafka.${DOMAIN_NAME}:9092,HOST://localhost:19092 # (required) Describes how the host name that is advertised and can be reached by clients. HOST://localhost:19092 enables access from Docker host.
@@ -86,15 +86,15 @@ services:
       kafka:
         condition: service_healthy
     ports:
-    - 8081:8081  
-    - 18081:8081
+      - 8081:8081
+      - 18081:8081
     # https://docs.confluent.io/current/schema-registry/installation/config.html
     # https://docs.confluent.io/current/installation/docker/config-reference.html#schema-registry-configuration
     environment:
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry # (required) The advertised host name. Not reuqired in single host mode, but required by the image. 
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry # (required) The advertised host name. Not reuqired in single host mode, but required by the image.
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081 # (default: http://0.0.0.0:8081) Comma-separated list of listeners that listen for API requests
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092 # (required) A list of Kafka brokers to connect. If kafkastore.connection.url is not specified, the Kafka cluster containing these bootstrap servers is used both to coordinate Schema Registry instances (primary election) and to store schema data.
-      SCHEMA_REGISTRY_CUB_KAFKA_TIMEOUT: 60 # (default: 40) Docker image setting, which specifies the amount of time to wait for Kafka. Could be used, to get rid of Docker healthchecks. 
+      SCHEMA_REGISTRY_CUB_KAFKA_TIMEOUT: 60 # (default: 40) Docker image setting, which specifies the amount of time to wait for Kafka. Could be used, to get rid of Docker healthchecks.
       SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: 1 # (default: 3) The desired replication factor of the schema topic. Must be 1, because we only have a single broker.
       SCHEMA_REGISTRY_AVRO_COMPATIBILITY_LEVEL: backward # (default: backward) The Avro compatibility type.
     healthcheck:
@@ -128,15 +128,15 @@ services:
       schema-registry:
         condition: service_healthy
     ports:
-    - 8083:8083
-    - 18083:8083
+      - 8083:8083
+      - 18083:8083
     # https://docs.confluent.io/current/installation/configuration/connect/index.html
     # https://docs.confluent.io/current/installation/docker/config-reference.html#kafka-connect-configuration
     # https://docs.confluent.io/current/installation/configuration/connect/source-connect-configs.html
     # https://docs.confluent.io/current/installation/configuration/connect/sink-connect-configs.html
     environment:
       CONNECT_BOOTSTRAP_SERVERS: kafka:9092 # (required) A host:port pair for establishing the initial connection to the Kafka cluster.
-      CONNECT_CUB_KAFKA_TIMEOUT: 60 # (default: 40) Docker image setting, which specifies the amount of time to wait for Kafka. Could be used, to get rid of Docker healthchecks. 
+      CONNECT_CUB_KAFKA_TIMEOUT: 60 # (default: 40) Docker image setting, which specifies the amount of time to wait for Kafka. Could be used, to get rid of Docker healthchecks.
       CONNECT_REST_ADVERTISED_HOST_NAME: connect # (required) The hostname that is given out to other workers to connect to. Must be resolvable by all containers.
       CONNECT_REST_PORT: 8083 # (default: 8083) Port for the REST API to listen on.
       CONNECT_GROUP_ID: emob_connect # (required) A unique string that identifies the Connect cluster group this worker belongs to.
@@ -164,12 +164,6 @@ services:
       CONNECT_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka:9092 # (required) Point to Kafka brokers in the metrics cluster. In this scenario, metrics are not stored in a separate cluster.
       CONNECT_CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1 # (default: 3) Number of replicas in the metric topic. Must be 1, because we only have a single broker.
       CONNECT_CONFLUENT_METRICS_REPORTER_PUBLISH_MS: 5000 # (default: 15000) The Confluent Metrics Reporter will publish new metrics to the metrics topic in intervals defined by this setting. Reduced for development, to reduce the health data lag.
-      # Jaeger Tracing
-      JAEGER_SERVICE_NAME: emob_connect
-      JAEGER_AGENT_HOST: jaeger
-      JAEGER_AGENT_PORT: 6831
-      JAEGER_SAMPLER_TYPE: probabilistic
-      JAEGER_SAMPLER_PARAM: 0.01
     healthcheck:
       test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:8083/connectors) -eq 200 || exit 1
       start_period: 60s
@@ -199,22 +193,22 @@ services:
       connect:
         condition: service_healthy
     ports:
-    - 8088:8088  
-    - 18088:8088
+      - 8088:8088
+      - 18088:8088
     # https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/server-config/config-reference/
     # https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/install-ksqldb-with-docker/
     environment:
-      ## ksqlDB Kafka Streams and Kafka Client Settings 
+      ## ksqlDB Kafka Streams and Kafka Client Settings
       ## https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/server-config/config-reference/#kafka-streams-and-kafka-client-settings
       KSQL_BOOTSTRAP_SERVERS: kafka:9092 # (default: localhost:9092) list of host and port pairs that is used for establishing the initial connection to the Kafka cluster
       KSQL_KSQL_STREAMS_AUTO_OFFSET_RESET: "earliest" # (default: latest) determines what to do when there is no initial offset in Apache Kafka
       KSQL_KSQL_STREAMS_NUM_STREAM_THREADS: 1 # (default: 1) number of stream threads in an instance of the Kafka Streams application
       KSQL_KSQL_STREAMS_PRODUCER_DELIVERY_TIMEOUT_MS: 2147483647 # (default: 120000) Set the batch expiry to Integer.MAX_VALUE to ensure that queries will not terminate if the underlying Kafka cluster is unavailable
-      KSQL_KSQL_STREAMS_PRODUCER_MAX_BLOCK_MS: 9223372036854775807 # (default: 60000) Set the maximum allowable time for the producer to block to Long.MAX_VALUE. This allows ksqlDB to pause processing if the underlying Kafka cluster is unavailable. 
+      KSQL_KSQL_STREAMS_PRODUCER_MAX_BLOCK_MS: 9223372036854775807 # (default: 60000) Set the maximum allowable time for the producer to block to Long.MAX_VALUE. This allows ksqlDB to pause processing if the underlying Kafka cluster is unavailable.
       # Data is flushed to the state store and forwarded to the next downstream processor node whenever the earliest of commit.interval.ms or cache.max.bytes.buffering (cache pressure) hits.
       # Therfore, we set cache.max.bytes.buffering to 0, to ensure that every single record is set downstream, which can be helpful for debuging. Don't do this in production environments with high throughput.
       KSQL_KSQL_STREAMS_COMMIT_INTERVAL_MS: 2000 # (default: 2000) frequency to save the position of the processor
-      KSQL_KSQL_STREAMS_CACHE_MAX_BYTES_BUFFERING: 0 # (default: 10000000) maximum number of memory bytes to be used for buffering across all threads   
+      KSQL_KSQL_STREAMS_CACHE_MAX_BYTES_BUFFERING: 0 # (default: 10000000) maximum number of memory bytes to be used for buffering across all threads
       ## ksqlDB Query Settings
       ## https://docs.ksqldb.io/en/latest/operate-and-deploy/installation/server-config/config-reference/#ksqldb-query-settings
       KSQL_KSQL_SERVICE_ID: emob_ksql_ # (default: default_) used to define the ksqlDB cluster membership of a ksqlDB Server instance
@@ -233,53 +227,8 @@ services:
       KSQL_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
       # KSQL_CONFLUENT_MONITORING_INTERCEPTOR_TOPIC: _confluent-monitoring # (default: _confluent-monitoring) Topic on which monitoring data will be written. The topic is created by Confluent Control Center.
       # KSQL_CONFLUENT_MONITORING_INTERCEPTOR_PUBLISHMS: 15 # (default: 15) Period the interceptor should use to publish messages to.
-      # Jaeger Tracing
-      JAEGER_SERVICE_NAME: emob_ksql
-      JAEGER_AGENT_HOST: jaeger
-      JAEGER_AGENT_PORT: 6831
-      JAEGER_SAMPLER_TYPE: probabilistic
-      JAEGER_SAMPLER_PARAM: 0.01
     healthcheck:
       test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:8088/healthcheck) -eq 200 || exit 1
-      start_period: 45s
-      interval: 20s
-      timeout: 18s
-      retries: 10
-
-  #############################################################
-  # Confluent Control Center (CP)                             #
-  #############################################################
-  control-center:
-    image: confluentinc/cp-enterprise-control-center:${VERSION_CONFLUENT}
-    hostname: control-center
-    container_name: control-center
-    restart: always
-    depends_on:
-      kafka:
-        condition: service_healthy
-      schema-registry:
-        condition: service_healthy
-      connect:
-        condition: service_healthy
-      ksqldb-server:
-        condition: service_healthy
-    ports:
-    - 9021:9021
-    - 19021:9021
-    # https://docs.confluent.io/current/control-center/installation/configuration.html
-    # https://docs.confluent.io/current/installation/docker/config-reference.html#c3-configuration
-    environment:
-      CONTROL_CENTER_BOOTSTRAP_SERVERS: kafka:9092 # (required) A host:port pair for establishing the initial connection to the Kafka cluster. Multiple bootstrap servers can be used in the form host1:port1,host2:port2,host3:port3....
-      CONTROL_CENTER_REPLICATION_FACTOR: 1 # (required) Replication factor for Control Center topics.
-      CONTROL_CENTER_CUB_KAFKA_TIMEOUT: 300 # (default: 300) # Docker images waits for this amount of time until at least CONTROL_CENTER_REPLICATION_FACTOR brokers are alive.
-      CONTROL_CENTER_REST_LISTENERS: http://0.0.0.0:9021 # Set this to the HTTP or HTTPS of Control Center UI.
-      CONTROL_CENTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081 # Schema Registry URL
-      CONTROL_CENTER_CONNECT_EMOB_CLUSTER: http://connect:8083 # Comma-separated list of Kafka Connect worker URLs for the Connect cluster
-      CONTROL_CENTER_KSQL_EMOB_URL: http://ksqldb-server:8088  # Comma-separated list of the ksqlDB server hostnames and listener ports for the ksqlDB cluster
-      CONTROL_CENTER_KSQL_EMOB_ADVERTISED_URL: http://localhost:8088 # Comma-separated list of advertised URLs to access the ksqlDB cluster on Control Center. These hostnames must be reachable from any browser that will use the ksqlDB web interface in Control Center.
-      CONTROL_CENTER_SERVICE_HEALTHCHECK_INTERVAL_SEC: 15 # The interval (in seconds) used for checking the health of Confluent Platform nodes. This includes ksqlDB, Connect, Schema Registry, REST Proxy, and Metadata Service (MDS).
-    healthcheck:
-      test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:9021/2.0/alerts/history/) -eq 200 || exit 1
       start_period: 45s
       interval: 20s
       timeout: 18s
@@ -301,9 +250,9 @@ services:
     container_name: hivemq
     restart: always
     ports:
-    - 8080:8080
-    - 1883:1883 
-    - 9090:9090
+      - 8080:8080
+      - 1883:1883
+      - 9090:9090
     healthcheck:
       test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:9090/heartbeat) -eq 200 || exit 1
       start_period: 10s
@@ -320,7 +269,7 @@ services:
     container_name: mongo
     restart: always
     ports:
-    - 27017:27017
+      - 27017:27017
     command: --bind_ip_all --replSet rs0
     healthcheck:
       test: test $$(echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet) -eq 1 || exit 1
@@ -328,7 +277,7 @@ services:
       interval: 20s
       timeout: 18s
       retries: 10
-  
+
   mongosetup:
     image: novatec/mongosetup-emob:${VERSION_MONGODB}
     build:
@@ -343,7 +292,7 @@ services:
       mongo:
         condition: service_healthy
     volumes:
-    - ./mongodb/config:/scripts
+      - ./mongodb/config:/scripts
     entrypoint: ["bash","/scripts/mongo_setup.sh"]
 
   mongoclient:
@@ -357,7 +306,7 @@ services:
       mongosetup:
         condition: service_started
     ports:
-    - 3456:3000
+      - 3456:3000
     environment:
       MONGO_URL: "mongodb://mongo:27017/mongoDB"
       MONGOCLIENT_DEFAULT_CONNECTION_URL: "mongodb://mongo:27017/mongoDB"
@@ -376,7 +325,7 @@ services:
     container_name: mynodered
     hostname: mynodered
     ports:
-    - 1880:1880
+      - 1880:1880
     environment:
       TZ: Europe/Amsterdam
     healthcheck:
@@ -419,53 +368,6 @@ services:
       GF_AUTH_DISABLE_LOGIN_FORM: "true"
       GF_AUTH_ANONYMOUS_ENABLED: "true"
       GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
-
-  #############################################################
-  # Xeotek KaDeck                                             #
-  #############################################################
-  kadeck:
-    image: xeotek/kadeckweb:2.2.1
-    hostname: kadeck
-    container_name: kadeck
-    restart: always
-    ports:
-      - 9091:80
-    # https://support.xeotek.com/hc/en-us/articles/360015580860-Configuration-list
-    environment:
-      xeotek_kadeck_teamid: ${XEOTEK_KADECK_TEAMID}
-      xeotek_kadeck_secret: ${XEOTEK_KADECK_SECRET}
-      xeotek_kadeck_port: 80
-    healthcheck:
-      test: (wget -Sq -O /dev/nul localhost/ready 2>&1 | grep "200 OK") || exit 1
-      start_period: 10s
-      interval: 20s
-      timeout: 18s
-      retries: 10
-
-  #############################################################
-  # Jaeger Tracing                                            #
-  #############################################################
-  # https://www.jaegertracing.io/docs/1.19/getting-started/
-  # https://www.jaegertracing.io/docs/1.19/sampling/
-  # https://github.com/opentracing-contrib/java-kafka-client
-  # https://github.com/opentracing-contrib/java-specialagent
-  # https://github.com/jaegertracing/jaeger-client-java/blob/master/jaeger-core/README.md#configuration-via-environment
-  # https://opencensus.io
-  jaeger:
-    image: jaegertracing/all-in-one:1.19.2
-    hostname: jaeger
-    container_name: jaeger
-    restart: always
-    ports:
-      - 6831:6831/udp
-      - 6832:6832/udp
-      - 5778:5778
-      - 16686:16686
-      - 14268:14268
-      - 14250:14250
-      - 9411:9411
-    environment:
-      COLLECTOR_ZIPKIN_HTTP_PORT: 9411
 
   #############################################################
   # Lenses                                                    #

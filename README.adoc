@@ -120,19 +120,19 @@ Overview of Components
 
 The showcase is using the following Kafka components as described in the picture below:
 
-image::Kafka_cluster_diagram_v3.svg[]
+image::./docs/images/Kafka_cluster_diagram_v3.svg[]
 
 
 Data Flow between Topics and Ksql Streams/Tables
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-image::DataFlow.svg[]
+image::./docs/images/DataFlow.svg[]
 
 
 Sequential Overview of Charging a Vehicle (German)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [.right.text-center]
-image::shareIQ_ElectricVehicleCharging.png[]
+image::./docs/images/shareIQ_ElectricVehicleCharging.png[]
 
 
 Using Node-RED for Simulation

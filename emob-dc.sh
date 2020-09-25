@@ -16,6 +16,9 @@ DC_INFRA_DEFAULT="docker-compose.yaml"
 DC_INFRA_HA="docker-compose.infra-ha.yaml"
 DC_INFRA_SINGLE="docker-compose.infra-single.yaml"
 DC_INFRA_SHOWCASE="docker-compose.infra-showcase.yaml"
+DC_INFRA_JAEGER="docker-compose.infra-jaeger.yaml"
+DC_INFRA_KADECK="docker-compose.infra-kadeck.yaml"
+DC_INFRA_LENSES="docker-compose.infra-lenses.yaml"
 
 DC_DEPLOY="docker-compose.deploy.yaml"
 DC_TESTDATA="docker-compose.testdata.yaml"
@@ -185,6 +188,12 @@ function set_infra_mode () {
         echo "${DC_INFRA_HA}" > "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
     elif [ "${mode}" == "showcase" ]; then
         echo "${DC_INFRA_SHOWCASE}" > "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
+    elif [ "${mode}" == "jaeger" ]; then
+        echo "${DC_INFRA_JAEGER}" > "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
+    elif [ "${mode}" == "kadeck" ]; then
+        echo "${DC_INFRA_KADECK}" > "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
+    elif [ "${mode}" == "lenses" ]; then
+        echo "${DC_INFRA_LENSES}" > "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
     elif [ "${mode}" == "default" ]; then
         echo "${DC_INFRA_DEFAULT}" > "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
     else
@@ -255,6 +264,9 @@ _CMD_MODE=(
     'cmd=("single" "Switch to single instance mode." "set_infra_mode single" "exec_cmd _CMD_MODE")'
     'cmd=("ha" "Switch to ha mode." "set_infra_mode ha" "exec_cmd _CMD_MODE")'
     'cmd=("showcase" "Switch to showcase instance mode." "set_infra_mode showcase" "exec_cmd _CMD_MODE")'
+    'cmd=("jaeger" "Switch to Jaeger instance mode." "set_infra_mode jaeger" "exec_cmd _CMD_MODE")'
+    'cmd=("kadeck" "Switch to KaDeck instance mode." "set_infra_mode kadeck" "exec_cmd _CMD_MODE")'
+    'cmd=("lenses" "Switch to Lenses instance mode." "set_infra_mode lenses" "exec_cmd _CMD_MODE")'
 )
 
 _CMD_START=(
