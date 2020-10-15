@@ -1,12 +1,12 @@
 {
-    "name": "mongodb-wallboxcharge-sink",
+    "name": "mongodb__wallbox_charge__sink",
     "config": {
         "connector.class": "com.mongodb.kafka.connect.MongoSinkConnector",
         "tasks.max": 1,
-        "topics": "wallbox_charge",
+        "topics": "wallbox_charge__sink",
         "connection.uri": "mongodb://mongo:27017",
         "database": "mongoDB",
-        "collection": "ChargingStations",
+        "collection": "WallboxCharge",
         "value.converter": "io.confluent.connect.avro.AvroConverter",
         "value.converter.schema.registry.url": "http://schema-registry:8081"
     }

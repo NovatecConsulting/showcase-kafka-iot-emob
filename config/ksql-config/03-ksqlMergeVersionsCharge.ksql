@@ -1,12 +1,12 @@
-CREATE STREAM wallbox_charge
+CREATE STREAM wallbox_charge__filter
     WITH (
-        KAFKA_TOPIC='wallbox_charge',
+        KAFKA_TOPIC='wallbox_charge__sink',
         VALUE_FORMAT='AVRO'
   ) AS SELECT
         CLIENT_ID_KEY AS CLIENT_ID_KEY,
         CLIENT_ID AS CLIENT_ID,
         EVENT AS CHARGE,
         TIMESTAMP AS TIMESTAMP
-    FROM wallbox_V1
+    FROM wallbox__v1__filter
     WHERE
         MQTT_TOPIC='charge';

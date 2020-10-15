@@ -1,6 +1,6 @@
-CREATE STREAM wallbox_V2
+CREATE STREAM wallbox__v2__filter
     WITH (
-        KAFKA_TOPIC='wallbox_V2',
+        KAFKA_TOPIC='wallbox__v2__intern',
         VALUE_FORMAT='AVRO'
   ) AS SELECT
         REGEXP_EXTRACT('ciq/(.*)/(.*)/(.*)', MQTT_TOPIC, 3) AS MQTT_TOPIC,
@@ -14,7 +14,7 @@ CREATE STREAM wallbox_V2
         response -> amount AS RESPONSE_AMOUNT,
         response -> max AS RESPONSE_MAX,
         ROWTIME AS TIMESTAMP
-    FROM wallbox_source_V2
+    FROM wallbox__v2__id
     WHERE
         REGEXP_EXTRACT('ciq/(.*)/(.*)/(.*)', MQTT_TOPIC, 3)='charge'
     PARTITION BY REGEXP_EXTRACT('ciq/(.*)/(.*)/(.*)', MQTT_TOPIC, 2);

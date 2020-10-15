@@ -1,11 +1,11 @@
 {
-    "name": "mqtt-wallbox-source",
+    "name": "mqtt__wallbox__source",
     "config": {
         "connector.class": "io.confluent.connect.mqtt.MqttSourceConnector",
         "tasks.max": 1,
         "mqtt.server.uri": "tcp://hivemq:1883",
         "mqtt.topics": "#",
-        "kafka.topic": "wallbox_source",
+        "kafka.topic": "wallbox__source",
         "value.converter": "org.apache.kafka.connect.converters.ByteArrayConverter", 
         "confluent.topic.bootstrap.servers": "kafka:9092",
         "confluent.topic.replication.factor": 3,

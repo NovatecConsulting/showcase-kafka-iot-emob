@@ -1,12 +1,12 @@
-CREATE STREAM wallbox_blink
+CREATE STREAM wallbox_blink__filter
     WITH (
-        KAFKA_TOPIC='wallbox_blink',
+        KAFKA_TOPIC='wallbox_blink__sink',
         VALUE_FORMAT='AVRO'
   ) AS SELECT
         CLIENT_ID_KEY AS CLIENT_ID_KEY,
         CLIENT_ID AS CLIENT_ID,
         EVENT AS BLINK,
         TIMESTAMP AS TIMESTAMP
-    FROM wallbox_V1
+    FROM wallbox__v1__filter
     WHERE
         MQTT_TOPIC='blink';

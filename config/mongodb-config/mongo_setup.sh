@@ -23,9 +23,9 @@ EOF
 echo "Insert test data to mongoDB"
 mongo --host mongodb://mongo:27017/?replicaSet=rs0 <<EOF
   use mongoDB;
-  db.createCollection("ChargingStations");
-  db.createCollection("StationLocations");
-  db.StationLocations.insertMany([
+  db.createCollection("WallboxCharge");
+  db.createCollection("WallboxLocation");
+  db.WallboxLocation.insertMany([
     {CLIENT_ID:"CIQ100000001",latitude:48.747,longitude:9.164},
     {CLIENT_ID:"CIQ100000002",latitude:49.244,longitude:7.373},
     {CLIENT_ID:"CIQ100000003",latitude:52.570,longitude:13.409},

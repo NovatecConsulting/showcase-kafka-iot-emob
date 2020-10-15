@@ -1,14 +1,14 @@
-CREATE TABLE wallbox_location (
+CREATE TABLE wallbox_location_id (
         CLIENT_ID_KEY VARCHAR 
         PRIMARY KEY
   ) WITH (
-      KAFKA_TOPIC='wallbox_location',
+      KAFKA_TOPIC='wallbox_location__source',
       VALUE_FORMAT='AVRO'
   ); 
 
-CREATE TABLE wallbox_location_chargestatus 
+CREATE TABLE wallbox_location_chargestatus__join 
     WITH (
-        KAFKA_TOPIC='wallbox_location_chargestatus',
+        KAFKA_TOPIC='wallbox_location_chargestatus__sink',
         VALUE_FORMAT='AVRO'
   ) AS SELECT 
         status.CLIENT_ID_KEY as CLIENT_ID_KEY, 
@@ -16,6 +16,6 @@ CREATE TABLE wallbox_location_chargestatus
         status.STATUS as CHARGE_STATUS, 
         location.latitude as LATITUDE,
         location.longitude as LONGITUDE
-    FROM wallbox_chargestatus status 
-        INNER JOIN wallbox_location location 
+    FROM wallbox_chargestatus__table status 
+        INNER JOIN wallbox_location_id location 
             ON status.CLIENT_ID_KEY = location.CLIENT_ID_KEY;

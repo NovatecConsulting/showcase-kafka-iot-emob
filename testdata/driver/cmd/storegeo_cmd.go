@@ -35,7 +35,7 @@ func init()  {
 	storeGeoCmd.PersistentFlags().StringVarP(&stationToStoreIDFormat, "station-to-store-id-format", "y", "CIQ%09d", "Format for station id generation, in which value is the station number")
 	storeGeoCmd.PersistentFlags().StringVarP(&mongoDbURI, "mongodb-uri", "t", "mongodb://localhost:27017/?replicaSet=rs0", "The connection string for mongo db")
 	storeGeoCmd.PersistentFlags().StringVarP(&mongoDbDatabase, "mongodb-database", "g", "mongoDB", "The mongo db database in which the stations should be stored")	
-	storeGeoCmd.PersistentFlags().StringVarP(&mongoDbCollection, "mongodb-collection", "k", "StationLocations", "The mongo db collection in which the stations should be stored")	
+	storeGeoCmd.PersistentFlags().StringVarP(&mongoDbCollection, "mongodb-collection", "k", "WallboxLocation", "The mongo db collection in which the stations should be stored")	
 	storeGeoCmd.PersistentFlags().StringVarP(&fieldStationID, "field-stationid", "i", "CLIENT_ID", "The name of the field in which the Station ID is stored")
 	storeGeoCmd.PersistentFlags().StringVarP(&fieldLatitude, "field-latitude", "e", "latitude", "The name of the field in which the latitude is stored")
 	storeGeoCmd.PersistentFlags().StringVarP(&fieldLongitude, "field-longitude", "j", "longitude", "The name of the field in which the longitude is stored")
