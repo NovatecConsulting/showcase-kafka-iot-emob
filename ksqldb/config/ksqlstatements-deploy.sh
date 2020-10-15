@@ -54,7 +54,9 @@ function deploy_ksqstatement_in_file () {
     else
         local error_code="$(echo "${body}" | jq -r .error_code)"
         local message="$(echo "${body}" | jq -r .message)"
-        if [[ "${error_code}" == "40001" ]] && [[ "${message}" =~ "same name already exists" ]]; then
+        if [[ "${error_code}" == "40001" ]] && [[ "${message}" =~ "is not supported because there are multiple queries writing into it" ]]; then
+            log "INFO" "Statement in ${filebasename} already exists: ${message}"
+        elif [[ "${error_code}" == "40001" ]] && [[ "${message}" =~ "same name already exists" ]]; then
             log "INFO" "Statement in ${filebasename} already exists: ${message}"
         elif [[ "${error_code}" == "40002" ]]; then
             log "WARNING" "File ${filebasename} contains a statement, that should be issued to /query endpoint: ${message}"
