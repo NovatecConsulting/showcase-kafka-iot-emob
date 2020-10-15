@@ -32,7 +32,7 @@ alias kc='kafka-configs --bootstrap-server ${KAFKA_BOOTSTRAP_SERVER}'\n\
 alias kcg='kafka-consumer-groups --bootstrap-server ${KAFKA_BOOTSTRAP_SERVER}'\n\
 alias kcc='kafka-console-consumer --bootstrap-server ${KAFKA_BOOTSTRAP_SERVER}'\n\
 alias kcp='kafka-console-producer --bootstrap-server ${KAFKA_BOOTSTRAP_SERVER}'\n\
-alias kacp='kafka-avro-console-consumer --bootstrap-server ${KAFKA_BOOTSTRAP_SERVER} --property schema.registry.url=${SCHEMAREGISTRY_URL}'\n\
-alias kacp='kafka-avro-console-producer --bootstrap-server ${KAFKA_BOOTSTRAP_SERVER} --property schema.registry.url=${SCHEMAREGISTRY_URL}'\n\
+alias kacc='kafka-avro-console-consumer --bootstrap-server ${KAFKA_BOOTSTRAP_SERVER} --property schema.registry.url=${SCHEMAREGISTRY_URL} --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer'\n\
+alias kacp='kafka-avro-console-producer --bootstrap-server ${KAFKA_BOOTSTRAP_SERVER} --property schema.registry.url=${SCHEMAREGISTRY_URL} --property key.serializer=org.apache.kafka.common.serialization.StringSerializer'\n\
 alias ksql='ksql ${KSQLDB_URL}'\n\
 alias zkcli='zookeeper-shell ${ZOOKEEPER}'" >> ~/.bash_aliases
