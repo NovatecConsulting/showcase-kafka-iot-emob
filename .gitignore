@@ -1,7 +1,7 @@
 connectors/
 *.log
 
-.emob-dc-infra
+.emob-dc*
 *.override.yaml
 *.override.yml
 .env.override

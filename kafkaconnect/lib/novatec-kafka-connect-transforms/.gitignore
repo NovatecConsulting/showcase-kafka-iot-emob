@@ -1,11 +1,11 @@
 # Ignore Gradle project-specific cache directory
-.gradle
+.gradle/
 
 # Ignore Gradle build output directory
-build
+build/
 
 # Ignore Maven build output directory
-target
+target/
 
 # Ignore VSCode build output directory
-bin
+bin/

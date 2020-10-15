@@ -110,8 +110,8 @@ services:
   connect:
     image: novatec/cp-server-connect-emob:${VERSION_CONFLUENT}
     build:
-      context: .
-      dockerfile: kafkaconnect/Dockerfile.connect
+      context: kafkaconnect
+      dockerfile: Dockerfile.connect
       args:
         VERSION_CONFLUENT: ${VERSION_CONFLUENT}
         CONNECTORS: |-
@@ -164,12 +164,6 @@ services:
       CONNECT_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka:9092 # (required) Point to Kafka brokers in the metrics cluster. In this scenario, metrics are not stored in a separate cluster.
       CONNECT_CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1 # (default: 3) Number of replicas in the metric topic. Must be 1, because we only have a single broker.
       CONNECT_CONFLUENT_METRICS_REPORTER_PUBLISH_MS: 5000 # (default: 15000) The Confluent Metrics Reporter will publish new metrics to the metrics topic in intervals defined by this setting. Reduced for development, to reduce the health data lag.
-      # Jaeger Tracing
-      JAEGER_SERVICE_NAME: emob_connect
-      JAEGER_AGENT_HOST: jaeger
-      JAEGER_AGENT_PORT: 6831
-      JAEGER_SAMPLER_TYPE: probabilistic
-      JAEGER_SAMPLER_PARAM: 0.01
     healthcheck:
       test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:8083/connectors) -eq 200 || exit 1
       start_period: 60s
@@ -183,8 +177,8 @@ services:
   ksqldb-server:
     image: novatec/ksqldb-server-emob:${VERSION_KSQLDB}
     build:
-      context: .
-      dockerfile: ksqldb/Dockerfile.ksqldb
+      context: ksqldb
+      dockerfile: Dockerfile.ksqldb
       args:
         VERSION_KSQLDB: ${VERSION_KSQLDB}
         VERSION_CONFLUENT: ${VERSION_CONFLUENT}
@@ -233,12 +227,6 @@ services:
       KSQL_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
       # KSQL_CONFLUENT_MONITORING_INTERCEPTOR_TOPIC: _confluent-monitoring # (default: _confluent-monitoring) Topic on which monitoring data will be written. The topic is created by Confluent Control Center.
       # KSQL_CONFLUENT_MONITORING_INTERCEPTOR_PUBLISHMS: 15 # (default: 15) Period the interceptor should use to publish messages to.
-      # Jaeger Tracing
-      JAEGER_SERVICE_NAME: emob_ksql
-      JAEGER_AGENT_HOST: jaeger
-      JAEGER_AGENT_PORT: 6831
-      JAEGER_SAMPLER_TYPE: probabilistic
-      JAEGER_SAMPLER_PARAM: 0.01
     healthcheck:
       test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:8088/healthcheck) -eq 200 || exit 1
       start_period: 45s
@@ -291,8 +279,8 @@ services:
   hivemq:
     image: novatec/hivemq4-emob:${VERSION_HIVEMQ4}
     build:
-      context: .
-      dockerfile: hivemq/Dockerfile.hivemq
+      context: hivemq
+      dockerfile: Dockerfile.hivemq
       args:
         VERSION_HIVEMQ4: ${VERSION_HIVEMQ4}
         EXTENSIONS: |-
@@ -332,8 +320,8 @@ services:
   mongosetup:
     image: novatec/mongosetup-emob:${VERSION_MONGODB}
     build:
-      context: .
-      dockerfile: mongodb/Dockerfile.mongosetup
+      context: mongodb
+      dockerfile: Dockerfile.mongosetup
       args:
         VERSION_MONGODB: ${VERSION_MONGODB}
     hostname: mongosetup
@@ -419,113 +407,6 @@ services:
       GF_AUTH_DISABLE_LOGIN_FORM: "true"
       GF_AUTH_ANONYMOUS_ENABLED: "true"
       GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
-
-  #############################################################
-  # Xeotek KaDeck                                             #
-  #############################################################
-  kadeck:
-    image: xeotek/kadeckweb:2.2.1
-    hostname: kadeck
-    container_name: kadeck
-    restart: always
-    ports:
-      - 9091:80
-    # https://support.xeotek.com/hc/en-us/articles/360015580860-Configuration-list
-    environment:
-      xeotek_kadeck_teamid: ${XEOTEK_KADECK_TEAMID}
-      xeotek_kadeck_secret: ${XEOTEK_KADECK_SECRET}
-      xeotek_kadeck_port: 80
-    healthcheck:
-      test: (wget -Sq -O /dev/nul localhost/ready 2>&1 | grep "200 OK") || exit 1
-      start_period: 10s
-      interval: 20s
-      timeout: 18s
-      retries: 10
-
-  #############################################################
-  # Jaeger Tracing                                            #
-  #############################################################
-  # https://www.jaegertracing.io/docs/1.19/getting-started/
-  # https://www.jaegertracing.io/docs/1.19/sampling/
-  # https://github.com/opentracing-contrib/java-kafka-client
-  # https://github.com/opentracing-contrib/java-specialagent
-  # https://github.com/jaegertracing/jaeger-client-java/blob/master/jaeger-core/README.md#configuration-via-environment
-  # https://opencensus.io
-  jaeger:
-    image: jaegertracing/all-in-one:1.19.2
-    hostname: jaeger
-    container_name: jaeger
-    restart: always
-    ports:
-      - 6831:6831/udp
-      - 6832:6832/udp
-      - 5778:5778
-      - 16686:16686
-      - 14268:14268
-      - 14250:14250
-      - 9411:9411
-    environment:
-      COLLECTOR_ZIPKIN_HTTP_PORT: 9411
-
-  #############################################################
-  # Lenses                                                    #
-  #############################################################
-  lenses:
-    image: lensesio/lenses:4.0.2
-    hostname: lenses
-    container_name: lenses
-    restart: always
-    depends_on:
-      kafka:
-        condition: service_healthy
-      schema-registry:
-        condition: service_healthy
-      connect:
-        condition: service_healthy
-    # # Users are managed within Lenses. Here you can change the superuser username:
-    # LENSES_SECURITY_USER: admin
-    # # Users are managed within Lenses. Here you can change the superuser password:
-    # LENSES_SECURITY_PASSWORD: admin
-    ports:
-      - 9991:9991
-      - 9102:9102
-    volumes:
-      - ./license.json:/mnt/secrets/license.json
-    environment:
-      LENSES_PORT: 9991
-      LENSES_KAFKA_BROKERS: "PLAINTEXT://kafka:9092"
-
-      # If you have enabled JMX for your brokers, set the port here
-      LENSES_KAFKA_METRICS_DEFAULT_PORT: 9581
-
-      # # If you use AVRO, configure the Schema Registry
-      LENSES_SCHEMA_REGISTRY_URLS: |
-        [
-          {url:"http://schema-registry:8081"}
-        ]
-
-      # # If you use Kafka Connect, configure the workers.
-      LENSES_KAFKA_CONNECT_CLUSTERS: |
-        [
-          {
-            name:"emob_connect",
-            urls: [
-              {url:"http://connect:8083"}
-            ],
-            statuses:"emob_connect-status",
-            configs:"emob_connect-configs",
-            offsets:"emob_connect-offsets"
-          }
-        ]
-
-      # Zookeeper access is optional
-      LENSES_ZOOKEEPER_HOSTS: |
-        [
-          {url:"zookeeper:2181"}
-        ]
-
-      # License
-      LICENSE: ${LENSES_LICENSE}
 
 networks:
   default:

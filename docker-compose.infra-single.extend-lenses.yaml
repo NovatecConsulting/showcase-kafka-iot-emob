@@ -1,0 +1,64 @@
+#############################################################
+# Lenses for Showcase Emob (Single)                         #
+#############################################################
+---
+version: '2.4'
+services:
+
+  #############################################################
+  # Lenses                                                    #
+  #############################################################
+  lenses:
+    image: lensesio/lenses:4.0.2
+    hostname: lenses
+    container_name: lenses
+    restart: always
+    depends_on:
+      kafka:
+        condition: service_healthy
+      schema-registry:
+        condition: service_healthy
+      connect:
+        condition: service_healthy
+    # # Users are managed within Lenses. Here you can change the superuser username:
+    # LENSES_SECURITY_USER: admin
+    # # Users are managed within Lenses. Here you can change the superuser password:
+    # LENSES_SECURITY_PASSWORD: admin
+    ports:
+      - 9991:9991
+      - 9102:9102
+    environment:
+      LENSES_PORT: 9991
+      LENSES_KAFKA_BROKERS: "PLAINTEXT://kafka:9092"
+
+      # If you have enabled JMX for your brokers, set the port here
+      LENSES_KAFKA_METRICS_DEFAULT_PORT: 9581
+
+      # # If you use AVRO, configure the Schema Registry
+      LENSES_SCHEMA_REGISTRY_URLS: |
+        [
+          {url:"http://schema-registry:8081"}
+        ]
+
+      # # If you use Kafka Connect, configure the workers.
+      LENSES_KAFKA_CONNECT_CLUSTERS: |
+        [
+          {
+            name:"emob_connect",
+            urls: [
+              {url:"http://connect:8083"}
+            ],
+            statuses:"emob_connect-status",
+            configs:"emob_connect-configs",
+            offsets:"emob_connect-offsets"
+          }
+        ]
+
+      # Zookeeper access is optional
+      LENSES_ZOOKEEPER_HOSTS: |
+        [
+          {url:"zookeeper:2181"}
+        ]
+
+      # License
+      LICENSE: ${LENSES_LICENSE}

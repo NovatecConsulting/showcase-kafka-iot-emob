@@ -233,3 +233,19 @@ The Emob test driver can be configured via the Docker-Compose file link:docker-c
 You can, for example change the number of Stations (by default 500), and also the time range for which stations may be availabe and for which stations are in use.
 
 The test driver is located in the directory `testdata/driver`. For more information you can have a look at the test driver link:testdata/driver/README.adoc[readme].
+
+Monitoring
+~~~~~~~~~~
+
+In order to evaluate different monitoring and tracing tools, Jaeger Tracing, Xeotek KaDeck and Lenses are includes.
+By default this tools are disabled. In order to use them, they need be activated. Extensions can only be activated, if the environment is not running.
+
+----
+./emob-dc.sh modeex setactive jaeger kadeck lenses
+----
+
+In order to disable them all, the following command can be used:
+
+----
+./emob-dc.sh modeex disable
+----

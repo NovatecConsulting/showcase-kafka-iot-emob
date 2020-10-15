@@ -14,13 +14,15 @@ RUN mkdir -p /usr/share/java/monitoring-interceptors \
         -o /usr/share/java/monitoring-interceptors/monitoring-interceptors-${VERSION_CONFLUENT}.jar
 ENV KSQL_CLASSPATH=/usr/share/java/my-base/*:/usr/share/java/my-ksql-server/*:/usr/share/java/monitoring-interceptors/*
 
-COPY --from=builder /workspace/target /etc/ksql/ext
-
 ARG OPENTRACING_SPECIALAGENT_VERSION=1.7.4
 RUN mkdir -p /usr/share/java/tracing-agents \
     && curl -L https://repo1.maven.org/maven2/io/opentracing/contrib/specialagent/opentracing-specialagent/${OPENTRACING_SPECIALAGENT_VERSION}/opentracing-specialagent-${OPENTRACING_SPECIALAGENT_VERSION}.jar \
         -o /usr/share/java/tracing-agents/opentracing-specialagent-${OPENTRACING_SPECIALAGENT_VERSION}.jar
-ENV KSQL_OPTS="-javaagent:/usr/share/java/tracing-agents/opentracing-specialagent-${OPENTRACING_SPECIALAGENT_VERSION}.jar"
-ARG OPENTRACING_SPECIALAGENT_EXPORTER=jaeger
-ENV KSQL_OPTS="${KSQL_OPTS} -Dsa.exporter=${OPENTRACING_SPECIALAGENT_EXPORTER}"
+ENV KSQL_OPTS="${KSQL_OPTS} -javaagent:/usr/share/java/tracing-agents/opentracing-specialagent-${OPENTRACING_SPECIALAGENT_VERSION}.jar"
+ARG OPENTRACING_SPECIALAGENT_EXPORTER=mock
+ENV OPENTRACING_SPECIALAGENT_EXPORTER=${OPENTRACING_SPECIALAGENT_EXPORTER}
+RUN printf "# Opentracing agent\n[[ -n \"\${OPENTRACING_SPECIALAGENT_EXPORTER}\" ]] && export KSQL_OPTS=\"\${KSQL_OPTS} -Dsa.exporter=\${OPENTRACING_SPECIALAGENT_EXPORTER}\"\n" >> /usr/bin/docker/ksqldb-env \
+    && sed -i '/^#\!\/usr\/bin\/env bash.*/a. \/usr\/bin\/docker\/ksqldb-env' /usr/bin/docker/run
 ENV KSQL_CLASSPATH="${KSQL_CLASSPATH}:/usr/share/java/tracing-agents/*"
+
+COPY --from=builder /workspace/target /etc/ksql/ext

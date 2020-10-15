@@ -8,7 +8,7 @@
         "collection.whitelist": "mongoDB.WallboxLocation",
         "value.converter": "io.confluent.connect.avro.AvroConverter",
         "value.converter.schema.registry.url": "http://schema-registry:8081",
-        "transforms": "extractMongoDocument,copyClientIDToKey,dropKeyStruct,renameEventIdField,targetKafkaTopic,insertKaDeckHeader",
+        "transforms": "extractMongoDocument,copyClientIDToKey,dropKeyStruct,renameEventIdField,targetKafkaTopic,insertProducerIdHeader",
         "transforms.extractMongoDocument.type": "io.debezium.connector.mongodb.transforms.ExtractNewDocumentState",
         "transforms.copyClientIDToKey.type": "org.apache.kafka.connect.transforms.ValueToKey",
         "transforms.copyClientIDToKey.fields": "CLIENT_ID",
@@ -19,8 +19,8 @@
         "transforms.targetKafkaTopic.type": "org.apache.kafka.connect.transforms.RegexRouter",
         "transforms.targetKafkaTopic.regex": "(.*)",
         "transforms.targetKafkaTopic.replacement": "wallbox_location__source",
-        "transforms.insertKaDeckHeader.type": "de.novatec.kafka.connect.transforms.InsertHeader",
-        "transforms.insertKaDeckHeader.header": "producerid",
-        "transforms.insertKaDeckHeader.literal.value": "mongodb-wallboxlocation"
+        "transforms.insertProducerIdHeader.type": "de.novatec.kafka.connect.transforms.InsertHeader",
+        "transforms.insertProducerIdHeader.header": "producerid",
+        "transforms.insertProducerIdHeader.literal.value": "connect__mongodb__wallbox_location"
     }
 }

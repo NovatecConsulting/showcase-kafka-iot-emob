@@ -321,8 +321,8 @@ services:
   connect1:
     image: novatec/cp-server-connect-emob:${VERSION_CONFLUENT}
     build:
-      context: .
-      dockerfile: kafkaconnect/Dockerfile.connect
+      context: kafkaconnect
+      dockerfile: Dockerfile.connect
       args:
         VERSION_CONFLUENT: ${VERSION_CONFLUENT}
         CONNECTORS: |-
@@ -393,8 +393,8 @@ services:
   connect2:
     image: novatec/cp-server-connect-emob:${VERSION_CONFLUENT}
     build:
-      context: .
-      dockerfile: kafkaconnect/Dockerfile.connect
+      context: kafkaconnect
+      dockerfile: Dockerfile.connect
       args:
         VERSION_CONFLUENT: ${VERSION_CONFLUENT}
         CONNECTORS: |-
@@ -468,8 +468,8 @@ services:
   ksqldb-server1:
     image: novatec/ksqldb-server-emob:${VERSION_KSQLDB}
     build:
-      context: .
-      dockerfile: ksqldb/Dockerfile.ksqldb
+      context: ksqldb
+      dockerfile: Dockerfile.ksqldb
       args:
         VERSION_CONFLUENT: ${VERSION_CONFLUENT}
         VERSION_KSQLDB: ${VERSION_KSQLDB}
@@ -546,8 +546,8 @@ services:
   ksqldb-server2:
     image: novatec/ksqldb-server-emob:${VERSION_KSQLDB}
     build:
-      context: .
-      dockerfile: ksqldb/Dockerfile.ksqldb
+      context: ksqldb
+      dockerfile: Dockerfile.ksqldb
       args:
         VERSION_CONFLUENT: ${VERSION_CONFLUENT}
         VERSION_KSQLDB: ${VERSION_KSQLDB}
@@ -734,8 +734,8 @@ services:
   hivemq:
     image: novatec/hivemq4-emob:${VERSION_HIVEMQ4}
     build:
-      context: .
-      dockerfile: hivemq/Dockerfile.hivemq
+      context: hivemq
+      dockerfile: Dockerfile.hivemq
       args:
         VERSION_HIVEMQ4: ${VERSION_HIVEMQ4}
         EXTENSIONS: |-
@@ -775,8 +775,8 @@ services:
   mongosetup:
     image: novatec/mongosetup-emob:${VERSION_MONGODB}
     build:
-      context: .
-      dockerfile: mongodb/Dockerfile.mongosetup
+      context: mongodb
+      dockerfile: Dockerfile.mongosetup
       args:
         VERSION_MONGODB: ${VERSION_MONGODB}
     hostname: mongosetup

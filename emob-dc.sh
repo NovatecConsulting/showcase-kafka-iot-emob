@@ -11,14 +11,12 @@ fi
 popd > /dev/null
 
 DC_INFRA_CURRENT_FILE=".emob-dc-infra"
+DC_INFRA_EXT_CURRENT_FILE=".emob-dc-infra-%s-extend"
 
 DC_INFRA_DEFAULT="docker-compose.yaml"
 DC_INFRA_HA="docker-compose.infra-ha.yaml"
 DC_INFRA_SINGLE="docker-compose.infra-single.yaml"
 DC_INFRA_SHOWCASE="docker-compose.infra-showcase.yaml"
-DC_INFRA_JAEGER="docker-compose.infra-jaeger.yaml"
-DC_INFRA_KADECK="docker-compose.infra-kadeck.yaml"
-DC_INFRA_LENSES="docker-compose.infra-lenses.yaml"
 
 DC_DEPLOY="docker-compose.deploy.yaml"
 DC_TESTDATA="docker-compose.testdata.yaml"
@@ -47,24 +45,100 @@ function log () {
     echo -e "$(date --iso-8601=seconds)|${level}|${msg}"
 }
 
-function with_dc_override_file () {
-    local filename="${1:?Requires filename as first parameter!}"
-    local name="${filename%.*}"
-    local extension="${filename##*.}"
-    if [ -e "${name}.override.${extension}" ]; then
-        echo "${filename}" "${name}.override.${extension}"
+function determine_dc_infra_file () {
+    if [ -r "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}" ]; then
+        cat "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
     else
-        echo "${filename}"
+        echo ${DC_INFRA_DEFAULT}
     fi
 }
 
-function determine_dc_infra_file () {
-    cat "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}" 2>/dev/null || echo ${DC_INFRA_DEFAULT}
+function determine_active_dc_infra_mode () {
+    echo $(basename $(realpath $(determine_dc_infra_file))) | sed 's/^docker-compose\.infra-\([^\.]\+\)\..*$/\1/g'
 }
 
-function determine_dc_files () {
+function set_dc_infra_mode () {
+    local mode="${1:?"Require mode as first parameter! Valid modes are: 'single','ha','showcase','default'"}"
+
+    if [ ! -z "$(dc_in_env ps -q)" ]; then
+        log "WARNING" "Emob environment already started. You must shutdown environment first, in order to change the infra mode!"
+        return
+    fi
+
+    if [ "${mode}" == "single" ]; then
+        echo "${DC_INFRA_SINGLE}" > "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
+    elif [ "${mode}" == "ha" ]; then
+        echo "${DC_INFRA_HA}" > "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
+    elif [ "${mode}" == "showcase" ]; then
+        echo "${DC_INFRA_SHOWCASE}" > "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
+    elif [ "${mode}" == "default" ]; then
+        echo "${DC_INFRA_DEFAULT}" > "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
+    else
+        fail "'${mode}' is not a valid mode! Expected one of: single','ha','showcase','default'"
+    fi
+
+    log "INFO" "Switched to ${mode} mode."
+}
+
+function determine_available_infra_extensions () {
+    for e in $(find . -regextype posix-extended -regex ".*docker-compose\.infra-$(determine_active_dc_infra_mode).extend-.*\.yaml$"); do
+        echo $(basename "${e}") | sed "s/^docker-compose\.infra-$(determine_active_dc_infra_mode)\.extend-\([^\.]\+\)\..*$/\1/g"
+    done
+}
+
+function determine_active_infra_extensions_file () {
+    printf "${DC_INFRA_EXT_CURRENT_FILE}" "$(determine_active_dc_infra_mode)"
+}
+
+function determine_dc_infra_extension_files () {
+    if [ -r "$(determine_active_infra_extensions_file)" ]; then
+        cat $(determine_active_infra_extensions_file)
+    fi
+}
+
+function determine_active_infra_extensions () {
+    for e in $(determine_dc_infra_extension_files); do
+        echo $(basename "${e}") | sed "s/^docker-compose\.infra-$(determine_active_dc_infra_mode)\.extend-\([^\.]\+\)\..*$/\1/g"
+    done
+}
+
+function set_infra_extensions () {
+    if [ ! -z "$(dc_in_env ps -q)" ]; then
+        log "WARNING" "Emob environment already started. You must shutdown environment first, in order to change the infra extensions!"
+        return
+    fi
+    if [ $# -ge 1 ]; then
+        printf "docker-compose.infra-$(determine_active_dc_infra_mode).extend-%s.yaml " "$@" > "$(determine_active_infra_extensions_file)"
+        log "INFO" "Activated extensions $* for $(determine_active_dc_infra_mode) mode."
+    else
+        printf "" > "$(determine_active_infra_extensions_file)"
+        log "INFO" "Disabled all extensions for $(determine_active_dc_infra_mode) mode."
+    fi
+}
+
+function with_dc_override_file () {
+    local filename="${1:?Requires filename as first parameter!}"
+    if [ "${filename}" = "docker-compose.yaml" ]; then
+        filename="$(basename $(realpath "${filename}"))"
+    fi
+    local name="${filename%.*}"
+    local extension="${filename##*.}"
+    if [ -e "${name}.override.${extension}" ]; then
+        printf "${filename} ${name}.override.${extension} "
+    else
+        printf "${filename} "
+    fi
+}
+
+function with_dc_override_files () {
+    for f in $@; do
+        with_dc_override_file "${f}"
+    done
+}
+
+function determine_dc_files () { 
     if [ "${_context}" == "infra" ]; then
-        with_dc_override_file "$(determine_dc_infra_file)"
+        with_dc_override_files $(determine_dc_infra_file) $(determine_dc_infra_extension_files)
     elif [ "${_context}" == "deploy" ]; then
         with_dc_override_file "${DC_DEPLOY}"
     elif [ "${_context}" == "testdata" ]; then
@@ -72,7 +146,7 @@ function determine_dc_files () {
     elif [ "${_context}" == "cli" ]; then
         with_dc_override_file "${DC_CLI}"
     else
-        echo "$(with_dc_override_file "$(determine_dc_infra_file)") $(with_dc_override_file "${DC_DEPLOY}") $(with_dc_override_file "${DC_TESTDATA}") $(with_dc_override_file "${DC_CLI}")"
+        with_dc_override_files $(determine_dc_infra_file) $(determine_dc_infra_extension_files) ${DC_DEPLOY} ${DC_TESTDATA} ${DC_CLI}
     fi
 }
 
@@ -174,35 +248,6 @@ function show_logs () {
     _context="all"
 }
 
-function set_infra_mode () {
-    local mode="${1:?"Require mode as first parameter! Valid modes are: 'single','ha','showcase','default'"}"
-
-    if [ ! -z "$(dc_in_env ps -q)" ]; then
-        log "WARNING" "Emob environment already started. You must shutdown environment first, in order to change the infra mode!"
-        return
-    fi
-
-    if [ "${mode}" == "single" ]; then
-        echo "${DC_INFRA_SINGLE}" > "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
-    elif [ "${mode}" == "ha" ]; then
-        echo "${DC_INFRA_HA}" > "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
-    elif [ "${mode}" == "showcase" ]; then
-        echo "${DC_INFRA_SHOWCASE}" > "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
-    elif [ "${mode}" == "jaeger" ]; then
-        echo "${DC_INFRA_JAEGER}" > "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
-    elif [ "${mode}" == "kadeck" ]; then
-        echo "${DC_INFRA_KADECK}" > "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
-    elif [ "${mode}" == "lenses" ]; then
-        echo "${DC_INFRA_LENSES}" > "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
-    elif [ "${mode}" == "default" ]; then
-        echo "${DC_INFRA_DEFAULT}" > "${EMOB_DC_DIR}/${DC_INFRA_CURRENT_FILE}"
-    else
-        fail "'${mode}' is not a valid mode! Expected one of: single','ha','showcase','default'"
-    fi
-
-    log "INFO" "Switched to ${mode} mode."
-}
-
 function forward_kafka_cli () {
     dc_in_env run --rm workspace /workspace/emob-kafka.sh "$@"
 }
@@ -249,6 +294,8 @@ function disable_hostmanager () {
 ## CLI Commands
 _CMD=(
     'cmd=("mode" "Switch between single instance and ha mode. Requires that environment is down." "usage _CMD_MODE" "exec_cmd _CMD_MODE")'
+    'cmd=("showactivemode" "Show the active mode" "determine_active_dc_infra_mode" "exec_cmd _CMD")'
+    'cmd=("modeex" "Enable or disable available extensions for the active mode" "usage _CMD_MODEEX" "exec_cmd _CMD_MODEEX")'
     'cmd=("start" "Start Emob." "usage _CMD_START" "exec_cmd _CMD_START")'
     'cmd=("stop" "Stop a service." "usage _CMD_STOP" "exec_cmd _CMD_STOP")'
     'cmd=("down" "Shutdown Emob." "down_all" "exec_cmd _CMD")'
@@ -256,17 +303,22 @@ _CMD=(
     'cmd=("ps" "Show running services." "dc_in_env ps" "dc_in_env ps")'
     'cmd=("cli" "Open a Emob Cli." "show_services cli" "start_and_exec_container")'
     'cmd=("dc" "Run any docker-compose command in environment" "dc_in_env" "dc_in_env")'
+    'cmd=("showdccontext" "Show active docker-compose files" "determine_dc_files" "exec_cmd _CMD")'
     'cmd=("hostmanager" "Manage Docker hostnames in your hosts file" "usage _CMD_HOSTMANAGER" "exec_cmd _CMD_HOSTMANAGER")'
     'cmd=("kafka" "Emob Kafka cli in docker" "forward_kafka_cli" "forward_kafka_cli")'
 )
 
 _CMD_MODE=(
-    'cmd=("single" "Switch to single instance mode." "set_infra_mode single" "exec_cmd _CMD_MODE")'
-    'cmd=("ha" "Switch to ha mode." "set_infra_mode ha" "exec_cmd _CMD_MODE")'
-    'cmd=("showcase" "Switch to showcase instance mode." "set_infra_mode showcase" "exec_cmd _CMD_MODE")'
-    'cmd=("jaeger" "Switch to Jaeger instance mode." "set_infra_mode jaeger" "exec_cmd _CMD_MODE")'
-    'cmd=("kadeck" "Switch to KaDeck instance mode." "set_infra_mode kadeck" "exec_cmd _CMD_MODE")'
-    'cmd=("lenses" "Switch to Lenses instance mode." "set_infra_mode lenses" "exec_cmd _CMD_MODE")'
+    'cmd=("single" "Switch to single instance mode." "set_dc_infra_mode single" "exec_cmd _CMD_MODE")'
+    'cmd=("ha" "Switch to ha mode." "set_dc_infra_mode ha" "exec_cmd _CMD_MODE")'
+    'cmd=("showcase" "Switch to showcase instance mode." "set_dc_infra_mode showcase" "exec_cmd _CMD_MODE")'
+)
+
+_CMD_MODEEX=(
+    'cmd=("setactive" "Sets the given set of extensions as active for the active infra mode." "determine_available_infra_extensions" "set_infra_extensions")'
+    'cmd=("disable" "Disables all extensions for the active infra mode." "set_infra_extensions" "exec_cmd _CMD_MODEEX")'
+    'cmd=("active" "Show active extensions for the active infra mode." "determine_active_infra_extensions" "exec_cmd _CMD_MODEEX")'
+    'cmd=("available" "Show available extensions for the active infra mode." "determine_available_infra_extensions" "exec_cmd _CMD_MODEEX")'
 )
 
 _CMD_START=(

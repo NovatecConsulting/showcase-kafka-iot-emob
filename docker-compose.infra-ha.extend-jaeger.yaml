@@ -1,0 +1,75 @@
+#############################################################
+# Jaeger Tracing for Showcase Emob (HA)                     #
+#############################################################
+---
+version: '2.4'
+services:
+
+  #############################################################
+  # Kafka Connect (CP)                                        #
+  #############################################################
+  connect1:
+    environment:
+      # Jaeger Tracing
+      OPENTRACING_SPECIALAGENT_EXPORTER: jaeger
+      JAEGER_SERVICE_NAME: emob_connect
+      JAEGER_AGENT_HOST: jaeger
+      JAEGER_AGENT_PORT: 6831
+      JAEGER_SAMPLER_TYPE: probabilistic
+      JAEGER_SAMPLER_PARAM: 0.01
+  connect2:
+    environment:
+      # Jaeger Tracing
+      OPENTRACING_SPECIALAGENT_EXPORTER: jaeger
+      JAEGER_SERVICE_NAME: emob_connect
+      JAEGER_AGENT_HOST: jaeger
+      JAEGER_AGENT_PORT: 6831
+      JAEGER_SAMPLER_TYPE: probabilistic
+      JAEGER_SAMPLER_PARAM: 0.01
+
+  #############################################################
+  # Confluent ksqlDB Server                                   #
+  #############################################################
+  ksqldb-server1:
+    environment:
+      # Jaeger Tracing
+      OPENTRACING_SPECIALAGENT_EXPORTER: jaeger
+      JAEGER_SERVICE_NAME: emob_ksql
+      JAEGER_AGENT_HOST: jaeger
+      JAEGER_AGENT_PORT: 6831
+      JAEGER_SAMPLER_TYPE: probabilistic
+      JAEGER_SAMPLER_PARAM: 0.01
+  ksqldb-server2:
+    environment:
+      # Jaeger Tracing
+      OPENTRACING_SPECIALAGENT_EXPORTER: jaeger
+      JAEGER_SERVICE_NAME: emob_ksql
+      JAEGER_AGENT_HOST: jaeger
+      JAEGER_AGENT_PORT: 6831
+      JAEGER_SAMPLER_TYPE: probabilistic
+      JAEGER_SAMPLER_PARAM: 0.01
+
+  #############################################################
+  # Jaeger Tracing                                            #
+  #############################################################
+  # https://www.jaegertracing.io/docs/1.19/getting-started/
+  # https://www.jaegertracing.io/docs/1.19/sampling/
+  # https://github.com/opentracing-contrib/java-kafka-client
+  # https://github.com/opentracing-contrib/java-specialagent
+  # https://github.com/jaegertracing/jaeger-client-java/blob/master/jaeger-core/README.md#configuration-via-environment
+  # https://opencensus.io
+  jaeger:
+    image: jaegertracing/all-in-one:1.19.2
+    hostname: jaeger
+    container_name: jaeger
+    restart: always
+    ports:
+      - 6831:6831/udp
+      - 6832:6832/udp
+      - 5778:5778
+      - 16686:16686
+      - 14268:14268
+      - 14250:14250
+      - 9411:9411
+    environment:
+      COLLECTOR_ZIPKIN_HTTP_PORT: 9411

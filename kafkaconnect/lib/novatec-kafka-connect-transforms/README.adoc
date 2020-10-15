@@ -1,10 +1,8 @@
 = Emob Kafka Connect Transforms
 
-
-
 == Transforms
 
-Kafka Connect trransforms for the Emob project:
+Kafka Connect transforms for the Emob project:
 
 === InsertHeader
 
