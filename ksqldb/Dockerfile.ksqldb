@@ -1,8 +1,23 @@
 ARG VERSION_KSQLDB
 
-FROM openjdk:8-jdk-slim as builder
+FROM openjdk:11-jdk-slim as builder-functions
 WORKDIR /workspace
+# first load all dependencies, in order to avoid download for every build
+COPY lib/ksql-functions/pom.xml lib/ksql-functions/mvnw ./
+COPY lib/ksql-functions/.mvn ./.mvn
+RUN ./mvnw dependency:go-offline
+# second build jar
 COPY lib/ksql-functions .
+RUN ./mvnw clean install
+
+FROM openjdk:11-jdk-slim as builder-interceptors
+WORKDIR /workspace
+# first load all dependencies, in order to avoid download for every build
+COPY lib/novatec-kafka-streams-interceptors/pom.xml lib/novatec-kafka-streams-interceptors/mvnw ./
+COPY lib/novatec-kafka-streams-interceptors/.mvn ./.mvn
+RUN ./mvnw dependency:go-offline
+# second build jar
+COPY lib/novatec-kafka-streams-interceptors .
 RUN ./mvnw clean install
 
 FROM confluentinc/ksqldb-server:${VERSION_KSQLDB}
@@ -25,4 +40,7 @@ RUN printf "# Opentracing agent\n[[ -n \"\${OPENTRACING_SPECIALAGENT_EXPORTER}\"
     && sed -i '/^#\!\/usr\/bin\/env bash.*/a. \/usr\/bin\/docker\/ksqldb-env' /usr/bin/docker/run
 ENV KSQL_CLASSPATH="${KSQL_CLASSPATH}:/usr/share/java/tracing-agents/*"
 
-COPY --from=builder /workspace/target /etc/ksql/ext
+COPY --from=builder-functions /workspace/target/*.jar /etc/ksql/ext/
+
+COPY --from=builder-interceptors /workspace/target/*.jar /usr/share/java/custom-interceptors/
+ENV KSQL_CLASSPATH="${KSQL_CLASSPATH}:/usr/share/java/custom-interceptors/*"

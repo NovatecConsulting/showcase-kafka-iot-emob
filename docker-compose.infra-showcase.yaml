@@ -224,8 +224,8 @@
         KSQL_KSQL_CONNECT_URL: http://connect:8083 # The Connect cluster URL to integrate with.
         KSQL_KSQL_CONNECT_POLLING_ENABLE: "true" # Toggles whether or not to poll connect for new connectors and automatically register them in ksqlDB.
         # ksqlDB Monitoring Settings (https://docs.confluent.io/current/control-center/installation/clients.html#confluent-monitoring-interceptors)
-        KSQL_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
-        KSQL_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+        KSQL_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor,de.novatec.kafka.streams.interceptors.TracingConsumerInterceptor
+        KSQL_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor,de.novatec.kafka.streams.interceptors.TracingProducerInterceptor
         # KSQL_CONFLUENT_MONITORING_INTERCEPTOR_TOPIC: _confluent-monitoring # (default: _confluent-monitoring) Topic on which monitoring data will be written. The topic is created by Confluent Control Center.
         # KSQL_CONFLUENT_MONITORING_INTERCEPTOR_PUBLISHMS: 15 # (default: 15) Period the interceptor should use to publish messages to.
       healthcheck:

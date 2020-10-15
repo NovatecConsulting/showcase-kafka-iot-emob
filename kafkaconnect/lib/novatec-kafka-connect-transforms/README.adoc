@@ -9,8 +9,8 @@ Kafka Connect transforms for the Emob project:
 Adds a literal value to the header of a record.
 
 ----
-"transforms": "insertKaDeckHeader",
-"transforms.insertKaDeckHeader.type": "de.novatec.kafka.connect.transforms.InsertHeader",
-"transforms.insertKaDeckHeader.header": "producerid",
-"transforms.insertKaDeckHeader.literal.value": "connect-mqtt-wallbox"
+"transforms": "insertProducerIdHeader",
+"transforms.insertProducerIdHeader.type": "de.novatec.kafka.connect.transforms.InsertHeader",
+"transforms.insertProducerIdHeader.header": "producerid",
+"transforms.insertProducerIdHeader.literal.value": "connect__mqtt__wallbox"
 ----

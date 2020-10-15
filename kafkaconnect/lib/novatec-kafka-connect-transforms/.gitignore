@@ -9,3 +9,7 @@ target/
 
 # Ignore VSCode build output directory
 bin/
+.project
+.classpath
+.settings
+.vscode/settings.json

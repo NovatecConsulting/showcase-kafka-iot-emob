@@ -1,0 +1,13 @@
+# Ignore Gradle build output directory and project-specific cache directory
+build/
+.gradle/
+
+# Ignore Maven build output directory
+target/
+
+# Ignore VSCode ourout directory and generated configs
+bin/
+.project
+.classpath
+.settings
+.vscode/settings.json
