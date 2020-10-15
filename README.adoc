@@ -6,7 +6,7 @@ Requirements
 
 clone the git-repository
 ----
-git clone https://github.com/NovatecConsulting/technologyconsulting-showcase-emob.git
+git clone https://github.com/NovatecConsulting/showcase-kafka-iot-emob.git
 ----
 
 This project uses a local setup based on Docker-Compose. Therefore, in order to run this showcase on your
@@ -17,7 +17,7 @@ Quickstart
 
 .Change in the showcase base directory
 ----
-cd ./technologyconsulting-showcase-emob
+cd ./showcase
 ----
 
 .Build all necessary Docker images
