@@ -126,7 +126,7 @@ image::Kafka_cluster_diagram_v3.svg[]
 Data Flow between Topics and Ksql Streams/Tables
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-image::DataFlow_v2.svg[]
+image::DataFlow.svg[]
 
 
 Sequential Overview of Charging a Vehicle (German)
