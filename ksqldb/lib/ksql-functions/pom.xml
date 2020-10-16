@@ -11,12 +11,8 @@
 
   <repositories>
     <repository>
-        <id>ksqlDB</id>
-        <url>https://ksqldb-maven.s3.amazonaws.com/maven/</url>
-    </repository>
-    <repository>
-        <id>confluent-beta</id>
-        <url>https://jenkins-confluent-packages-beta-maven.s3.amazonaws.com/6.1.0-beta200715032424/1/maven/</url>
+        <id>confluent</id>
+        <url>https://packages.confluent.io/maven/</url>
     </repository>
   </repositories>
 
@@ -28,7 +24,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <comment>Ensure that both versions matches the versions used by ksqldb</comment>
-    <ksqldb.version>0.11.0</ksqldb.version>
+    <confluent.version>6.0.0</confluent.version>
     <commons-lang3.version>3.3.1</commons-lang3.version>
   </properties>
 
@@ -36,7 +32,7 @@
     <dependency>
       <groupId>io.confluent.ksql</groupId>
       <artifactId>ksqldb-udf</artifactId>
-      <version>${ksqldb.version}</version>
+      <version>${confluent.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
