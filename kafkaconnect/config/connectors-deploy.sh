@@ -6,7 +6,7 @@ popd > /dev/null
 
 CONNECT_REST_API_URL=${CONNECT_REST_API_URL:-http://localhost:8083}
 KAFKA_BOOTSTRAP_SERVER="${KAFKA_BOOTSTRAP_SERVER:-localhost:19092}"
-KAFKA_CONFIGS_CMD="${KAFKA_CONFIGS_CMD:-$(which kafka-configs || which kafka-configs.sh || echo "")}"
+KAFKA_CONFIGS_CMD="${KAFKA_CONFIGS_CMD:-$(command -v kafka-configs || command -v kafka-configs.sh || echo "")}"
 
 function log () {
     local level="${1:?Requires log level as first parameter!}"
@@ -53,6 +53,7 @@ function deploy_connector_in_file () {
     local file=${1:?Requires filename as first parameter!}
     local filebasename="$(basename "${file}")"
     local response="$(deploy_connector "${file}")"
+    echo $response
     local body=$(echo "${response}" | cut -d$'\n' -f1)
     local http_code=$(echo "${response}" | cut -d$'\n' -f2)
     if [[ "${http_code}" =~ ^2.* ]]; then

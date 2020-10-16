@@ -327,8 +327,8 @@ services:
         VERSION_CONFLUENT: ${VERSION_CONFLUENT}
         CONNECTORS: |-
           confluentinc/kafka-connect-mqtt:1.3.0
-          confluentinc/kafka-connect-jdbc:5.5.1
-          mongodb/kafka-connect-mongodb:1.2.0
+          confluentinc/kafka-connect-jdbc:10.0.0
+          mongodb/kafka-connect-mongodb:1.3.0
           debezium/debezium-connector-mongodb:1.2.2
     hostname: connect1
     container_name: connect1
@@ -399,8 +399,8 @@ services:
         VERSION_CONFLUENT: ${VERSION_CONFLUENT}
         CONNECTORS: |-
           confluentinc/kafka-connect-mqtt:1.3.0
-          confluentinc/kafka-connect-jdbc:5.5.1
-          mongodb/kafka-connect-mongodb:1.2.0
+          confluentinc/kafka-connect-jdbc:10.0.0
+          mongodb/kafka-connect-mongodb:1.3.0
           debezium/debezium-connector-mongodb:1.2.2
     hostname: connect2
     container_name: connect2
@@ -466,12 +466,11 @@ services:
   # Confluent ksqlDB Server                                   #
   #############################################################
   ksqldb-server1:
-    image: novatec/ksqldb-server-emob:${VERSION_KSQLDB}
+    image: novatec/cp-ksqldb-server-emob:${VERSION_CONFLUENT}
     build:
       context: ksqldb
       dockerfile: Dockerfile.ksqldb
       args:
-        VERSION_KSQLDB: ${VERSION_KSQLDB}
         VERSION_CONFLUENT: ${VERSION_CONFLUENT}
     hostname: ksqldb-server1
     container_name: ksqldb-server1
@@ -544,12 +543,11 @@ services:
       timeout: 18s
       retries: 10
   ksqldb-server2:
-    image: novatec/ksqldb-server-emob:${VERSION_KSQLDB}
+    image: novatec/cp-ksqldb-server-emob:${VERSION_CONFLUENT}
     build:
       context: ksqldb
       dockerfile: Dockerfile.ksqldb
       args:
-        VERSION_KSQLDB: ${VERSION_KSQLDB}
         VERSION_CONFLUENT: ${VERSION_CONFLUENT}
     hostname: ksqldb-server2
     container_name: ksqldb-server2

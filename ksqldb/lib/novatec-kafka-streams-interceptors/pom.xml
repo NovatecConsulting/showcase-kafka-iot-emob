@@ -8,6 +8,13 @@
   <version>0.1.0</version>
   <name>novatec-kafka-streams-interceptors</name>
 
+  <repositories>
+    <repository>
+        <id>confluent</id>
+        <url>https://packages.confluent.io/maven/</url>
+    </repository>
+  </repositories>
+
   <properties>
     <jdk.version>11</jdk.version>
     <maven.compiler.source>11</maven.compiler.source>
@@ -15,14 +22,14 @@
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <kafka.version>2.5.1</kafka.version>
+    <confluent.version>6.0.0-ccs</confluent.version>
   </properties>
 
   <dependencies>
     <dependency>
         <groupId>org.apache.kafka</groupId>
         <artifactId>kafka-clients</artifactId>
-        <version>${kafka.version}</version>
+        <version>${confluent.version}</version>
         <scope>provided</scope>
     </dependency>
     <dependency>

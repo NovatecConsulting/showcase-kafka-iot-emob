@@ -1,6 +1,6 @@
 ARG VERSION_CONFLUENT
 
-FROM openjdk:8-jdk-slim as builder
+FROM openjdk:11-jdk-slim as builder
 WORKDIR /workspace
 COPY lib/novatec-kafka-connect-transforms .
 RUN ./gradlew clean build

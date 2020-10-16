@@ -5,7 +5,7 @@ SCRIPT_DIR=$(pwd)
 popd > /dev/null
 
 KAFKA_BOOTSTRAP_SERVER="${KAFKA_BOOTSTRAP_SERVER:-localhost:19092}"
-KAFKA_TOPICS_CMD="${KAFKA_TOPICS_CMD:-$(which kafka-topics || which kafka-topics.sh || echo "")}"
+KAFKA_TOPICS_CMD="${KAFKA_TOPICS_CMD:-$(command -v kafka-topics || command -v kafka-topics.sh || echo "")}"
 
 function log () {
     local level="${1:?Requires log level as first parameter!}"
@@ -87,4 +87,3 @@ function main () {
 }
 
 main "$@"
-

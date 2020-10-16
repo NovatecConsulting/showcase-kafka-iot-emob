@@ -6,7 +6,7 @@ version: '2.4'
 services:
 
   ksqldb-cli:
-    image: confluentinc/ksqldb-cli:${VERSION_KSQLDB}
+    image: confluentinc/cp-ksqldb-cli:${VERSION_CONFLUENT}
     container_name: ksqldb-cli
     environment: 
       KSQL_REST_API_URL: http://ksqldb-server:8088
@@ -44,6 +44,7 @@ services:
       SCHEMAREGISTRY_URL: http://schema-registry:8081
       KSQLDB_URL: http://ksqldb-server:8088
       ZOOKEEPER: zookeeper:2181
+      CONNECT_REST_API_URL: http://connect:8083
     volumes:
     - .:/workspace
     working_dir: /workspace
