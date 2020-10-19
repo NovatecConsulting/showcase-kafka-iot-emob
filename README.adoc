@@ -103,7 +103,7 @@ kafka-console-consumer --bootstrap-server localhost:19092 --topic wallbox__sourc
 .To test the avro schema topics you can use the kafka-avro-console-consumer
 ----
 kafka-avro-console-consumer --bootstrap-server localhost:19092 \
-    --property schema.registry.url=http://schema-registry:8081 \
+    --property schema.registry.url=http://localhost:8081 \
     --topic wallbox_location_chargestatus__sink --property print.key=true \
     --key-deserializer=org.apache.kafka.common.serialization.StringDeserializer \
     --from-beginning
