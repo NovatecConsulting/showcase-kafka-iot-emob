@@ -41,7 +41,7 @@ cd ./showcase
 
 In the following it is described how you can do this step by step:
 
-.To start the showcase from the base directory of the showcase (technologyconsulting-showcase-emob) and do the configuration in separate single tasks perform the following
+.To start the showcase from the base directory of the showcase (showcase) and do the configuration in separate single tasks perform the following
 ----
 ./emob-dc.sh start infra
 ----
