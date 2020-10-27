@@ -13,6 +13,8 @@ CREATE STREAM wallbox__v2__filter
         max AS MAX,
         response -> amount AS RESPONSE_AMOUNT,
         response -> max AS RESPONSE_MAX,
+        response -> status AS RESPONSE_STATUS,
+        error AS ERROR,
         ROWTIME AS TIMESTAMP
     FROM wallbox__v2__id
     WHERE

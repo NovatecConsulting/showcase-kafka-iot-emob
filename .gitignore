@@ -6,3 +6,5 @@ connectors/
 *.override.yml
 .env.override
 license.json
+bin/
+.idea
