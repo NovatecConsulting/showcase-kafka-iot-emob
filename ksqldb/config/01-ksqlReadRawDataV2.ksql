@@ -5,9 +5,11 @@ CREATE STREAM wallbox__v2__id (
         amount BIGINT,
         action VARCHAR,
         max BIGINT,
+        error VARCHAR,
         response STRUCT <
             amount BIGINT,
-            max BIGINT
+            max BIGINT,
+            status VARCHAR
         >
   ) WITH (
         KAFKA_TOPIC='wallbox__source', 
