@@ -2,8 +2,6 @@ INSERT INTO wallbox_blink__filter
 SELECT
      CLIENT_ID_KEY,
      CLIENT_ID,
-     EVENT AS BLINK,
+     BLINK,
      TIMESTAMP
-FROM wallbox__v2__filter
-WHERE
-     MQTT_TOPIC='blink';
+FROM wallbox_blink__v2__filter;

@@ -1,14 +1,14 @@
 CREATE STREAM wallbox__v1__filter
     WITH (
-        KAFKA_TOPIC='wallbox__v1__intern',
+        KAFKA_TOPIC='wallbox__v1__source',
         VALUE_FORMAT='AVRO'
   ) AS SELECT
         REGEXP_EXTRACT('(CIQ.*)/(.*)/(.*)', MQTT_TOPIC, 3) AS MQTT_TOPIC,
         REGEXP_EXTRACT('(CIQ.*)/(.*)/(.*)', MQTT_TOPIC, 1) AS CLIENT_ID_KEY,
         AS_VALUE(REGEXP_EXTRACT('(CIQ.*)/(.*)/(.*)', MQTT_TOPIC, 1)) AS CLIENT_ID,
         PAYLOAD AS EVENT,
-        ROWTIME AS TIMESTAMP 
-    FROM wallbox__v1__id
+        ROWTIME AS TIMESTAMP
+    FROM wallbox__id
     WHERE
         REGEXP_EXTRACT('(CIQ.*)/(.*)/(.*)', MQTT_TOPIC, 2)='out'
     PARTITION BY REGEXP_EXTRACT('(CIQ.*)/(.*)/(.*)', MQTT_TOPIC, 1);
