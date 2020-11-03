@@ -1,0 +1,12 @@
+CREATE STREAM wallbox_blink__v2__filter
+    WITH (
+        KAFKA_TOPIC='wallbox_blink__v2__sink',
+        VALUE_FORMAT='JSON'
+  ) AS SELECT
+     CLIENT_ID_KEY,
+     STATUS AS BlINK,
+     CLIENT_ID,
+     TIMESTAMP
+FROM wallbox__v2__filter
+WHERE
+     MQTT_TOPIC='blink';

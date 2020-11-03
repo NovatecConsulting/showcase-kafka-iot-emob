@@ -13,10 +13,10 @@ public class ProtocolTranslation {
       @UdfParameter(value = "STATUS", description = "Charging status") final String status,
       @UdfParameter(value = "EVENT", description = "Charging event") final String event,
       @UdfParameter(value = "ACTION", description = "Charging action") final String action,
-      @UdfParameter(value = "AMOUNT", description = "Charging amount") final Long amount,
-      @UdfParameter(value = "MAX", description = "Charging max") final Long max,
-      @UdfParameter(value = "RESPONSE_AMOUNT", description = "Charging response amount") final Long response_amount,
-      @UdfParameter(value = "RESPONSE_MAX", description = "Charging response max") final Long response_max,
+      @UdfParameter(value = "AMOUNT", description = "Charging amount") final String amount,
+      @UdfParameter(value = "MAX", description = "Charging max") final String max,
+      @UdfParameter(value = "RESPONSE_AMOUNT", description = "Charging response amount") final String response_amount,
+      @UdfParameter(value = "RESPONSE_MAX", description = "Charging response max") final String response_max,
       @UdfParameter(value = "RESPONSE_STATUS", description = "Status response") final String response_status,
       @UdfParameter(value = "ERROR", description = "Error response") final String error)
     {

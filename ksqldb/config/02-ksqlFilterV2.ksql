@@ -1,22 +1,40 @@
-CREATE STREAM wallbox__v2__filter
+CREATE STREAM wallbox__v2__filter__intern
     WITH (
-        KAFKA_TOPIC='wallbox__v2__intern',
-        VALUE_FORMAT='AVRO'
+        KAFKA_TOPIC='wallbox__v2__source__intern',
+        VALUE_FORMAT='JSON'
   ) AS SELECT
         REGEXP_EXTRACT('ciq/(.*)/(.*)/(.*)', MQTT_TOPIC, 3) AS MQTT_TOPIC,
         REGEXP_EXTRACT('ciq/(.*)/(.*)/(.*)', MQTT_TOPIC, 2) AS CLIENT_ID_KEY,
         AS_VALUE(REGEXP_EXTRACT('ciq/(.*)/(.*)/(.*)', MQTT_TOPIC, 2)) AS CLIENT_ID,
-        status AS STATUS,
-        event AS EVENT,
-        amount AS AMOUNT,
-        action AS ACTION,
-        max AS MAX,
-        response -> amount AS RESPONSE_AMOUNT,
-        response -> max AS RESPONSE_MAX,
-        response -> status AS RESPONSE_STATUS,
-        error AS ERROR,
+        extractjsonfield(payload,'$.status') AS STATUS,
+        extractjsonfield(payload,'$.event') AS EVENT,
+        extractjsonfield(payload,'$.amount') AS AMOUNT,
+        extractjsonfield(payload,'$.max') AS MAX,
+        extractjsonfield(payload,'$.action') AS ACTION,
+        extractjsonfield(payload,'$.error') AS ERROR,
+        extractjsonfield(payload,'$.response') AS RESPONSE,
         ROWTIME AS TIMESTAMP
-    FROM wallbox__v2__id
+    FROM wallbox__id
     WHERE
-        REGEXP_EXTRACT('ciq/(.*)/(.*)/(.*)', MQTT_TOPIC, 3)='charge'
+        MQTT_TOPIC LIKE 'ciq%'
     PARTITION BY REGEXP_EXTRACT('ciq/(.*)/(.*)/(.*)', MQTT_TOPIC, 2);
+
+CREATE STREAM wallbox__v2__filter
+    WITH (
+        KAFKA_TOPIC='wallbox__v2__source',
+        VALUE_FORMAT='JSON'
+  ) AS SELECT
+        MQTT_TOPIC,
+        CLIENT_ID_KEY,
+        CLIENT_ID,
+        STATUS,
+        EVENT,
+        AMOUNT,
+        MAX,
+        ACTION,
+        ERROR,
+        extractjsonfield(response,'$.amount') AS RESPONSE_AMOUNT,
+        extractjsonfield(response,'$.max') AS RESPONSE_MAX,
+        extractjsonfield(response,'$.status') AS RESPONSE_STATUS,
+        ROWTIME AS TIMESTAMP
+    FROM wallbox__v2__filter_intern;
