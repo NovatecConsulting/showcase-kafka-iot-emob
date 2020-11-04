@@ -1,0 +1,34 @@
+CREATE TABLE wallbox_chargestatus__transform_1
+    WITH (
+        KAFKA_TOPIC='wallbox_chargestatus__intern_1',
+        VALUE_FORMAT='AVRO'
+  ) AS SELECT
+        CLIENT_ID_KEY,
+        LATEST_BY_OFFSET(CLIENT_ID) AS CLIENT_ID,
+        LATEST_BY_OFFSET(CHARGE) AS CHARGE,
+        CUSTOM_AGGREGATION(CHARGE) AS STATUS
+    FROM wallbox_charge__filter
+    GROUP BY CLIENT_ID_KEY
+    EMIT CHANGES;
+
+CREATE TABLE wallbox_chargestatus__transform_2
+    WITH (
+        KAFKA_TOPIC='wallbox_chargestatus__intern_2',
+        VALUE_FORMAT='AVRO'
+    ) AS SELECT
+        CLIENT_ID_KEY,
+        CLIENT_ID,
+        REGEXP_EXTRACT('(.*); (.*)', STATUS, 1) AS NEW_STATUS,
+        REGEXP_EXTRACT('(.*); (.*)', STATUS, 2) AS OLD_STATUS
+    FROM wallbox_chargestatus__transform_1;
+
+CREATE TABLE wallbox_chargestatus__table
+    WITH (
+        KAFKA_TOPIC='wallbox_chargestatus__intern',
+        VALUE_FORMAT='AVRO'
+    ) AS SELECT
+        CLIENT_ID_KEY,
+        CLIENT_ID,
+        NEW_STATUS AS CHARGE,
+        DETERMINE_STATUS(NEW_STATUS,OLD_STATUS) AS STATUS
+    FROM wallbox_chargestatus__transform_2;

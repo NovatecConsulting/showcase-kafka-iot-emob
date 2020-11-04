@@ -37,4 +37,4 @@ CREATE STREAM wallbox__v2__filter
         extractjsonfield(response,'$.max') AS RESPONSE_MAX,
         extractjsonfield(response,'$.status') AS RESPONSE_STATUS,
         ROWTIME AS TIMESTAMP
-    FROM wallbox__v2__filter_intern;
+    FROM wallbox__v2__filter__intern;
