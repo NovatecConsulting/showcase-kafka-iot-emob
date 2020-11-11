@@ -408,6 +408,29 @@ services:
       GF_AUTH_ANONYMOUS_ENABLED: "true"
       GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
 
+  #############################################################
+  # Tensorflow                                                #
+  #############################################################
+  tensorflow:
+    image: tensorflow/tensorflow:latest-jupyter
+    hostname: tensorflow
+    container_name: tensorflow
+    ports:
+      - 8888:8888
+
+  #############################################################
+  # Tensorflow I/O                                            #
+  #############################################################
+  tensorflowIO:
+    image: tfsigio/tfio:0.16.0
+    hostname: tensorflowIO
+    container_name: tensorflowIO
+    ports:
+      - 1111:1111
+    build:
+      context: tensorflowIO
+      dockerfile: Dockerfile.tensorflowIO
+
 networks:
   default:
     name: ${DOMAIN_NAME}
