@@ -21,6 +21,7 @@
         "transforms.targetKafkaTopic.replacement": "wallbox_location__source",
         "transforms.insertProducerIdHeader.type": "de.novatec.kafka.connect.transforms.InsertHeader",
         "transforms.insertProducerIdHeader.header": "producerid",
-        "transforms.insertProducerIdHeader.literal.value": "connect__mongodb__wallbox_location"
+        "transforms.insertProducerIdHeader.literal.value": "connect__mongodb__wallbox_location",
+        "confluent.topic.security.protocol": "PLAINTEXT"
     }
 }

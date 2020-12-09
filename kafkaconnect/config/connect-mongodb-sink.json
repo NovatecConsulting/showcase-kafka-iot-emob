@@ -8,6 +8,7 @@
         "database": "mongoDB",
         "collection": "WallboxCharge",
         "value.converter": "io.confluent.connect.avro.AvroConverter",
-        "value.converter.schema.registry.url": "http://schema-registry:8081"
+        "value.converter.schema.registry.url": "http://schema-registry:8081",
+        "confluent.topic.security.protocol": "PLAINTEXT"
     }
 }
