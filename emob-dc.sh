@@ -42,7 +42,7 @@ function fail () {
 function log () {
     local level="${1:?Requires log level as first parameter!}"
     local msg="${2:?Requires message as second parameter!}"
-    echo -e "$(date --iso-8601=seconds)|${level}|${msg}"
+    echo -e "$(gdate --iso-8601=seconds)|${level}|${msg}"
 }
 
 function determine_dc_infra_file () {
