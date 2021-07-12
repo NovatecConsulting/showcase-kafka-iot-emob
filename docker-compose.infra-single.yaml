@@ -16,6 +16,8 @@ services:
     restart: always
     ports:
     - 12181:2181
+    volumes:
+      - zookeeper:/var/lib/zookeeper/data
     # https://docs.confluent.io/current/zookeeper/deployment.html
     # https://docs.confluent.io/current/installation/docker/config-reference.html#zk-configuration
     environment:
@@ -41,6 +43,8 @@ services:
         condition: service_healthy
     ports:
     - 19092:19092
+    volumes:
+      - kafka:/var/lib/kafka/data/
     # https://docs.confluent.io/current/installation/configuration/broker-configs.html
     # https://docs.confluent.io/current/installation/docker/config-reference.html#confluent-kafka-configuration
     environment:
@@ -115,10 +119,10 @@ services:
       args:
         VERSION_CONFLUENT: ${VERSION_CONFLUENT}
         CONNECTORS: |-
-          confluentinc/kafka-connect-mqtt:1.3.0
-          confluentinc/kafka-connect-jdbc:10.0.0
-          mongodb/kafka-connect-mongodb:1.3.0
-          debezium/debezium-connector-mongodb:1.2.2
+          confluentinc/kafka-connect-mqtt:1.4.1
+          confluentinc/kafka-connect-jdbc:10.2.0
+          mongodb/kafka-connect-mongodb:1.5.1
+          debezium/debezium-connector-mongodb:1.6.0
     hostname: connect
     container_name: connect
     restart: always
@@ -153,17 +157,28 @@ services:
       CONNECT_INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter # (required) Converter class for internal keys.
       CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter # (required) Converter class for internal values.
       CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components,/etc/kafka-connect/jars # (default: /usr/share/java,/usr/share/confluent-hub-components) The plugin.path value that indicates the location from which to load Connect plugins in classloading isolation.
-      CLASSPATH: /usr/share/java/kafka/*:/usr/share/java/monitoring-interceptors/* # CLASSPATH required due to CC-2422
       # https://docs.confluent.io/current/control-center/installation/clients.html#confluent-monitoring-interceptors
       CONNECT_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
       CONNECT_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
       # CONNECT_CONFLUENT_MONITORING_INTERCEPTOR_TOPIC: _confluent-monitoring # (default: _confluent-monitoring) Topic on which monitoring data will be written. The topic is created by Confluent Control Center.
       # CONNECT_CONFLUENT_MONITORING_INTERCEPTOR_PUBLISHMS: 15 # (default: 15) Period the interceptor should use to publish messages to.
-      # https://docs.confluent.io/current/kafka/metrics-reporter.html
+      # Optional - JMX Metrics to Kafka Topic: https://docs.confluent.io/current/kafka/metrics-reporter.html
       CONNECT_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter # (default: "") A list of classes to use as metrics custom reporters. The definied reporter writes metrics to _confluent-metrics topic, which is required by Control Center.
       CONNECT_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka:9092 # (required) Point to Kafka brokers in the metrics cluster. In this scenario, metrics are not stored in a separate cluster.
+      CONNECT_CONFLUENT_METRICS_REPORTER_TOPIC: _confluent-connect-metrics # (default: _confluent-metrics)
       CONNECT_CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1 # (default: 3) Number of replicas in the metric topic. Must be 1, because we only have a single broker.
       CONNECT_CONFLUENT_METRICS_REPORTER_PUBLISH_MS: 5000 # (default: 15000) The Confluent Metrics Reporter will publish new metrics to the metrics topic in intervals defined by this setting. Reduced for development, to reduce the health data lag.
+      CONNECT_CONFLUENT_METRICS_REPORTER_WHITELIST: .* # by default only metrics are exposed which are required by Control Center or Auto Balance
+      CONNECT_PRODUCER_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka:9092 # (required) Point to Kafka brokers in the metrics cluster. In this scenario, metrics are not stored in a separate cluster.
+      CONNECT_PRODUCER_CONFLUENT_METRICS_REPORTER_TOPIC: _confluent-connect-metrics # (default: _confluent-metrics)
+      CONNECT_PRODUCER_CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1 # (default: 3) Number of replicas in the metric topic. Must be 1, because we only have a single broker.
+      CONNECT_PRODUCER_CONFLUENT_METRICS_REPORTER_PUBLISH_MS: 5000 # (default: 15000) The Confluent Metrics Reporter will publish new metrics to the metrics topic in intervals defined by this setting. Reduced for development, to reduce the health data lag.
+      CONNECT_PRODUCER_CONFLUENT_METRICS_REPORTER_WHITELIST: .* # by default only metrics are exposed which are required by Control Center or Auto Balance
+      CONNECT_CONSUMER_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka:9092 # (required) Point to Kafka brokers in the metrics cluster. In this scenario, metrics are not stored in a separate cluster.
+      CONNECT_CONSUMER_CONFLUENT_METRICS_REPORTER_TOPIC: _confluent-connect-metrics # (default: _confluent-metrics)
+      CONNECT_CONSUMER_CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1 # (default: 3) Number of replicas in the metric topic. Must be 1, because we only have a single broker.
+      CONNECT_CONSUMER_CONFLUENT_METRICS_REPORTER_PUBLISH_MS: 5000 # (default: 15000) The Confluent Metrics Reporter will publish new metrics to the metrics topic in intervals defined by this setting. Reduced for development, to reduce the health data lag.
+      CONNECT_CONSUMER_CONFLUENT_METRICS_REPORTER_WHITELIST: .* # by default only metrics are exposed which are required by Control Center or Auto Balance
     healthcheck:
       test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:8083/connectors) -eq 200 || exit 1
       start_period: 60s
@@ -225,7 +240,7 @@ services:
       KSQL_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor,de.novatec.kafka.streams.interceptors.TracingConsumerInterceptor
       KSQL_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor,de.novatec.kafka.streams.interceptors.TracingProducerInterceptor
       # KSQL_CONFLUENT_MONITORING_INTERCEPTOR_TOPIC: _confluent-monitoring # (default: _confluent-monitoring) Topic on which monitoring data will be written. The topic is created by Confluent Control Center.
-      # KSQL_CONFLUENT_MONITORING_INTERCEPTOR_PUBLISHMS: 15 # (default: 15) Period the interceptor should use to publish messages to.
+      # KSQL_CONFLUENT_MONITORING_INTERCEPTOR_PUBLISHMS: 15 # (default: 15) Period the interceptor should use to publish messages to.    
     healthcheck:
       test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:8088/healthcheck) -eq 200 || exit 1
       start_period: 45s
@@ -356,28 +371,10 @@ services:
       retries: 10
 
   #############################################################
-  # Node Red                                                  #
-  #############################################################
-  mynodered:
-    image: nodered/node-red:latest-10-minimal
-    container_name: mynodered
-    hostname: mynodered
-    ports:
-    - 1880:1880
-    environment:
-      TZ: Europe/Amsterdam
-    healthcheck:
-      test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:1880/flows) -eq 200 || exit 1
-      start_period: 10s
-      interval: 20s
-      timeout: 18s
-      retries: 10
-
-  #############################################################
   # PostgreSQL                                                #
   #############################################################
   postgres_db:
-    image: postgres:latest
+    image: postgres:${VERSION_POSTGRES}
     hostname: postgres_db
     container_name: postgres_db
     ports:
@@ -391,7 +388,7 @@ services:
   # Grafana                                                   #
   #############################################################
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:${VERSION_GRAFANA}
     hostname: grafana
     container_name: grafana
     depends_on:
@@ -407,6 +404,28 @@ services:
       GF_AUTH_ANONYMOUS_ENABLED: "true"
       GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
 
+  #############################################################
+  # Node Red                                                  #
+  #############################################################
+  mynodered:
+    image: nodered/node-red:${VERSION_NODERED}
+    container_name: mynodered
+    hostname: mynodered
+    ports:
+    - 1880:1880
+    environment:
+      TZ: Europe/Amsterdam
+    healthcheck:
+      test: test $$(curl -s -o /dev/null -w %{http_code} http://localhost:1880/flows) -eq 200 || exit 1
+      start_period: 10s
+      interval: 20s
+      timeout: 18s
+      retries: 10
+
 networks:
   default:
     name: ${DOMAIN_NAME}
+
+volumes:
+  zookeeper:
+  kafka:

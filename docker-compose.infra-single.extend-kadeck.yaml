@@ -9,7 +9,7 @@ services:
   # Xeotek KaDeck                                             #
   #############################################################
   kadeck:
-    image: xeotek/kadeckweb:2.2.1
+    image: xeotek/kadeckweb:3.1.6
     hostname: kadeck
     container_name: kadeck
     restart: always

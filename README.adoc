@@ -26,11 +26,10 @@ cd ./showcase
 ----
 
 .Select the mode with which the showcase will then be started: 
-* single (default): The showcase will be started with the additional components Lenses, Jäger and KaDeck.
+* single (default): The showcase will be started with a reduced infrastructure to reduce the setup-time.
 * ha: The showcase will be started in high availability mode with a replication factor of three.
-* showcase: The showcase will be started without Lenses, Jäger and KaDeck to reduce the setup-time.
 ----
-./emob-dc.sh mode [singel/ha/showcase]
+./emob-dc.sh mode [singel/ha]
 ----
 
 .To start the infrastructure services, deploy the application (topic creation, connectors and ksqlDB statement deployment) and import the test data in one step, run: 

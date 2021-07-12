@@ -34,14 +34,14 @@ services:
   #############################################################
   # Jaeger Tracing                                            #
   #############################################################
-  # https://www.jaegertracing.io/docs/1.19/getting-started/
-  # https://www.jaegertracing.io/docs/1.19/sampling/
+  # https://www.jaegertracing.io/docs/1.24/getting-started/
+  # https://www.jaegertracing.io/docs/1.24/sampling/
   # https://github.com/opentracing-contrib/java-kafka-client
   # https://github.com/opentracing-contrib/java-specialagent
   # https://github.com/jaegertracing/jaeger-client-java/blob/master/jaeger-core/README.md#configuration-via-environment
   # https://opencensus.io
   jaeger:
-    image: jaegertracing/all-in-one:1.19.2
+    image: jaegertracing/all-in-one:1.24.0
     hostname: jaeger
     container_name: jaeger
     restart: always
